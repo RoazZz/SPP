@@ -1,4 +1,4 @@
-package accesodatos;
+import accesodatos.ConexionBD;
 
 public class PruebaConexion {
     public static void main(String[] args) {

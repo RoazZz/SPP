@@ -7,7 +7,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ConexionBD {
-    protected Connection conexion;
+    public Connection conexion;
     private static final Logger logger = Logger.getLogger(ConexionBD.class.getName());
 
     public ConexionBD() {
