@@ -8,16 +8,26 @@ import java.sql.SQLException;
 
 
 public class BitacoraPSPDAO extends ConexionBD{
-    private static final String SQL_INSERT = "INSERT INTO bitacorapsp(idBitacoraPSP, Matricula, Fecha) VALUES (?, ?, ?)";
+    private static final String SQL_INSERT = "INSERT INTO bitacorapsp(idBitacoraPSP, Matricula, Fecha) VALUES (?, ?, ?)"; //FALTA RUTA O NOMBRE DEL ARCHIVO
     private static final String SQL_SELECT_BY_IDBITACORA = "SELECT * FROM bitacorapsp WHERE idBitacoraPSP = ?";
     private static final String SQL_UPDATE = "UPDATE bitacorapsp SET Matricula = ?, Fecha = ? WHERE idBitacoraPSP = ?";
-    private static final String SQL_DELETE = "DELETE FROM bitacorapsp WHERE idBitacoraPSP = ?";
-
+    private static final String SQL_EXISTS_PRACTICANTE = "SELECT 1 FROM practicante WHERE Matricula = ?";
     public BitacoraPSPDAO() {
         super();
     }
 
     public void agregar(BitacoraPSPDTO bitacora) throws Exception {
+        try (PreparedStatement ps = conexion.prepareStatement(SQL_EXISTS_PRACTICANTE)) {
+            ps.setString(1, bitacora.getMatricula());
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) {
+                    throw new IllegalArgumentException("La matrícula '" + bitacora.getMatricula() + "' no existe en practicante. " + "No se puede registrar la bitácora PSP.");
+                }
+            }
+        } catch (SQLException e) {
+            throw new Exception("Error al validar matrícula en practicante: " + e.getMessage());
+        }
+
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setInt(1, bitacora.getIdBBitacora());
             preparedStatement.setString(2, bitacora.getMatricula());
@@ -53,22 +63,13 @@ public class BitacoraPSPDAO extends ConexionBD{
     }
 
     public void actualizar(BitacoraPSPDTO bitacora) throws Exception {
-            try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_UPDATE)) {
+        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_UPDATE)) {
                 preparedStatement.setString(1, bitacora.getMatricula());
                 preparedStatement.setDate(2, java.sql.Date.valueOf(bitacora.getFecha()));
                 preparedStatement.setInt(3, bitacora.getIdBBitacora());
                 preparedStatement.executeUpdate();
             } catch (SQLException e) {
                 throw new Exception("Error al actualizar bitácora PSP: " + e.getMessage());
-            }
-    }
-
-    public void eliminar(int idBitacora) throws Exception {
-            try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_DELETE)) {
-                preparedStatement.setInt(1, idBitacora);
-                preparedStatement.executeUpdate();
-            } catch (SQLException e) {
-                throw new Exception("Error al eliminar bitácora PSP: " + e.getMessage());
             }
     }
 }

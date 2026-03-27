@@ -10,13 +10,24 @@ public class AutoevaluacionDAO extends ConexionBD {
     private static String SQL_INSERT = "INSERT INTO autoevaluacion(idAutoEvaluacion, Matricula, Calificacion, Comentarios) VALUES (?,?,?,?)";
     private static String SQL_SELECT_BY_MATRICULA = "SELECT * FROM autoevaluacion WHERE Matricula = ?";
     private static String SQL_UPDATE = "UPDATE autoevaluacion SET Calificacion = ?, Comentarios = ? WHERE Matricula = ?";
-    private static String SQL_DELETE = "DELETE FROM autoevaluacion WHERE Matricula = ?";
+    private static String SQL_EXISTS_PRACTICANTE = "SELECT 1 FROM practicante WHERE Matricula = ?";
 
     public AutoevaluacionDAO() {
         super();
     }
 
     public void agregar(AutoevaluacionDTO autoevaluacion) throws Exception {
+        try (PreparedStatement ps = conexion.prepareStatement(SQL_EXISTS_PRACTICANTE)) {
+            ps.setString(1, autoevaluacion.getMatricula());
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) {
+                    throw new IllegalArgumentException("La matrícula '" + autoevaluacion.getMatricula() + "' no existe en practicante. " + "No se puede registrar la autoevaluación.");
+                }
+            }
+        } catch (SQLException e) {
+            throw new Exception("Error al validar matrícula en practicante: " + e.getMessage());
+        }
+
         try(PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)){
             preparedStatement.setInt(1, autoevaluacion.getIdAutoevalaucion());
             preparedStatement.setString(2, autoevaluacion.getMatricula());
@@ -36,6 +47,17 @@ public class AutoevaluacionDAO extends ConexionBD {
     }
 
     public void actualizar(AutoevaluacionDTO autoevaluacion) throws Exception {
+        try (PreparedStatement ps = conexion.prepareStatement(SQL_EXISTS_PRACTICANTE)) {
+            ps.setString(1, autoevaluacion.getMatricula());
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) {
+                    throw new IllegalArgumentException("La matrícula '" + autoevaluacion.getMatricula() + "' no existe en practicante. " + "No se puede actualizar la autoevaluación.");
+                }
+            }
+        } catch (SQLException e) {
+            throw new Exception("Error al validar matrícula en practicante: " + e.getMessage());
+        }
+
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_UPDATE)) {
             preparedStatement.setBigDecimal(1, autoevaluacion.getCalificacion());
             preparedStatement.setString(2, autoevaluacion.getComentarios());
@@ -43,15 +65,6 @@ public class AutoevaluacionDAO extends ConexionBD {
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw new Exception("Error al actualizar autoevaluación: " + e.getMessage());
-        }
-    }
-
-    public void eliminar(AutoevaluacionDTO autoevaluacion) throws Exception {
-        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_DELETE)) {
-            preparedStatement.setString(1, autoevaluacion.getMatricula());
-            preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            throw new Exception("Error al eliminar autoevaluación: " + e.getMessage());
         }
     }
 
