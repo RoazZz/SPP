@@ -2,12 +2,12 @@ package logica.dto;
 
 import java.time.LocalDate;
 
-public class BitacorapspDTO {
+public class BitacoraPSPDTO {
     private int idBBitacora;
     private String matricula;
     private LocalDate fecha;
 
-    public BitacorapspDTO(int idBBitacora, String matricula, LocalDate fecha) {
+    public BitacoraPSPDTO(int idBBitacora, String matricula, LocalDate fecha) {
         this.idBBitacora = idBBitacora;
         this.matricula = matricula;
         this.fecha = fecha;
