@@ -14,7 +14,6 @@ public class PruebaBitacoraPSPDAO {
     private int pruebasEjecutadas = 0;
     private int pruebasExitosas   = 0;
 
-    // id generado al agregar, usado en buscar y actualizar
     private int idGenerado = 0;
 
     public PruebaBitacoraPSPDAO() {

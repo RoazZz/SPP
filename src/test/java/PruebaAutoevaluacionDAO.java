@@ -19,7 +19,6 @@ public class PruebaAutoevaluacionDAO {
         dao = new AutoevaluacionDAO();
     }
 
-    //Caso valido
     public void pruebaAgregar() {
         pruebasEjecutadas++;
         String nombre = "pruebaAgregar";
