@@ -1,18 +1,16 @@
 package logica.dao;
 import accesodatos.ConexionBD;
-import interfaces.InterAdministradorDAO;
-import interfaces.InterDocumentosSoporteDAO;
 import logica.dto.DocumentosSoporteDTO;
 import java.sql.Statement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class DocumentosSoporteDAO extends ConexionBD implements InterDocumentosSoporteDAO{
+public class DocumentosSoporteDAOInterfaz extends ConexionBD implements interfaces.DocumentosSoporteDAOInterfaz {
     private static final String SQL_INSERT = "INSERT INTO documentossoporte(idDocumentoSoporte, Matricula, TipoDocumento, Estado) VALUES (?, ?, ?, ?)";
     private static final String SQL_SELECT_BY_ID = "SELECT * FROM documentossoporte WHERE idDocumentoSoporte = ?";
     private static final String SQL_UPDATE = "UPDATE documentossoporte SET Matricula = ?, TipoDocumento = ?, Estado = ? WHERE idDocumentoSoporte = ?";
-    public DocumentosSoporteDAO() {
+    public DocumentosSoporteDAOInterfaz() {
         super();
     }
 
