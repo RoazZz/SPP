@@ -1,13 +1,14 @@
 package logica.dao;
 
 import accesodatos.ConexionBD;
+import interfaces.InterAdministradorDAO;
 import logica.dto.AdministradorDTO;
 import java.sql.Statement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class AdministradorDAO extends ConexionBD {
+public class AdministradorDAO extends ConexionBD implements InterAdministradorDAO {
     private static String  SQL_INSERT = "INSERT INTO administrador (idAdmin) VALUES (?)";
     public AdministradorDAO() {
         super();

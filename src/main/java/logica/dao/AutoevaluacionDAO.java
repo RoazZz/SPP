@@ -1,12 +1,13 @@
 package logica.dao;
 import accesodatos.ConexionBD;
+import interfaces.InterAutoevaluacionDAO;
 import logica.dto.AutoevaluacionDTO;
 import java.sql.Statement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class AutoevaluacionDAO extends ConexionBD {
+public class AutoevaluacionDAO extends ConexionBD implements InterAutoevaluacionDAO {
     private static String SQL_INSERT = "INSERT INTO autoevaluacion(idAutoEvaluacion, Matricula, Calificacion, Comentarios) VALUES (?,?,?,?)";
     private static String SQL_SELECT_BY_MATRICULA = "SELECT * FROM autoevaluacion WHERE Matricula = ?";
     private static String SQL_UPDATE = "UPDATE autoevaluacion SET Calificacion = ?, Comentarios = ? WHERE Matricula = ?";

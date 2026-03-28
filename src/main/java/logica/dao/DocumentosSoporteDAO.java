@@ -1,21 +1,22 @@
 package logica.dao;
 import accesodatos.ConexionBD;
+import interfaces.InterAdministradorDAO;
+import interfaces.InterDocumentosSoporteDAO;
 import logica.dto.DocumentosSoporteDTO;
 import java.sql.Statement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class DocumentosSoporteDAO extends ConexionBD {
+public class DocumentosSoporteDAO extends ConexionBD implements InterDocumentosSoporteDAO{
     private static final String SQL_INSERT = "INSERT INTO documentossoporte(idDocumentoSoporte, Matricula, TipoDocumento, Estado) VALUES (?, ?, ?, ?)";
     private static final String SQL_SELECT_BY_ID = "SELECT * FROM documentossoporte WHERE idDocumentoSoporte = ?";
     private static final String SQL_UPDATE = "UPDATE documentossoporte SET Matricula = ?, TipoDocumento = ?, Estado = ? WHERE idDocumentoSoporte = ?";
-    private static final String SQL_DELETE = "DELETE FROM documentossoporte WHERE idDocumentoSoporte = ?";
-
     public DocumentosSoporteDAO() {
         super();
     }
 
+    @Override
     public void agregar(DocumentosSoporteDTO documento) throws Exception {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setInt(1, documento.getIdDocumento());
@@ -34,6 +35,7 @@ public class DocumentosSoporteDAO extends ConexionBD {
         }
     }
 
+    @Override
     public DocumentosSoporteDTO buscarPorId(int idDocumento) throws Exception {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_SELECT_BY_ID)) {
             preparedStatement.setInt(1, idDocumento);
@@ -53,6 +55,7 @@ public class DocumentosSoporteDAO extends ConexionBD {
         }
     }
 
+    @Override
     public void actualizar(DocumentosSoporteDTO documento) throws Exception {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_UPDATE)) {
             preparedStatement.setString(1, documento.getMatricula());
@@ -62,15 +65,6 @@ public class DocumentosSoporteDAO extends ConexionBD {
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw new Exception("Error al actualizar documento de soporte: " + e.getMessage());
-        }
-    }
-
-    public void eliminar(int idDocumento) throws Exception {
-        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_DELETE)) {
-            preparedStatement.setInt(1, idDocumento);
-            preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            throw new Exception("Error al eliminar documento de soporte: " + e.getMessage());
         }
     }
 }
