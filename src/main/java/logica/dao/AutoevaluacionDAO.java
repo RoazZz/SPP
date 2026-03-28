@@ -17,6 +17,7 @@ public class AutoevaluacionDAO extends ConexionBD implements InterAutoevaluacion
         super();
     }
 
+    @Override
     public void agregar(AutoevaluacionDTO autoevaluacion) throws Exception {
         try (PreparedStatement ps = conexion.prepareStatement(SQL_EXISTS_PRACTICANTE)) {
             ps.setString(1, autoevaluacion.getMatricula());
@@ -47,6 +48,7 @@ public class AutoevaluacionDAO extends ConexionBD implements InterAutoevaluacion
         }
     }
 
+    @Override
     public void actualizar(AutoevaluacionDTO autoevaluacion) throws Exception {
         try (PreparedStatement ps = conexion.prepareStatement(SQL_EXISTS_PRACTICANTE)) {
             ps.setString(1, autoevaluacion.getMatricula());
@@ -69,6 +71,7 @@ public class AutoevaluacionDAO extends ConexionBD implements InterAutoevaluacion
         }
     }
 
+    @Override
     public AutoevaluacionDTO buscarPorMatricula(String matricula) throws Exception {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_SELECT_BY_MATRICULA)) {
             preparedStatement.setString(1, matricula);

@@ -14,6 +14,7 @@ public class AdministradorDAO extends ConexionBD implements InterAdministradorDA
         super();
     }
 
+    @Override
     public void agregar(AdministradorDTO admin) throws Exception {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setInt(1, admin.getIdAdmin());

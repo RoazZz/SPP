@@ -18,6 +18,7 @@ public class BitacoraPSPDAO extends ConexionBD implements InterBitacoraPSPDAO {
         super();
     }
 
+    @Override
     public void agregar(BitacoraPSPDTO bitacora) throws Exception {
         try (PreparedStatement ps = conexion.prepareStatement(SQL_EXISTS_PRACTICANTE)) {
             ps.setString(1, bitacora.getMatricula());
@@ -46,6 +47,7 @@ public class BitacoraPSPDAO extends ConexionBD implements InterBitacoraPSPDAO {
         }
     }
 
+    @Override
     public BitacoraPSPDTO buscarPorId(int idBitacora) throws Exception {
             try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_SELECT_BY_IDBITACORA)) {
                 preparedStatement.setInt(1, idBitacora);
@@ -64,6 +66,7 @@ public class BitacoraPSPDAO extends ConexionBD implements InterBitacoraPSPDAO {
             }
     }
 
+    @Override
     public void actualizar(BitacoraPSPDTO bitacora) throws Exception {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_UPDATE)) {
                 preparedStatement.setString(1, bitacora.getMatricula());
