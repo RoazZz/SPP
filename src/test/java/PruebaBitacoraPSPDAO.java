@@ -26,7 +26,7 @@ public class PruebaBitacoraPSPDAO {
         BitacoraPSPDTO dto = new BitacoraPSPDTO(0, MATRICULA_PRUEBA, LocalDate.now());
 
         try {
-            dao.agregar(dto);
+            dao.agregarBitacoraPSP(dto);
 
             if (dto.getIdBBitacora() <= 0) {
                 logger.warning("FALLO: " + nombre + " – La BD no devolvió un ID generado válido.");
@@ -49,7 +49,7 @@ public class PruebaBitacoraPSPDAO {
         String nombre = "pruebaBuscarPorId";
 
         try {
-            BitacoraPSPDTO resultado = dao.buscarPorId(idGenerado);
+            BitacoraPSPDTO resultado = dao.buscarBitacoraPSPPorId(idGenerado);
 
             if (resultado == null) {
                 logger.warning("FALLO: " + nombre + " – No se encontró la bitácora con id=" + idGenerado);
@@ -77,9 +77,9 @@ public class PruebaBitacoraPSPDAO {
         BitacoraPSPDTO dto = new BitacoraPSPDTO(idGenerado, MATRICULA_PRUEBA, nuevaFecha);
 
         try {
-            dao.actualizar(dto);
+            dao.actualizarBitacoraPSP(dto);
 
-            BitacoraPSPDTO verificacion = dao.buscarPorId(idGenerado);
+            BitacoraPSPDTO verificacion =  dao.buscarBitacoraPSPPorId(idGenerado);
             if (verificacion == null) {
                 logger.warning("FALLO: " + nombre + " – No se pudo recuperar la bitácora después de actualizar.");
                 return;

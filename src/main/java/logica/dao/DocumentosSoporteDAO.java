@@ -11,12 +11,14 @@ public class DocumentosSoporteDAO extends ConexionBD implements DocumentosSoport
     private static final String SQL_INSERT = "INSERT INTO documentossoporte(idDocumentoSoporte, Matricula, TipoDocumento, Estado) VALUES (?, ?, ?, ?)";
     private static final String SQL_SELECT_BY_ID = "SELECT * FROM documentossoporte WHERE idDocumentoSoporte = ?";
     private static final String SQL_UPDATE = "UPDATE documentossoporte SET Matricula = ?, TipoDocumento = ?, Estado = ? WHERE idDocumentoSoporte = ?";
+    private static final String SQL_SELECT_ALL = "SELECT * FROM documentossoporte";
+
     public DocumentosSoporteDAO() {
         super();
     }
 
     @Override
-    public void agregar(DocumentosSoporteDTO documento) throws Exception {
+    public void agregarDocumentoSoporte(DocumentosSoporteDTO documento) throws Exception {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setInt(1, documento.getIdDocumento());
             preparedStatement.setString(2, documento.getMatricula());
@@ -35,7 +37,7 @@ public class DocumentosSoporteDAO extends ConexionBD implements DocumentosSoport
     }
 
     @Override
-    public DocumentosSoporteDTO buscarPorId(int idDocumento) throws Exception {
+    public DocumentosSoporteDTO buscarDocumentoSoportePorId(int idDocumento) throws Exception {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_SELECT_BY_ID)) {
             preparedStatement.setInt(1, idDocumento);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -55,7 +57,7 @@ public class DocumentosSoporteDAO extends ConexionBD implements DocumentosSoport
     }
 
     @Override
-    public void actualizar(DocumentosSoporteDTO documento) throws Exception {
+    public void actualizarDocumentoSoporte(DocumentosSoporteDTO documento) throws Exception {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_UPDATE)) {
             preparedStatement.setString(1, documento.getMatricula());
             preparedStatement.setString(2, documento.getTipoDocumento());

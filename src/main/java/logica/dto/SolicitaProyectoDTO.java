@@ -1,17 +1,17 @@
 package logica.dto;
 
-import logica.enums.TipoEstadoProyecto;
+import logica.enums.TipoEstadoSolicitud;
 
-public class SolicitaDTO {
+public class SolicitaProyectoDTO {
     private String matricula;
     private int idProyecto;
-    private TipoEstadoProyecto tipoEstadoProyecto;
+    private TipoEstadoSolicitud tipoEstadoSolicitud;
     private String periodo;
 
-    public SolicitaDTO(String matricula, int idProyecto, TipoEstadoProyecto tipoEstadoProyecto, String periodo) {
+    public SolicitaProyectoDTO(String matricula, int idProyecto, TipoEstadoSolicitud tipoEstadoSolicitud, String periodo) {
         this.matricula = matricula;
         this.idProyecto = idProyecto;
-        this.tipoEstadoProyecto = tipoEstadoProyecto;
+        this.tipoEstadoSolicitud = tipoEstadoSolicitud;
         this.periodo = periodo;
     }
 
@@ -31,12 +31,12 @@ public class SolicitaDTO {
         this.idProyecto = idProyecto;
     }
 
-    public TipoEstadoProyecto getEstadoProyecto() {
-        return tipoEstadoProyecto;
+    public TipoEstadoSolicitud getEstadoProyecto() {
+        return tipoEstadoSolicitud;
     }
 
-    public void setEstadoProyecto(TipoEstadoProyecto tipoEstadoProyecto) {
-        this.tipoEstadoProyecto = tipoEstadoProyecto;
+    public void setEstadoProyecto(TipoEstadoSolicitud tipoEstadoSolicitud) {
+        this.tipoEstadoSolicitud = tipoEstadoSolicitud;
     }
 
     public String getPeriodo() {

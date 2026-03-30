@@ -2,5 +2,5 @@ package interfaces;
 import logica.dto.AdministradorDTO;
 
 public interface AdministradorDAOInterfaz {
-        public void agregar(AdministradorDTO admin) throws Exception;
+        public void agregarAdministrador(AdministradorDTO admin) throws Exception;
 }

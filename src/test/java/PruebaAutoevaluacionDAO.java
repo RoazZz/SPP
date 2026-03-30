@@ -25,7 +25,7 @@ public class PruebaAutoevaluacionDAO {
         AutoevaluacionDTO dto = new AutoevaluacionDTO(0, MATRICULA_VALIDA, new BigDecimal("8.50"), "Comentario de prueba inicial");
 
         try {
-            dao.agregar(dto);
+            dao.agregarAutoevalaucion(dto);
 
             if (dto.getIdAutoevalaucion() <= 0) {
                 logger.warning("FALLO: " + nombre + " La BD no devolvió un ID generado válido.");
@@ -49,7 +49,7 @@ public class PruebaAutoevaluacionDAO {
         String nombre = "pruebaBuscarPorMatricula";
 
         try {
-            AutoevaluacionDTO resultado = dao.buscarPorMatricula(MATRICULA_VALIDA);
+            AutoevaluacionDTO resultado = dao.buscarAutoevaluacionPorMatricula(MATRICULA_VALIDA);
 
             if (resultado == null) {
                 logger.warning("FALLO: " + nombre + " – No se encontró el registro con matrícula " + MATRICULA_VALIDA);
@@ -76,9 +76,9 @@ public class PruebaAutoevaluacionDAO {
         AutoevaluacionDTO dto = new AutoevaluacionDTO(0, MATRICULA_VALIDA, new BigDecimal("9.75"), "Comentario actualizado en prueba");
 
         try {
-            dao.actualizar(dto);
+            dao.actualizarAutoevaluacion(dto);
 
-            AutoevaluacionDTO verificacion = dao.buscarPorMatricula(MATRICULA_VALIDA);
+            AutoevaluacionDTO verificacion = dao.buscarAutoevaluacionPorMatricula(MATRICULA_VALIDA);
             if (verificacion == null) {
                 logger.warning("FALLO: " + nombre + " – No se pudo recuperar el registro después de actualizar.");
                 return;
