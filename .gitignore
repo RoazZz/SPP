@@ -4,13 +4,21 @@ target/
 !**/src/test/**/target/
 
 ### IntelliJ IDEA ###
-.idea/modules.xml
-.idea/jarRepositories.xml
-.idea/compiler.xml
-.idea/libraries/
+.idea
 *.iws
 *.iml
 *.ipr
+# Esto evita que se suban configuraciones de ejecución personal que fallen en otras máquinas
+out/
+
+# === Java y Logs ===
+*.class
+*.log
+*.jar
+*.war
+*.ear
+# Ignorar archivos temporales de aplicaciones JavaFX
+.attach_pid*
 
 ### Eclipse ###
 .apt_generated
