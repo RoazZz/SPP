@@ -11,15 +11,15 @@ public class ConexionBD {
     private static final Logger logger = Logger.getLogger(ConexionBD.class.getName());
 
     public ConexionBD() {
-        String driver = "com.mysql.cj.jdbc.Driver";
-        String user = "RoazAccess";
+        String controlador = "com.mysql.cj.jdbc.Driver";
+        String usuario = "RoazAccess";
         String contrasenia = "nugRJa1105!";
         String basedatos = "sppbd";
-        String server = "jdbc:mysql://localhost:3306/" + basedatos;
+        String servidor = "jdbc:mysql://localhost:3306/" + basedatos;
 
         try{
-            Class.forName(driver);
-            conexion = DriverManager.getConnection(server, user, contrasenia);
+            Class.forName(controlador);
+            conexion = DriverManager.getConnection(servidor, usuario, contrasenia);
         }catch (SQLException ex) {
             logger.log(Level.SEVERE, "Error al establecer conexión con la base de datos", ex);
         } catch (ClassNotFoundException ex) {
