@@ -6,11 +6,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class DocumentosSoporteDAOInterfaz extends ConexionBD implements interfaces.DocumentosSoporteDAOInterfaz {
+public class DocumentosSoporteDAO extends ConexionBD implements interfaces.DocumentosSoporteDAOInterfaz {
     private static final String SQL_INSERT = "INSERT INTO documentossoporte(idDocumentoSoporte, Matricula, TipoDocumento, Estado) VALUES (?, ?, ?, ?)";
     private static final String SQL_SELECT_BY_ID = "SELECT * FROM documentossoporte WHERE idDocumentoSoporte = ?";
     private static final String SQL_UPDATE = "UPDATE documentossoporte SET Matricula = ?, TipoDocumento = ?, Estado = ? WHERE idDocumentoSoporte = ?";
-    public DocumentosSoporteDAOInterfaz() {
+    public DocumentosSoporteDAO() {
         super();
     }
 

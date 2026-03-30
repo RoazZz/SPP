@@ -7,9 +7,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class AdministradorDAOInterfaz extends ConexionBD implements interfaces.AdministradorDAOInterfaz {
+public class AdministradorDAO extends ConexionBD implements interfaces.AdministradorDAOInterfaz {
     private static String  SQL_INSERT = "INSERT INTO administrador (idAdmin) VALUES (?)"; //EVALUAR SI NOS FALTAN CAMPOS...
-    public AdministradorDAOInterfaz() {
+    public AdministradorDAO() {
         super();
     }
 
@@ -25,7 +25,7 @@ public class AdministradorDAOInterfaz extends ConexionBD implements interfaces.A
                 }
             }
         } catch (SQLException e) {
-            throw new Exception("Error al agregar administrador: " + e.getMessage());
+            throw new Exception("Error al agregar administrador: " + e.getMessage()); //PONER LOGGERS EN LUAGR DE EXCEPTIONS
         }
     }
 }

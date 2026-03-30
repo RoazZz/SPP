@@ -1,4 +1,4 @@
-import logica.dao.AutoevaluacionDAOInterfaz;
+import logica.dao.AutoevaluacionDAO;
 import logica.dto.AutoevaluacionDTO;
 
 import java.math.BigDecimal;
@@ -9,13 +9,13 @@ public class PruebaAutoevaluacionDAO {
     private static final Logger logger = Logger.getLogger(PruebaAutoevaluacionDAO.class.getName());
 
     private static final String MATRICULA_VALIDA   = "S23010001";
-    private AutoevaluacionDAOInterfaz dao;
+    private AutoevaluacionDAO dao;
 
     private int pruebasEjecutadas = 0;
     private int pruebasExitosas   = 0;
 
     public PruebaAutoevaluacionDAO() throws Exception {
-        dao = new AutoevaluacionDAOInterfaz();
+        dao = new AutoevaluacionDAO();
     }
 
     public void pruebaAgregar() {

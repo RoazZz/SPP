@@ -7,12 +7,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 
-public class BitacoraPSPDAOInterfaz extends ConexionBD implements interfaces.BitacoraPSPDAOInterfaz {
+public class BitacoraPSPDAO extends ConexionBD implements interfaces.BitacoraPSPDAOInterfaz {
     private static final String SQL_INSERT = "INSERT INTO bitacorapsp(idBitacoraPSP, Matricula, Fecha) VALUES (?, ?, ?)"; //FALTA RUTA O NOMBRE DEL ARCHIVO
     private static final String SQL_SELECT_BY_IDBITACORA = "SELECT * FROM bitacorapsp WHERE idBitacoraPSP = ?";
     private static final String SQL_UPDATE = "UPDATE bitacorapsp SET Matricula = ?, Fecha = ? WHERE idBitacoraPSP = ?";
     private static final String SQL_EXISTS_PRACTICANTE = "SELECT 1 FROM practicante WHERE Matricula = ?";
-    public BitacoraPSPDAOInterfaz() {
+    public BitacoraPSPDAO() {
         super();
     }
 

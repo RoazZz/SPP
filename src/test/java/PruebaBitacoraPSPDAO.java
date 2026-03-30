@@ -1,4 +1,4 @@
-import logica.dao.BitacoraPSPDAOInterfaz;
+import logica.dao.BitacoraPSPDAO;
 import logica.dto.BitacoraPSPDTO;
 
 import java.time.LocalDate;
@@ -10,14 +10,13 @@ public class PruebaBitacoraPSPDAO {
 
     private static final String MATRICULA_PRUEBA = "S23010001";
 
-    private BitacoraPSPDAOInterfaz dao;
+    private BitacoraPSPDAO dao;
     private int pruebasEjecutadas = 0;
     private int pruebasExitosas   = 0;
-
     private int idGenerado = 0;
 
     public PruebaBitacoraPSPDAO() {
-        dao = new BitacoraPSPDAOInterfaz();
+        dao = new BitacoraPSPDAO();
     }
 
     public void pruebaAgregar() {
