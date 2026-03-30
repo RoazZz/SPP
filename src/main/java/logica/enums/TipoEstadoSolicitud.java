@@ -1,6 +1,6 @@
 package logica.enums;
 
-public enum TipoEstadoProyecto {
+public enum TipoEstadoSolicitud {
     PENDIENTE,
     ACEPTADO,
     RECHAZADO
