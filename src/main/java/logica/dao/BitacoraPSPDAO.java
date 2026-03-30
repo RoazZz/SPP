@@ -1,5 +1,6 @@
 package logica.dao;
 import accesodatos.ConexionBD;
+import interfaces.BitacoraPSPDAOInterfaz;
 import logica.dto.BitacoraPSPDTO;
 import java.sql.Statement;
 import java.sql.PreparedStatement;
@@ -7,7 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 
-public class BitacoraPSPDAO extends ConexionBD implements interfaces.BitacoraPSPDAOInterfaz {
+public class BitacoraPSPDAO extends ConexionBD implements BitacoraPSPDAOInterfaz {
     private static final String SQL_INSERT = "INSERT INTO bitacorapsp(idBitacoraPSP, Matricula, Fecha) VALUES (?, ?, ?)"; //FALTA RUTA O NOMBRE DEL ARCHIVO
     private static final String SQL_SELECT_BY_IDBITACORA = "SELECT * FROM bitacorapsp WHERE idBitacoraPSP = ?";
     private static final String SQL_UPDATE = "UPDATE bitacorapsp SET Matricula = ?, Fecha = ? WHERE idBitacoraPSP = ?";

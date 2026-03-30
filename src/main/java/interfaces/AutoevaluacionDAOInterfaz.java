@@ -2,7 +2,7 @@ package interfaces;
 import logica.dto.AutoevaluacionDTO;
 
 public interface AutoevaluacionDAOInterfaz {
-    void agregar(AutoevaluacionDTO autoevaluacion) throws Exception;
-    void actualizar(AutoevaluacionDTO autoevaluacion) throws Exception;
-    AutoevaluacionDTO buscarPorMatricula(String matricula) throws Exception;
+    public void agregar(AutoevaluacionDTO autoevaluacion) throws Exception;
+    public void actualizar(AutoevaluacionDTO autoevaluacion) throws Exception;
+    public AutoevaluacionDTO buscarPorMatricula(String matricula) throws Exception;
 }
