@@ -1,24 +1,20 @@
 package logica.dto;
 
+import logica.enums.TipoReporte;
+
 import java.time.LocalDate;
 
 public class ReporteDTO {
     private int idReporte;
-    private String matricula;
-    private String idOrganizacion;
-    private String tipoReporte;
-    private String observaciones;
+    private TipoReporte tipoReporte;
     private LocalDate fecha;
-    private String estado;
+    private String ruta;
 
-    public ReporteDTO(int idReporte, String matricula, String idOrganizacion, String tipoReporte, String observaciones, LocalDate fecha, String estado) {
+    public ReporteDTO(int idReporte, TipoReporte tipoReporte, LocalDate fecha, String ruta) {
         this.idReporte = idReporte;
-        this.matricula = matricula;
-        this.idOrganizacion = idOrganizacion;
         this.tipoReporte = tipoReporte;
-        this.observaciones = observaciones;
         this.fecha = fecha;
-        this.estado = estado;
+        this.ruta = ruta;
     }
 
     public int getIdReporte() {
@@ -29,36 +25,13 @@ public class ReporteDTO {
         this.idReporte = idReporte;
     }
 
-    public String getMatricula() {
-        return matricula;
-    }
 
-    public void setMatricula(String matricula) {
-        this.matricula = matricula;
-    }
-
-    public String getIdOrganizacion() {
-        return idOrganizacion;
-    }
-
-    public void setIdOrganizacion(String idOrganizacion) {
-        this.idOrganizacion = idOrganizacion;
-    }
-
-    public String getTipoReporte() {
+    public TipoReporte getTipoReporte() {
         return tipoReporte;
     }
 
-    public void setTipoReporte(String tipoReporte) {
+    public void setTipoReporte(TipoReporte tipoReporte) {
         this.tipoReporte = tipoReporte;
-    }
-
-    public String getObservaciones() {
-        return observaciones;
-    }
-
-    public void setObservaciones(String observaciones) {
-        this.observaciones = observaciones;
     }
 
     public LocalDate getFecha() {
@@ -69,11 +42,11 @@ public class ReporteDTO {
         this.fecha = fecha;
     }
 
-    public String getEstado() {
-        return estado;
+    public String getRuta() {
+        return ruta;
     }
 
-    public void setEstado(String estado) {
-        this.estado = estado;
+    public void setRuta(String estado) {
+        this.ruta = estado;
     }
 }
