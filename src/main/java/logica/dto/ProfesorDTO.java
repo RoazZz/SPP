@@ -1,13 +1,15 @@
 package logica.dto;
 
+import logica.enums.TipoDeUsuario;
 import logica.enums.TipoEstado;
 import logica.enums.TipoTurno;
 
-public class ProfesorDTO {
+public class ProfesorDTO extends UsuarioDTO {
     private String numeroDePersonal;
     private TipoTurno turno;
 
-    public ProfesorDTO(String numeroDePersonal, TipoTurno turno, TipoEstado estado) {
+    public ProfesorDTO(int idUsuario, String nombre, String apellidoPaterno, String apellidoMaterno, String contrasenia, TipoEstado estado, TipoDeUsuario tipoDeUsuario, String numeroDePersonal, TipoTurno turno) {
+        super(idUsuario, nombre, apellidoPaterno, apellidoMaterno, contrasenia, estado, tipoDeUsuario);
         this.numeroDePersonal = numeroDePersonal;
         this.turno = turno;
     }
