@@ -4,16 +4,15 @@ import interfaces.UsuarioDAOInterfaz;
 import accesodatos.ConexionBD;
 import logica.dto.UsuarioDTO;
 import logica.enums.TipoDeUsuario;
+import logica.enums.TipoEstado;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class UsuarioDAO extends ConexionBD implements UsuarioDAOInterfaz {
-    private static final String SQL_INSERT = "INSERT INTO Usuario(idUsuario, Nombre, ApellidoP, ApellidoM, Contrasenia, TipoUsuario) VALUES (?, ?, ?, ?, ?, ?)";
+    private static final String SQL_INSERT = "INSERT INTO Usuario(Nombre, ApellidoP, ApellidoM, Contrasenia, Estado, TipoUsuario) VALUES (?, ?, ?, ?, ?, ?)";
     private static final String SQL_BUSCAR_POR_ID_USUARIO = "SELECT * FROM Usuario WHERE idUsuario = ?";
     private static final String SQL_UPDATE = "UPDATE Usuario SET Nombre = ?, ApellidoP = ?, ApellidoM = ?, Contrasenia = ?, TipoUsuario = ? WHERE NumeroDePersonal = ?";
     private static final String SQL_SELECT_ALL = "SELECT * FROM Usuario";
@@ -22,18 +21,29 @@ public class UsuarioDAO extends ConexionBD implements UsuarioDAOInterfaz {
         super();
     }
 
+    public UsuarioDAO(Connection conexionExistente) {
+        this.conexion = conexionExistente;
+    }
+
     @Override
     public void agregarUsuario(UsuarioDTO usuario) throws Exception {
-        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT)){
-            preparedStatement.setInt(1, usuario.getIdUsuario());
-            preparedStatement.setString(2, usuario.getNombre());
-            preparedStatement.setString(3, usuario.getApellidoPaterno());
-            preparedStatement.setString(4, usuario.getApellidoMaterno());
-            preparedStatement.setString(5, usuario.getContrasenia());
+        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
+            preparedStatement.setString(1, usuario.getNombre());
+            preparedStatement.setString(2, usuario.getApellidoPaterno());
+            preparedStatement.setString(3, usuario.getApellidoMaterno());
+            preparedStatement.setString(4, usuario.getContrasenia());
+            preparedStatement.setString(5, usuario.getTipoEstado().name());
             preparedStatement.setString(6, usuario.getTipoDeUsuario().name());
+
             preparedStatement.executeUpdate();
-        } catch (SQLException e){
-            throw new Exception("Error al agregar el Usuario: " + e.getMessage());
+
+            try (ResultSet resultSet = preparedStatement.getGeneratedKeys()) {
+                if (resultSet.next()) {
+                    usuario.setIdUsuario(resultSet.getInt(1));
+                }
+            }
+        } catch (SQLException e) {
+            throw new Exception("Error al insertar usuario: " + e.getMessage());
         }
     }
 
@@ -45,7 +55,8 @@ public class UsuarioDAO extends ConexionBD implements UsuarioDAOInterfaz {
             preparedStatement.setString(3, usuario.getApellidoPaterno());
             preparedStatement.setString(4, usuario.getApellidoMaterno());
             preparedStatement.setString(5, usuario.getContrasenia());
-            preparedStatement.setString(6, usuario.getTipoDeUsuario().name());
+            preparedStatement.setString(6, usuario.getTipoEstado().name());
+            preparedStatement.setString(7, usuario.getTipoDeUsuario().name());
             preparedStatement.executeUpdate();
         } catch (SQLException e){
             throw new Exception("Error al actualizar al usuario: " + e.getMessage());
@@ -62,8 +73,9 @@ public class UsuarioDAO extends ConexionBD implements UsuarioDAOInterfaz {
                 String apellidoPaterno = resultSet.getString("ApellidoPaterno");
                 String apellidoMaterno = resultSet.getString("ApellidoMaterno");
                 String contrasenia  = resultSet.getString("Contrasenia");
-                String usuario = resultSet.getString("TipoUsuario");
-                return new UsuarioDTO(idDeUsuario, nombre, apellidoPaterno, apellidoMaterno, contrasenia, TipoDeUsuario.valueOf(usuario));
+                String estado = resultSet.getString("Estado");
+                String tipoUsuario = resultSet.getString("TipoUsuario");
+                return new UsuarioDTO(idDeUsuario, nombre, apellidoPaterno, apellidoMaterno, contrasenia, TipoEstado.valueOf(estado), TipoDeUsuario.valueOf(tipoUsuario));
             }else{
                 return null;
             }
@@ -83,7 +95,8 @@ public class UsuarioDAO extends ConexionBD implements UsuarioDAOInterfaz {
                         resultSet.getString("ApellidoPaterno"),
                         resultSet.getString("ApellidoMaterno"),
                         resultSet.getString("Contrasenia"),
-                        TipoDeUsuario.valueOf(resultSet.getString("Genero"))
+                        TipoEstado.valueOf(resultSet.getString("Estado")),
+                        TipoDeUsuario.valueOf(resultSet.getString("TipoUsuario"))
                 );
                 listaUsuario.add(usuario);
             }

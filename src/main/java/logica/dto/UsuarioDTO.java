@@ -1,6 +1,7 @@
 package logica.dto;
 
 import logica.enums.TipoDeUsuario;
+import logica.enums.TipoEstado;
 
 public class UsuarioDTO {
     private int idUsuario;
@@ -8,16 +9,21 @@ public class UsuarioDTO {
     private String apellidoPaterno;
     private String apellidoMaterno;
     private String contrasenia;
+    private TipoEstado tipoEstado;
     private TipoDeUsuario tipoDeUsuario;
 
-    public UsuarioDTO(int idUsuario, String nombre, String apellidoPaterno, String apellidoMaterno, String contrasenia, TipoDeUsuario tipoDeUsuario){
+
+    public UsuarioDTO(int idUsuario, String nombre, String apellidoPaterno, String apellidoMaterno, String contrasenia, TipoEstado tipoEstado, TipoDeUsuario tipoDeUsuario) {
         this.idUsuario = idUsuario;
         this.nombre = nombre;
         this.apellidoPaterno = apellidoPaterno;
         this.apellidoMaterno = apellidoMaterno;
         this.contrasenia = contrasenia;
+        this.tipoEstado = tipoEstado;
         this.tipoDeUsuario = tipoDeUsuario;
+
     }
+
 
     public int getIdUsuario() {
         return idUsuario;
@@ -65,6 +71,14 @@ public class UsuarioDTO {
 
     public void setTipoDeUsuario(TipoDeUsuario tipoDeUsuario) {
         this.tipoDeUsuario = tipoDeUsuario;
+    }
+
+    public TipoEstado getTipoEstado() {
+        return tipoEstado;
+    }
+
+    public void setTipoEstado(TipoEstado tipoEstado) {
+        this.tipoEstado = tipoEstado;
     }
 
 }
