@@ -7,27 +7,39 @@ import java.sql.Statement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Connection;
 
 public class AdministradorDAO extends ConexionBD implements AdministradorDAOInterfaz {
-    private static final String  SQL_INSERT = "INSERT INTO administrador (idAdmin) VALUES (?)"; //EVALUAR SI NOS FALTAN CAMPOS...
-    private static final String SQL_SELECT_ALL = "SELECT * FROM administrador";
+    private static final String SQL_INSERT = "INSERT INTO administrador (idUsuario) VALUES (?)";
     public AdministradorDAO() {
         super();
     }
 
+    public AdministradorDAO(Connection conexionExistente) {
+        this.conexion = conexionExistente;
+    }
+
     @Override
     public void agregarAdministrador(AdministradorDTO admin) throws Exception {
-        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
-            preparedStatement.setInt(1, admin.getIdAdmin());
-            preparedStatement.executeUpdate();
+        UsuarioDAO usuarioDAO = new UsuarioDAO(this.conexion);
+        try {
+            conexion.setAutoCommit(false);
 
-            try (ResultSet resultSet = preparedStatement.getGeneratedKeys()) {
-                if (resultSet.next()) {
-                    admin.setIdAdmin(resultSet.getInt(1));
+            usuarioDAO.agregarUsuario(admin);
+            int idGenerado = admin.getIdUsuario();
+
+            if (idGenerado > 0) {
+                try (PreparedStatement ps = conexion.prepareStatement(SQL_INSERT)) {
+                    ps.setInt(1, idGenerado);
+                    ps.executeUpdate();
                 }
+                conexion.commit();
             }
         } catch (SQLException e) {
-            throw new Exception("Error al agregar administrador: " + e.getMessage()); //PONER LOGGERS EN LUAGR DE EXCEPTIONS
+            if (conexion != null) conexion.rollback();
+            throw new Exception("Error al agregar administrador: " + e.getMessage());
+        } finally {
+            conexion.setAutoCommit(true);
         }
     }
 }
