@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ProfesorDAO extends ConexionBD implements ProfesorDAOInterfaz {
-    private static final String SQL_INSERT = "INSERT INTO profesor(NumeroDePersonal, Turno, Estado) VALUES (?, ?, ?)";
+    private static final String SQL_INSERT = "INSERT INTO profesor(NumeroDePersonal, Turno) VALUES (?, ?)";
     private static final String SQL_BUSCAR_POR_NUM_PERSONAL = "SELECT * FROM profesor WHERE NumeroDePersonal = ?";
     private static final String SQL_UPDATE = "UPDATE profesor SET Turno = ?, Estado = ? WHERE NumeroDePersonal = ?";
     private static final String SQL_SELECT_ALL = "SELECT * FROM profesor";
@@ -25,7 +25,6 @@ public class ProfesorDAO extends ConexionBD implements ProfesorDAOInterfaz {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT)) {
             preparedStatement.setString(1, profesor.getNumeroDePersonal());
             preparedStatement.setString(2, profesor.getTurno().name());
-            preparedStatement.setString(3, profesor.getEstado().name());
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw new Exception("Error al agregar el profesor: " + e.getMessage());
@@ -36,7 +35,6 @@ public class ProfesorDAO extends ConexionBD implements ProfesorDAOInterfaz {
     public void actualizarProfesor(ProfesorDTO profesor) throws Exception {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_UPDATE)) {
             preparedStatement.setString(1, profesor.getTurno().name());
-            preparedStatement.setString(2, profesor.getEstado().name());
             preparedStatement.setString(3, profesor.getNumeroDePersonal());
             preparedStatement.executeUpdate();
         } catch (SQLException e) {

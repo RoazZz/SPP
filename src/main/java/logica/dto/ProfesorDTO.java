@@ -6,12 +6,10 @@ import logica.enums.TipoTurno;
 public class ProfesorDTO {
     private String numeroDePersonal;
     private TipoTurno turno;
-    private TipoEstado estado;
 
     public ProfesorDTO(String numeroDePersonal, TipoTurno turno, TipoEstado estado) {
         this.numeroDePersonal = numeroDePersonal;
         this.turno = turno;
-        this.estado = estado;
     }
 
     public String getNumeroDePersonal() {
@@ -30,11 +28,4 @@ public class ProfesorDTO {
         this.turno = turno;
     }
 
-    public TipoEstado getEstado() {
-        return estado;
-    }
-
-    public void setEstado(TipoEstado estado) {
-        this.estado = estado;
-    }
 }
