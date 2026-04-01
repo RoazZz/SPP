@@ -43,8 +43,6 @@ public class AutoevaluacionDAO extends ConexionBD implements AutoevaluacionDAOIn
 
     @Override
     public void actualizarAutoevaluacion(AutoevaluacionDTO autoevaluacion) throws Exception {
-        try (PreparedStatement ps = conexion.prepareStatement(SQL_EXISTS_PRACTICANTE)) {
-
             try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_UPDATE)) {
                 preparedStatement.setBigDecimal(1, autoevaluacion.getCalificacion());
                 preparedStatement.setString(2, autoevaluacion.getComentarios());
@@ -53,7 +51,6 @@ public class AutoevaluacionDAO extends ConexionBD implements AutoevaluacionDAOIn
             } catch (SQLException e) {
                 throw new Exception("Error al actualizar autoevaluación: " + e.getMessage());
             }
-        }
     }
 
     @Override
@@ -76,6 +73,7 @@ public class AutoevaluacionDAO extends ConexionBD implements AutoevaluacionDAOIn
         return null;
     }
 
+    @Override
     public List<AutoevaluacionDTO> obtenerTodasLasAutoevaluaciones() throws Exception {
         List<AutoevaluacionDTO> autoevaluaciones = new ArrayList<>();
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_SELECT_ALL);
