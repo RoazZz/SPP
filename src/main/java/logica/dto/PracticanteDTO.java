@@ -1,6 +1,5 @@
 package logica.dto;
 
-import logica.enums.EstadoDelPracticante;
 import logica.enums.GeneroDelPracticante;
 import logica.enums.TipoDeUsuario;
 import logica.enums.TipoEstado;
@@ -16,7 +15,6 @@ public class PracticanteDTO extends UsuarioDTO{
     public PracticanteDTO (int idUsuario, String nombre, String apellidoPaterno, String apellidoMaterno, String contrasenia, TipoEstado estado, TipoDeUsuario tipoDeUsuario, String matricula, int idSeccion, String semestre,
                            GeneroDelPracticante generoDelPracticante, int edad, boolean lenguaIndigena){
         super(idUsuario, nombre, apellidoPaterno, apellidoMaterno, contrasenia, estado, tipoDeUsuario);
-
         this.matricula = matricula;
         this.idSeccion = idSeccion;
         this.semestre = semestre;
