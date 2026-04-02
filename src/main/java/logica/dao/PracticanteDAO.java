@@ -3,8 +3,11 @@ package logica.dao;
 import interfaces.PracticanteDAOInterfaz;
 import accesodatos.ConexionBD;
 import logica.dto.PracticanteDTO;
-import logica.enums.EstadoDelPracticante;
+import logica.dto.ProfesorDTO;
 import logica.enums.GeneroDelPracticante;
+import logica.enums.TipoDeUsuario;
+import logica.enums.TipoEstado;
+import logica.enums.TipoTurno;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -13,10 +16,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PracticanteDAO extends ConexionBD implements PracticanteDAOInterfaz {
-    private static final String SQL_INSERT = "INSERT INTO Practicante (Matricula, idSeccion, Semestre, Estado, Genero, Edad, LenguaIndigena) VALUES ( ?, ?, ?, ?, ?, ?, ?)";
-    private static final String SQL_BUSCAR_POR_MATRICULA = "SELECT * FROM Practicante WHERE Matricula = ?";
-    private static final String SQL_UPDATE = "UPDATE Practicante SET idSeccion = ?, Semestre = ?, Estado = ?, Genero = ?, Edad = ?, LenguaIndigena = ? WHERE Matricula = ?";
-    private static final String SQL_SELECT_ALL = "SELECT * FROM Matricula";
+    private static final String SQL_INSERT = "INSERT INTO Practicante (idUsuario, Matricula, idSeccion, Semestre, Genero, Edad, LenguaIndigena) VALUES ( ?, ?, ?, ?, ?, ?, ?)";
+    private static final String SQL_BUSCAR_POR_MATRICULA =
+            "SELECT usuario.idUsuario, usuario.nombre, usuario.apellidoPaterno, usuario.apellidoMaterno, " +
+            "usuario.contrasenia, usuario.tipoDeUsuario, usuario.estado, " +
+            "practicante.matricula, practicante.idSeccion, practicante.semestre, practicante.generoDelPracticante," +
+            "practicante.edad, practicante.lenguaIndigena" +
+            "FROM usuario JOIN practicante ON usuario.idUsuario = practicante.idUsuario " +
+            "WHERE practicante.Matricula = ?";
+    private static final String SQL_UPDATE = "UPDATE Practicante SET idSeccion = ?, Semestre = ?, Genero = ?, Edad = ?, LenguaIndigena = ? WHERE Matricula = ?";
+    private static final String SQL_SELECT_ALL =
+            "SELECT usuario.idUsuario, usuario.nombre, usuario.apellidoPaterno, usuario.apellidoMaterno, " +
+            "usuario.contrasenia, usuario.tipoDeUsuario, usuario.estado, " +
+            "practicante.matricula, practicante.idSeccion, practicante.semestre, practicante.generoDelPracticante," +
+            "practicante.edad, practicante.lenguaIndigena" +
+            "FROM usuario JOIN practicante ON usuario.idUsuario = practicante.idUsuario " +
+            "WHERE practicante.Matricula = ?";
 
     public PracticanteDAO() {
         super();
@@ -24,17 +39,30 @@ public class PracticanteDAO extends ConexionBD implements PracticanteDAOInterfaz
 
     @Override
     public void agregarPracticante(PracticanteDTO practicante) throws Exception {
-        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT)){
-            preparedStatement.setString(1, practicante.getMatricula());
-            preparedStatement.setInt(2, practicante.getIdSeccion());
-            preparedStatement.setString(3, practicante.getSemestre());
-            preparedStatement.setString(4, practicante.getEstadoDelPracticante().name());
-            preparedStatement.setString(5, practicante.getGeneroDelPracticante().name());
-            preparedStatement.setInt(6, practicante.getEdad());
-            preparedStatement.setBoolean(7, practicante.isLenguaIndigena());
-            preparedStatement.executeUpdate();
-        } catch (SQLException e){
-            throw new Exception("Error al agregar el Practicante: " + e.getMessage());
+        UsuarioDAO usuarioDAO = new UsuarioDAO(this.conexion);
+        try {
+            conexion.setAutoCommit(false);
+            usuarioDAO.agregarUsuario(practicante);
+            int idGenerado = practicante.getIdUsuario();
+
+            if (idGenerado > 0) {
+                try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT)) {
+                    preparedStatement.setInt(1, idGenerado);
+                    preparedStatement.setString(2, practicante.getMatricula());
+                    preparedStatement.setString(3, practicante.getGeneroDelPracticante().name());
+                    preparedStatement.setInt(4, practicante.getEdad());
+                    preparedStatement.setBoolean(5, practicante.isLenguaIndigena());
+                    preparedStatement.executeUpdate();
+                }
+                conexion.commit();
+            } else {
+                throw new Exception("No se pudo crear el usuario base");
+            }
+        } catch (SQLException e) {
+            conexion.rollback();
+            throw new Exception("Error al agregar practicante: " + e.getMessage());
+        } finally {
+            conexion.setAutoCommit(true);
         }
     }
 
@@ -44,10 +72,9 @@ public class PracticanteDAO extends ConexionBD implements PracticanteDAOInterfaz
             preparedStatement.setString(1, practicante.getMatricula());
             preparedStatement.setInt(2, practicante.getIdSeccion());
             preparedStatement.setString(3, practicante.getSemestre());
-            preparedStatement.setString(4, practicante.getEstadoDelPracticante().name());
-            preparedStatement.setString(5, practicante.getGeneroDelPracticante().name());
-            preparedStatement.setInt(6, practicante.getEdad());
-            preparedStatement.setBoolean(7, practicante.isLenguaIndigena());
+            preparedStatement.setString(4, practicante.getGeneroDelPracticante().name());
+            preparedStatement.setInt(5, practicante.getEdad());
+            preparedStatement.setBoolean(6, practicante.isLenguaIndigena());
             preparedStatement.executeUpdate();
         } catch (SQLException e){
             throw new Exception("Error al actualizar al Practicante: " + e.getMessage());
@@ -55,22 +82,31 @@ public class PracticanteDAO extends ConexionBD implements PracticanteDAOInterfaz
     }
 
     @Override
-    public PracticanteDTO buscarPracticantePorIdPracticante(int idPracticante) throws Exception {
-        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_BUSCAR_POR_MATRICULA)){
+    public PracticanteDTO buscarPracticantePorMatricula(String matricula) throws Exception {
+        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_BUSCAR_POR_MATRICULA)) {
+            preparedStatement.setString(1, matricula);
             ResultSet resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()){
-                String matricula = resultSet.getString("Matricula");
-                int idSeccion = resultSet.getInt("idSeccion");
-                String semestre = resultSet.getString("Semestre");
-                String estado = resultSet.getString("Estado");
-                String genero = resultSet.getString("Genero");
-                int edad = resultSet.getInt("Edad");
-                boolean lenguaIndigena = resultSet.getBoolean("LenguaIndigena");
-                return new PracticanteDTO(matricula, idSeccion, semestre, EstadoDelPracticante.valueOf(estado), GeneroDelPracticante.valueOf(genero), edad, lenguaIndigena);
-            }else{
+            if (resultSet.next()) {
+                return new PracticanteDTO(
+                        resultSet.getInt("idUsuario"),
+                        resultSet.getString("nombre"),
+                        resultSet.getString("apellidoPaterno"),
+                        resultSet.getString("apellidoMaterno"),
+                        resultSet.getString("contrasenia"),
+                        TipoEstado.valueOf(resultSet.getString("estado")),
+                        TipoDeUsuario.valueOf(resultSet.getString("tipoDeUsuario")),
+                        resultSet.getString("Matricula"),
+                        resultSet.getInt("idSeccion"),
+                        resultSet.getString("Semestre"),
+                        GeneroDelPracticante.valueOf(resultSet.getString("Genero")),
+                        resultSet.getInt("Edad"),
+                        resultSet.getBoolean("LenguaIndigena")
+                );
+            } else {
                 return null;
             }
-        } catch (SQLException e){
+
+        } catch (SQLException e) {
             throw new Exception("Error al buscar al Practicante: " + e.getMessage());
         }
     }
@@ -81,10 +117,16 @@ public class PracticanteDAO extends ConexionBD implements PracticanteDAOInterfaz
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_SELECT_ALL);  ResultSet resultSet = preparedStatement.executeQuery();) {
             while (resultSet.next()) {
                 PracticanteDTO practicante = new PracticanteDTO(
+                        resultSet.getInt("idUsuario"),
+                        resultSet.getString("nombre"),
+                        resultSet.getString("apellidoPaterno"),
+                        resultSet.getString("apellidoMaterno"),
+                        resultSet.getString("contrasenia"),
+                        TipoEstado.valueOf(resultSet.getString("estado")),
+                        TipoDeUsuario.valueOf(resultSet.getString("tipoDeUsuario")),
                         resultSet.getString("Matricula"),
                         resultSet.getInt("idSeccion"),
                         resultSet.getString("Semestre"),
-                        EstadoDelPracticante.valueOf(resultSet.getString("Estado")),
                         GeneroDelPracticante.valueOf(resultSet.getString("Genero")),
                         resultSet.getInt("Edad"),
                         resultSet.getBoolean("LenguaIndigena")

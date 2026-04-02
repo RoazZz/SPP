@@ -27,7 +27,6 @@ public class CoordinadorDAO extends ConexionBD implements CoordinadorDAOInterfaz
     @Override
     public void agregarCoordinador(CoordinadorDTO coordinador) throws Exception {
         UsuarioDAO usuarioDAO = new UsuarioDAO(this.conexion);
-
         try {
             conexion.setAutoCommit(false);
             usuarioDAO.agregarUsuario(coordinador);

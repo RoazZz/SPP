@@ -2,22 +2,24 @@ package logica.dto;
 
 import logica.enums.EstadoDelPracticante;
 import logica.enums.GeneroDelPracticante;
+import logica.enums.TipoDeUsuario;
+import logica.enums.TipoEstado;
 
-public class PracticanteDTO {
+public class PracticanteDTO extends UsuarioDTO{
     private String matricula;
     private int idSeccion;
     private String semestre;
-    private EstadoDelPracticante estadoDelPracticante;
     private GeneroDelPracticante generoDelPracticante;
     private int edad;
     private boolean lenguaIndigena;
 
-    public PracticanteDTO (String matricula, int idSeccion, String semestre, EstadoDelPracticante estadoDelPracticante,
+    public PracticanteDTO (int idUsuario, String nombre, String apellidoPaterno, String apellidoMaterno, String contrasenia, TipoEstado estado, TipoDeUsuario tipoDeUsuario, String matricula, int idSeccion, String semestre,
                            GeneroDelPracticante generoDelPracticante, int edad, boolean lenguaIndigena){
+        super(idUsuario, nombre, apellidoPaterno, apellidoMaterno, contrasenia, estado, tipoDeUsuario);
+
         this.matricula = matricula;
         this.idSeccion = idSeccion;
         this.semestre = semestre;
-        this.estadoDelPracticante = estadoDelPracticante;
         this.generoDelPracticante = generoDelPracticante;
         this.edad = edad;
         this.lenguaIndigena = lenguaIndigena;
@@ -45,14 +47,6 @@ public class PracticanteDTO {
 
     public void setSemestre(String semestre) {
         this.semestre = semestre;
-    }
-
-    public EstadoDelPracticante getEstadoDelPracticante() {
-        return estadoDelPracticante;
-    }
-
-    public void setEstadoDelPracticante(EstadoDelPracticante estadoDelPracticante) {
-        this.estadoDelPracticante = estadoDelPracticante;
     }
 
     public GeneroDelPracticante getGeneroDelPracticante() {

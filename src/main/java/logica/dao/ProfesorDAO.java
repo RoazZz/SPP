@@ -41,11 +41,11 @@ public class ProfesorDAO extends ConexionBD implements ProfesorDAOInterfaz {
             int idGenerado = profesor.getIdUsuario();
 
             if (idGenerado > 0) {
-                try (PreparedStatement ps = conexion.prepareStatement(SQL_INSERT)) {
-                    ps.setInt(1, idGenerado);
-                    ps.setString(2, profesor.getNumeroDePersonal());
-                    ps.setString(3, profesor.getTurno().name());
-                    ps.executeUpdate();
+                try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT)) {
+                    preparedStatement.setInt(1, idGenerado);
+                    preparedStatement.setString(2, profesor.getNumeroDePersonal());
+                    preparedStatement.setString(3, profesor.getTurno().name());
+                    preparedStatement.executeUpdate();
                 }
                 conexion.commit();
             } else {
