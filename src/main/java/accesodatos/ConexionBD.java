@@ -1,29 +1,53 @@
 package accesodatos;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ConexionBD {
-    public Connection conexion;
+public class ConexionBD implements AutoCloseable {
+    private String URL;
+    private String USUARIO;
+    private String CONTRASEÑA;
+    protected Connection conexion = null;
+
     private static final Logger logger = Logger.getLogger(ConexionBD.class.getName());
 
-    public ConexionBD() {
-        String controlador = "com.mysql.cj.jdbc.Driver";
-        String usuario = "RoazAccess";
-        String contrasenia = "nugRJa1105!";
-        String basedatos = "sppbd";
-        String servidor = "jdbc:mysql://localhost:3306/" + basedatos;
+    public ConexionBD() throws IOException {
+        Properties properties = new Properties();
+        try(FileInputStream fileInputStream = new FileInputStream("config.properties")) {
+            properties.load(fileInputStream);
+            this.URL = properties.getProperty("db.url");
+            this.USUARIO = properties.getProperty("db.user");
+            this.CONTRASEÑA = properties.getProperty("db.password");
+        }catch (IOException e){
+            logger.log(Level.SEVERE, "Error al leer el archivo de configuración: " + e.getMessage(), e);
+        }
+    }
 
-        try{
-            Class.forName(controlador);
-            conexion = DriverManager.getConnection(servidor, usuario, contrasenia);
-        }catch (SQLException ex) {
-            logger.log(Level.SEVERE, "Error al establecer conexión con la base de datos", ex);
-        } catch (ClassNotFoundException ex) {
-            logger.log(Level.SEVERE, "No se encontró el driver JDBC", ex);
+    public Connection conectarBD() throws SQLException {
+        try {
+            conexion = DriverManager.getConnection(URL, USUARIO, CONTRASEÑA);
+            logger.info("Conexión exitosa a la base de datos.");
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error al conectar a la base de datos: " + e.getMessage(), e);
+        }
+        return conexion;
+    }
+
+    @Override
+    public void close(){
+        if (conexion != null) {
+            try {
+                conexion.close();
+                logger.info("Conexión cerrada correctamente.");
+            } catch (SQLException e) {
+                logger.log(Level.SEVERE, "Error al cerrar la conexión: " + e.getMessage(), e);
+            }
         }
     }
 }
