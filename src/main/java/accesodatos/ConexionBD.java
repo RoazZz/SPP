@@ -10,7 +10,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ConexionBD implements AutoCloseable {
-    private String URL;
+    private String ENLACE;
     private String USUARIO;
     private String CONTRASEÑA;
     protected Connection conexion = null;
@@ -21,9 +21,9 @@ public class ConexionBD implements AutoCloseable {
         Properties properties = new Properties();
         try(FileInputStream fileInputStream = new FileInputStream("config.properties")) {
             properties.load(fileInputStream);
-            this.URL = properties.getProperty("db.url");
-            this.USUARIO = properties.getProperty("db.user");
-            this.CONTRASEÑA = properties.getProperty("db.password");
+            this.ENLACE = properties.getProperty("db.enlace");
+            this.USUARIO = properties.getProperty("db.usuario");
+            this.CONTRASEÑA = properties.getProperty("db.contraseña");
         }catch (IOException e){
             logger.log(Level.SEVERE, "Error al leer el archivo de configuración: " + e.getMessage(), e);
         }
@@ -31,7 +31,7 @@ public class ConexionBD implements AutoCloseable {
 
     public Connection conectarBD() throws SQLException {
         try {
-            conexion = DriverManager.getConnection(URL, USUARIO, CONTRASEÑA);
+            conexion = DriverManager.getConnection(ENLACE, USUARIO, CONTRASEÑA);
             logger.info("Conexión exitosa a la base de datos.");
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error al conectar a la base de datos: " + e.getMessage(), e);
