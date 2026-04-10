@@ -5,12 +5,18 @@ import interfaces.CoordinadorAsignaProyectoDAOInterfaz;
 import logica.dto.CoordinadorAsignaProyectoDTO;
 import logica.enums.TipoEstado;
 
+import java.io.IOException;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
-public class CoordinadorAsignaProyectoDAO extends ConexionBD implements CoordinadorAsignaProyectoDAOInterfaz {
+public class CoordinadorAsignaProyectoDAO implements CoordinadorAsignaProyectoDAOInterfaz {
+    private final Connection conexion;
+    private static final Logger logger = Logger.getLogger(CoordinadorAsignaProyectoDAO.class.getName());
     public static final String SQL_INSERT = "INSERT INTO Asigna (NumeroDePersonal, idProyecto, Estado) VALUES (?, ?, ?)";
     public static final String SQL_UPDATE = "UPDATE Asigna SET Estado = ? WHERE idProyecto = ?";
     public static final String SQL_SELECT_BY_NUMERO_DE_PERSONAL = "SELECT * FROM Asigna WHERE NumeroDePersonal = ?";
@@ -18,8 +24,8 @@ public class CoordinadorAsignaProyectoDAO extends ConexionBD implements Coordina
     public static final String SQL_SELECT_ALL = "SELECT * FROM Asigna ";
 
 
-    public CoordinadorAsignaProyectoDAO() throws Exception {
-        super();
+    public CoordinadorAsignaProyectoDAO() throws SQLException, IOException {
+        this.conexion = ConexionBD.obtenerInstancia().obtenerConexion();
     }
 
     @Override
