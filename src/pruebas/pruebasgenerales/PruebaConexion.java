@@ -1,4 +1,4 @@
-package pruebas;
+package pruebasgenerales;
 
 import accesodatos.ConexionBD;
 import java.sql.Connection;

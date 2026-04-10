@@ -1,4 +1,4 @@
-package pruebas;
+package pruebasgenerales;
 
 import excepciones.DAOExcepcion;
 import logica.dao.*;
