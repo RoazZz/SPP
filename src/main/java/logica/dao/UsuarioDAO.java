@@ -1,24 +1,30 @@
 package logica.dao;
 
+import excepciones.DAOExcepcion;
 import interfaces.UsuarioDAOInterfaz;
 import accesodatos.ConexionBD;
 import logica.dto.UsuarioDTO;
 import logica.enums.TipoDeUsuario;
 import logica.enums.TipoEstado;
 
+import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
-public class UsuarioDAO extends ConexionBD implements UsuarioDAOInterfaz {
+public class UsuarioDAO implements UsuarioDAOInterfaz {
+    private final Connection conexion;
+    private static final Logger logger = Logger.getLogger(UsuarioDAO.class.getName());
     private static final String SQL_INSERT = "INSERT INTO Usuario(Nombre, ApellidoP, ApellidoM, Contrasenia, Estado, TipoUsuario) VALUES (?, ?, ?, ?, ?, ?)";
     private static final String SQL_BUSCAR_POR_ID_USUARIO = "SELECT * FROM Usuario WHERE idUsuario = ?";
     private static final String SQL_UPDATE = "UPDATE Usuario SET Nombre = ?, ApellidoP = ?, ApellidoM = ?, Contrasenia = ?, TipoUsuario = ? WHERE NumeroDePersonal = ?";
     private static final String SQL_SELECT_ALL = "SELECT * FROM Usuario";
 
-    public UsuarioDAO() {
-        super();
+    public UsuarioDAO() throws IOException, SQLException {
+        this.conexion = ConexionBD.obtenerInstancia().obtenerConexion();
     }
 
     public UsuarioDAO(Connection conexionExistente) {
@@ -26,7 +32,7 @@ public class UsuarioDAO extends ConexionBD implements UsuarioDAOInterfaz {
     }
 
     @Override
-    public void agregarUsuario(UsuarioDTO usuario) throws Exception {
+    public void agregarUsuario(UsuarioDTO usuario) throws DAOExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setString(1, usuario.getNombre());
             preparedStatement.setString(2, usuario.getApellidoPaterno());
@@ -43,29 +49,31 @@ public class UsuarioDAO extends ConexionBD implements UsuarioDAOInterfaz {
                 }
             }
         } catch (SQLException e) {
-            throw new Exception("Error al insertar usuario: " + e.getMessage());
+            logger.log(Level.SEVERE, "Error al agregar usuario", e);
+            throw new DAOExcepcion("Error al agregar usuario: ", e);
         }
     }
 
     @Override
-    public void actualizarUsuario(UsuarioDTO usuario) throws Exception {
+    public void actualizarUsuario(UsuarioDTO usuario) throws DAOExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_UPDATE)) {
-            preparedStatement.setInt(1, usuario.getIdUsuario());
-            preparedStatement.setString(2, usuario.getNombre());
-            preparedStatement.setString(3, usuario.getApellidoPaterno());
-            preparedStatement.setString(4, usuario.getApellidoMaterno());
-            preparedStatement.setString(5, usuario.getContrasenia());
-            preparedStatement.setString(6, usuario.getTipoEstado().name());
-            preparedStatement.setString(7, usuario.getTipoDeUsuario().name());
+            preparedStatement.setString(1, usuario.getNombre());
+            preparedStatement.setString(2, usuario.getApellidoPaterno());
+            preparedStatement.setString(3, usuario.getApellidoMaterno());
+            preparedStatement.setString(4, usuario.getContrasenia());
+            preparedStatement.setString(5, usuario.getTipoDeUsuario().name());
+            preparedStatement.setInt(6, usuario.getIdUsuario());
             preparedStatement.executeUpdate();
         } catch (SQLException e){
-            throw new Exception("Error al actualizar al usuario: " + e.getMessage());
+            logger.log(Level.SEVERE, "Error al actualizar al usuario", e);
+            throw new DAOExcepcion("Error al actualizar al usuario: ", e);
         }
     }
 
     @Override
-    public UsuarioDTO buscarUsuarioPorIdUsuario(int idUsuario) throws Exception {
+    public UsuarioDTO buscarUsuarioPorIdUsuario(int idUsuario) throws DAOExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_BUSCAR_POR_ID_USUARIO)){
+            preparedStatement.setInt(1, idUsuario);
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()){
                 int idDeUsuario = resultSet.getInt("IdUsuario");
@@ -80,12 +88,13 @@ public class UsuarioDAO extends ConexionBD implements UsuarioDAOInterfaz {
                 return null;
             }
         } catch (SQLException e){
-            throw new Exception("Error al buscar al Usuario: " + e.getMessage());
+            logger.log(Level.SEVERE, "Error al buscar al usuario", e);
+            throw new DAOExcepcion("Error al buscar al Usuario: ", e);
         }
     }
 
     @Override
-    public List<UsuarioDTO> listarUsuarios() throws Exception {
+    public List<UsuarioDTO> listarUsuarios() throws DAOExcepcion {
         List<UsuarioDTO> listaUsuario = new ArrayList<>();
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_SELECT_ALL); ResultSet resultSet = preparedStatement.executeQuery();) {
             while (resultSet.next()) {
@@ -102,7 +111,8 @@ public class UsuarioDAO extends ConexionBD implements UsuarioDAOInterfaz {
             }
             return listaUsuario;
         } catch (SQLException e){
-            throw new Exception("Error al listar a los usuarios: " + e.getMessage());
+            logger.log(Level.SEVERE, "Error al listar a los usuarios", e);
+            throw new DAOExcepcion("Error al listar a los usuarios: ", e);
         }
     }
 }

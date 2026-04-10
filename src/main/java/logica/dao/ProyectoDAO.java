@@ -1,29 +1,31 @@
 package logica.dao;
 
+import excepciones.DAOExcepcion;
 import interfaces.ProyectoDAOInterfaz;
 import accesodatos.ConexionBD;
 import logica.dto.ProyectoDTO;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.io.IOException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class ProyectoDAO extends ConexionBD implements ProyectoDAOInterfaz {
+public class ProyectoDAO implements ProyectoDAOInterfaz {
+    private final Connection conexion;
+    private static final Logger logger = Logger.getLogger(ProyectoDAO.class.getName());
     private static final String SQL_INSERT = "INSERT INTO Proyecto (idOrganizacion, numeroDePersonal, Nombre, Descripcion) VALUES ( ?, ?, ?, ?)";
     private static final String SQL_BUSCAR_POR_ID_PROYECTO = "SELECT * FROM Proyecto WHERE idProyecto = ?";
     private static final String SQL_UPDATE = "UPDATE Proyecto SET Nombre = ?, Descripcion = ? WHERE idProyecto = ?";
     private static final String SQL_SELECT_ALL = "SELECT * FROM Proyecto";
 
-    public ProyectoDAO() {
-        super();
+    public ProyectoDAO() throws IOException, SQLException {
+        this.conexion = ConexionBD.obtenerInstancia().obtenerConexion();
     }
 
-
     @Override
-    public void agregarProyecto(ProyectoDTO proyecto) throws Exception {
+    public void agregarProyecto(ProyectoDTO proyecto) throws DAOExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setString(1, proyecto.getIdOrganizacion());
             preparedStatement.setString(2, proyecto.getNumeroDePersonal());
@@ -37,46 +39,48 @@ public class ProyectoDAO extends ConexionBD implements ProyectoDAOInterfaz {
                 }
             }
         } catch (SQLException e) {
-            throw new Exception("Error al agregar el proyecto: " + e.getMessage());
+            logger.log(Level.SEVERE, "Error al agregar el proyecto", e);
+            throw new DAOExcepcion("Error al agregar el proyecto: ", e);
         }
     }
 
-
     @Override
-    public void actualizarProyecto(ProyectoDTO proyecto) throws Exception {
+    public void actualizarProyecto(ProyectoDTO proyecto) throws DAOExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_UPDATE)) {
             preparedStatement.setString(1, proyecto.getNombre());
             preparedStatement.setString(2, proyecto.getDescripcion());
             preparedStatement.setInt(3, proyecto.getIdProyecto());
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            throw new Exception("Error al actualizar el proyecto: " + e.getMessage());
+            logger.log(Level.SEVERE, "Error al actualizar proyecto", e);
+            throw new DAOExcepcion("Error al actualizar el proyecto: ", e);
         }
     }
 
     @Override
-    public ProyectoDTO buscarProyectoPorIdProyecto(int idProyecto) throws Exception {
+    public ProyectoDTO buscarProyectoPorIdProyecto(int idProyecto) throws DAOExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_BUSCAR_POR_ID_PROYECTO)) {
             preparedStatement.setInt(1, idProyecto);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
                     return new ProyectoDTO(
-                            resultSet.getInt("idUsuario"),
+                            resultSet.getInt("idProyecto"),
                             resultSet.getString("idOrganizacion"),
-                            resultSet.getString("idNumeroDePersonal"),
+                            resultSet.getString("NumeroDePersonal"),
                             resultSet.getString("Nombre"),
                             resultSet.getString("Descripcion")
                     );
                 }
             }
         } catch (SQLException e) {
-            throw new Exception("Error al buscar Proyecto por idProyecto: " + e.getMessage());
+            logger.log(Level.SEVERE, "Error al buscar proyecto", e);
+            throw new DAOExcepcion("Error al buscar Proyecto por idProyecto: ", e);
         }
         return null;
     }
 
     @Override
-    public List<ProyectoDTO> listarProyectos() throws Exception {
+    public List<ProyectoDTO> listarProyectos() throws DAOExcepcion {
         List<ProyectoDTO> listaProyectos = new ArrayList<>();
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_SELECT_ALL);
              ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -91,7 +95,8 @@ public class ProyectoDAO extends ConexionBD implements ProyectoDAOInterfaz {
                 listaProyectos.add(proyecto);
             }
         } catch (SQLException e) {
-            throw new Exception("Error al listar los proyectos: " + e.getMessage());
+            logger.log(Level.SEVERE, "Error al listar los proyectos", e);
+            throw new DAOExcepcion ("Error al listar los proyectos: ", e);
         }
         return listaProyectos;
     }

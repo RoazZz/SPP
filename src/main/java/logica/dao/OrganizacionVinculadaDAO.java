@@ -1,51 +1,60 @@
 package logica.dao;
 
+import excepciones.DAOExcepcion;
 import interfaces.OrganizacionVinculadaDAOInterfaz;
 import accesodatos.ConexionBD;
 import logica.dto.OrganizacionVinculadaDTO;
 
+import java.io.IOException;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class OrganizacionVinculadaDAO extends ConexionBD implements OrganizacionVinculadaDAOInterfaz {
+public class OrganizacionVinculadaDAO implements OrganizacionVinculadaDAOInterfaz {
+    private final Connection conexion;
+    private static final Logger logger = Logger.getLogger(OrganizacionVinculadaDAO.class.getName());
     private static final String SQL_INSERT = "INSERT INTO OrganizacionVinculada (idOrganizacion, Nombre, Direccion) VALUES ( ?, ?, ?)";
     private static final String SQL_BUSCAR_POR_ID_ORGANIZACIONVINCULADA = "SELECT * FROM OrganizacionVinculada WHERE idOrganizacion = ?";
     private static final String SQL_UPDATE = "UPDATE OrganizacionVinculada SET Nombre = ?, Direccion = ? WHERE idOrganizacion = ?";
     private static final String SQL_SELECT_ALL = "SELECT * FROM OrganizacionVinculada";
 
-    public OrganizacionVinculadaDAO() {
-        super();
+    public OrganizacionVinculadaDAO() throws SQLException, IOException {
+        this.conexion = ConexionBD.obtenerInstancia().obtenerConexion();
     }
 
     @Override
-    public void agregarOrganizacionVinculada(OrganizacionVinculadaDTO organizacionVinculada) throws Exception {
+    public void agregarOrganizacionVinculada(OrganizacionVinculadaDTO organizacionVinculada) throws DAOExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT)){
             preparedStatement.setString(1, organizacionVinculada.getidOrganizacion());
             preparedStatement.setString(2, organizacionVinculada.getNombre());
             preparedStatement.setString(3, organizacionVinculada.getDireccion());
             preparedStatement.executeUpdate();
         } catch (SQLException e){
-            throw new Exception("Error al agregar la Organizacion Vinculada: " + e.getMessage());
+            logger.log(Level.SEVERE, "Error al agregar Organizacion Vinculada", e);
+            throw new DAOExcepcion("Error al agregar la Organizacion Vinculada: ", e);
         }
     }
 
     @Override
-    public void actualizarOrganizacionVinculada(OrganizacionVinculadaDTO organizacionVinculada) throws Exception {
+    public void actualizarOrganizacionVinculada(OrganizacionVinculadaDTO organizacionVinculada) throws DAOExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_UPDATE)) {
-            preparedStatement.setString(1, organizacionVinculada.getidOrganizacion());
-            preparedStatement.setString(2, organizacionVinculada.getNombre());
-            preparedStatement.setString(3, organizacionVinculada.getDireccion());
+            preparedStatement.setString(1, organizacionVinculada.getNombre());
+            preparedStatement.setString(2, organizacionVinculada.getDireccion());
+            preparedStatement.setString(3, organizacionVinculada.getidOrganizacion());
             preparedStatement.executeUpdate();
         } catch (SQLException e){
-            throw new Exception("Error al actualizar a la Organizacion Vinculada: " + e.getMessage());
+            logger.log(Level.SEVERE, "Error al actualizar Organizacion Vinculada", e);
+            throw new DAOExcepcion("Error al actualizar a la Organizacion Vinculada: ", e);
         }
     }
 
     @Override
-    public OrganizacionVinculadaDTO buscarOrganizacionVinculadaPorIdProyecto(String idOrganizacion) throws Exception {
+    public OrganizacionVinculadaDTO buscarOrganizacionVinculadaPorIdProyecto(String idOrganizacion) throws DAOExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_BUSCAR_POR_ID_ORGANIZACIONVINCULADA)){
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()){
@@ -57,25 +66,27 @@ public class OrganizacionVinculadaDAO extends ConexionBD implements Organizacion
                 return null;
             }
         } catch (SQLException e){
-            throw new Exception("Error al buscar a la Organizacion Vinculada: " + e.getMessage());
+            logger.log(Level.SEVERE, "Error al buscar a la Organizacion Vinculada", e);
+            throw new DAOExcepcion("Error al buscar a la Organizacion Vinculada: ", e);
         }
     }
 
     @Override
-    public List<OrganizacionVinculadaDTO> listarOrganizacionesVinculadas() throws Exception {
+    public List<OrganizacionVinculadaDTO> listarOrganizacionesVinculadas() throws DAOExcepcion {
         List<OrganizacionVinculadaDTO> listaOrganizacionVinculada = new ArrayList<>();
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_SELECT_ALL); ResultSet resultSet = preparedStatement.executeQuery();) {
             while (resultSet.next()) {
                 OrganizacionVinculadaDTO organizacion = new OrganizacionVinculadaDTO(
                         resultSet.getString("idOrganizacion"),
                         resultSet.getString("Nombre"),
-                        resultSet.getString("Descripcion")
+                        resultSet.getString("Direccion")
                 );
                 listaOrganizacionVinculada.add(organizacion);
             }
             return listaOrganizacionVinculada;
         } catch (SQLException e){
-            throw new Exception("Error al listar a las Organizaciones Vinculadas: " + e.getMessage());
+            logger.log(Level.SEVERE, "Error al listar las Organizacion Vinculadas", e);
+            throw new DAOExcepcion("Error al listar a las Organizaciones Vinculadas: ", e);
         }
     }
 }
