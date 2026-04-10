@@ -6,7 +6,7 @@ import accesodatos.ConexionBD;
 import logica.dto.ActividadDTO;
 
 import java.io.IOException;
-import java.sql.*;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
