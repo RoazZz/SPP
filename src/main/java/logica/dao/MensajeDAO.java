@@ -59,9 +59,11 @@ public class MensajeDAO implements MensajeDAOInterfaz {
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
                     return resultSet.getString("Contenido");
+                }else{
+                    logger.log(Level.WARNING, "No se encontró mensaje con ID: " + idMensaje);
+                    throw new DAOExcepcion("No se encontró el mensaje con el ID proporcionado", null);
                 }
             }
-            return null;
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Error SQL al obtener mensaje por ID: " + idMensaje, e);
             throw new DAOExcepcion("Error al buscar el contenido del mensaje", e);        }

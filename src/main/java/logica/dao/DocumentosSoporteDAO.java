@@ -65,9 +65,11 @@ public class DocumentosSoporteDAO implements DocumentosSoporteDAOInterfaz {
                             resultSet.getString("TipoDocumento"),
                             resultSet.getString("Estado")
                     );
+                }else{
+                    logger.log(Level.WARNING, "No se encontró documento de soporte con ID: " + idDocumento);
+                    throw new DAOExcepcion("Documento de soporte no encontrado con ID: " + idDocumento, null);
                 }
             }
-            return null;
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error SQL al buscar documento de soporte por ID: " + idDocumento, e);
             throw new DAOExcepcion("Error al buscar documento de soporte por ID", e);        }

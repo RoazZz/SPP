@@ -82,9 +82,11 @@ public class SeccionDAO implements SeccionDAOInterfaz {
                             resultSet.getInt("idSeccion"),
                             resultSet.getString("Nombre")
                     );
+                }else{
+                    logger.log(Level.WARNING, "No se encontró la Sección con ID: " + idSeccion);
+                    throw new DAOExcepcion("No se encontró la Sección con el ID proporcionado", null);
                 }
             }
-            return null;
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Error SQL al obtener seccion por ID: " + idSeccion, e);
             throw new DAOExcepcion("Error al consultar la sección", e);

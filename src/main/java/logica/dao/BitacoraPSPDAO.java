@@ -64,9 +64,11 @@ public class BitacoraPSPDAO implements BitacoraPSPDAOInterfaz {
                             resultSet.getString("Matricula"),
                             resultSet.getDate("Fecha").toLocalDate()
                     );
+                }else{
+                    logger.log(Level.WARNING, "No se encontró bitacoraPSP con ID: " + idBitacora);
+                    throw new DAOExcepcion("BitacoraPSP no encontrado con ID: " + idBitacora, null);
                 }
             }
-            return null;
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error SQL al buscar bitacora PSP por ID: " + idBitacora, e);
             throw new DAOExcepcion("Error al buscar bitácora PSP por ID", e);

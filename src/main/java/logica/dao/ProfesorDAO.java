@@ -127,9 +127,11 @@ public class ProfesorDAO implements ProfesorDAOInterfaz {
                             resultSet.getString("NumeroDePersonal"),
                             TipoTurno.valueOf(resultSet.getString("Turno"))
                     );
+                }else{
+                    logger.log(Level.WARNING, "No se encontró profesor con numero de personal: " + numPersonal);
+                    throw new DAOExcepcion("Profesor no encontrado con numero de personal: " + numPersonal, null);
                 }
             }
-            return null;
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error al buscar profesor por numero personal", e);
             throw new DAOExcepcion("Error al buscar el profesor", e);

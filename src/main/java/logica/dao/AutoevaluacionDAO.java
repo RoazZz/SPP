@@ -81,9 +81,11 @@ public class AutoevaluacionDAO implements AutoevaluacionDAOInterfaz {
                             resultSet.getBigDecimal("Calificacion"),
                             resultSet.getString("Comentarios")
                     );
+                }else{
+                    logger.log(Level.WARNING, "No se encontró Autoevaluación con matricula: " + matricula);
+                    throw new DAOExcepcion("Autoevaluación no encontrada con matricula: " + matricula, null);
                 }
             }
-            return null;
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error SQL al buscar autoevaluacion por matricula", e);
             throw new DAOExcepcion("Error al buscar autoevaluación por matrícula", e);

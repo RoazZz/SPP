@@ -89,9 +89,11 @@ public class ReporteDAO implements ReporteDAOInterfaz {
                             resultSet.getDate("Fecha").toLocalDate(),
                             resultSet.getString("Ruta")
                     );
+                }else{
+                        logger.log(Level.WARNING, "No se encontró Reporte con ID: " + idReporte);
+                        throw new DAOExcepcion("No se encontró el Reporte con el ID proporcionado", null);
                 }
             }
-            return null;
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error SQL al buscar reporte por ID: " + idReporte, e);
             throw new DAOExcepcion("Error al consultar el reporte", e);

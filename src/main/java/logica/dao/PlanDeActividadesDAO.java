@@ -125,12 +125,14 @@ public class PlanDeActividadesDAO implements PlanDeActivadesDAOInterfaz {
                             resultSet.getInt("idProyecto"),
                             resultSet.getString("Descripcion")
                     );
-                } else {
-                    throw new DAOExcepcion("No se encontró el plan de actividades con el ID proporcionado", null);
+                }else{
+                    logger.log(Level.WARNING, "No se encontró Plan de Actividades con ID: " + idPlanDeActividades);
+                    throw new DAOExcepcion("No se encontró el Plan de Actividades con el ID proporcionado", null);
                 }
             }
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error al buscar plan por ID: " + idPlanDeActividades, e);
-            throw new DAOExcepcion("Error al buscar el plan específico", e);        }
+            throw new DAOExcepcion("Error al buscar el plan específico", e);
+        }
     }
 }
