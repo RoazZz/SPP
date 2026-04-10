@@ -1,12 +1,13 @@
 package interfaces;
 
+import excepciones.DAOExcepcion;
 import logica.dto.ProfesorDTO;
 
 import java.util.List;
 
 public interface ProfesorDAOInterfaz {
-    public void agregarProfesor(ProfesorDTO profesor) throws Exception;
-    public void actualizarProfesor(ProfesorDTO profesor) throws Exception;
-    public ProfesorDTO buscarProfesorPorNumPersonal(String numPersonal) throws Exception;
-    public List<ProfesorDTO> listarProfesores() throws Exception;
+    public void agregarProfesor(ProfesorDTO profesor) throws DAOExcepcion;
+    public void actualizarProfesor(ProfesorDTO profesor) throws DAOExcepcion;
+    public ProfesorDTO buscarProfesorPorNumPersonal(String numPersonal) throws DAOExcepcion;
+    public List<ProfesorDTO> listarProfesores() throws DAOExcepcion;
 }

@@ -1,23 +1,44 @@
 package logica.dao;
 
 import accesodatos.ConexionBD;
+import excepciones.DAOExcepcion;
 import interfaces.ReporteDAOInterfaz;
 import logica.dto.ReporteDTO;
 import logica.enums.TipoReporte;
 
+import java.io.IOException;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class ReporteDAO extends ConexionBD implements ReporteDAOInterfaz {
+public class ReporteDAO implements ReporteDAOInterfaz {
     public static final String SQL_INSERT = "INSERT INTO reporte(idReporte, TipoReporte, Fecha, Ruta) VALUES (?, ?, ?, ?)";
     public static final String SQL_UPDATE = "UPDATE reporte SET TipoReporte = ?, Fecha = ?, Ruta = ? WHERE idReporte = ?";
     public static final String SQL_SELECT_BY_ID = "SELECT * FROM reporte WHERE idReporte = ?";
     public static final String SQL_SELECT_ALL = "SELECT * FROM reporte";
 
-    public void agregarReporte(ReporteDTO reporte) throws Exception{
+    private Connection conexion;
+    private static final Logger logger = Logger.getLogger(ReporteDAO.class.getName());
+
+    public ReporteDAO() throws DAOExcepcion {
+        try{
+            this.conexion = ConexionBD.obtenerInstancia().obtenerConexion();
+        }catch (IOException e){
+            logger.log(Level.SEVERE, "Error de entrada/salida al configurar la conexión", e);
+            throw new DAOExcepcion("Error al leer la configuración de la base de datos", e);
+        }catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error de SQL al intentar conectar", e);
+            throw new DAOExcepcion("Error de acceso a la base de datos", e);
+        }
+    }
+
+    @Override
+    public void agregarReporte(ReporteDTO reporte) throws DAOExcepcion{
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT)) {
             preparedStatement.setInt(1, reporte.getIdReporte());
             preparedStatement.setString(2, reporte.getTipoReporte().name());
@@ -29,23 +50,34 @@ public class ReporteDAO extends ConexionBD implements ReporteDAOInterfaz {
                 if (resultSet.next()) {
                     reporte.setIdReporte(resultSet.getInt(1));
                 }
-            }catch (Exception e){
-                throw new Exception("Error al agregar reporte: " + e.getMessage());
             }
+            logger.log(Level.INFO, "Reporte agregado exitosamente. ID: " + reporte.getIdReporte());
+        }catch (Exception e){
+                logger.log(Level.SEVERE, "Error SQL al agregar reporte", e);
+                throw new DAOExcepcion("Error al guardar el reporte en la base de datos", e);
         }
     }
-    public void actualizarReporte(ReporteDTO reporte) throws Exception{
+
+    @Override
+    public void actualizarReporte(ReporteDTO reporte) throws DAOExcepcion{
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_UPDATE)) {
             preparedStatement.setString(1, reporte.getTipoReporte().name());
             preparedStatement.setDate(2, java.sql.Date.valueOf(reporte.getFecha()));
             preparedStatement.setString(3, reporte.getRuta());
             preparedStatement.setInt(4, reporte.getIdReporte());
-            preparedStatement.executeUpdate();
-        } catch (Exception e) {
-            throw new Exception("Error al actualizar reporte: " + e.getMessage());
+            int filasAfectadas = preparedStatement.executeUpdate();
+            if (filasAfectadas == 0) {
+                throw new DAOExcepcion("No se encontró el reporte para actualizar con ID: " + reporte.getIdReporte(), null);
+            }
+            logger.log(Level.INFO, "Reporte actualizado exitosamente. ID: " + reporte.getIdReporte());
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error SQL al actualizar reporte", e);
+            throw new DAOExcepcion("Error al modificar los datos del reporte", e);
         }
     }
-    public ReporteDTO buscarReportePorId(int idReporte) throws Exception{
+
+    @Override
+    public ReporteDTO buscarReportePorId(int idReporte) throws DAOExcepcion{
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_SELECT_BY_ID)) {
             preparedStatement.setInt(1, idReporte);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -58,14 +90,16 @@ public class ReporteDAO extends ConexionBD implements ReporteDAOInterfaz {
                             resultSet.getString("Ruta")
                     );
                 }
-                return null;
             }
-        } catch (Exception e) {
-            throw new Exception("Error al buscar reporte por ID: " + e.getMessage());
+            return null;
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error SQL al buscar reporte por ID: " + idReporte, e);
+            throw new DAOExcepcion("Error al consultar el reporte", e);
         }
     }
 
-    public List<ReporteDTO> buscarTodosReporte() throws Exception{
+    @Override
+    public List<ReporteDTO> listarTodosReporte() throws DAOExcepcion{
         List<ReporteDTO> listaReporte = new ArrayList<>();
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_SELECT_ALL); ResultSet resultSet = preparedStatement.executeQuery()){
                 while (resultSet.next()){
@@ -80,7 +114,8 @@ public class ReporteDAO extends ConexionBD implements ReporteDAOInterfaz {
                 }
                 return listaReporte;
             } catch (SQLException e) {
-                throw new Exception("Error al buscar todos los reportes: " + e.getMessage());
+            logger.log(Level.SEVERE, "Error SQL al listar todos los reportes", e);
+            throw new DAOExcepcion("Error al obtener la lista de reportes", e);
         }
     }
 }
