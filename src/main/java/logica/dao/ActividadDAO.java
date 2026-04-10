@@ -1,34 +1,40 @@
 package logica.dao;
 
+import excepciones.DAOExcepcion;
 import interfaces.ActividadDAOInterfaz;
 import accesodatos.ConexionBD;
 import logica.dto.ActividadDTO;
 
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.Statement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class ActividadDAO extends ConexionBD implements ActividadDAOInterfaz {
-    private static final String SQL_INSERT = "INSERT INTO Actividad (idActividad, Matricula, Nombre, Descripcion, Fecha ) VALUES ( ?, ?, ?, ?, ?)";
+public class ActividadDAO implements ActividadDAOInterfaz {
+    private final Connection conexion;
+    private static final Logger logger = Logger.getLogger(ActividadDAO.class.getName());
+    private static final String SQL_INSERT = "INSERT INTO Actividad (Matricula, Nombre, Descripcion, Fecha ) VALUES (?, ?, ?, ?)";
     private static final String SQL_BUSCAR_POR_ID_ACTIVIDAD = "SELECT * FROM Actividad WHERE idActividad = ?";
     private static final String SQL_UPDATE = "UPDATE Actividad SET Matricula = ?, Nombre = ?, Descripcion = ?, Fecha = ? WHERE idActividad = ?";
     private static final String SQL_SELECT_ALL = "SELECT * FROM Actividad";
 
-    public ActividadDAO() {
-        super();
+    public ActividadDAO() throws SQLException, IOException {
+        this.conexion = ConexionBD.obtenerInstancia().obtenerConexion();
     }
 
     @Override
-    public void agregarActividad(ActividadDTO actividad) throws SQLException {
+    public void agregarActividad(ActividadDTO actividad) throws DAOExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
-            preparedStatement.setInt(1, actividad.getIdActividad());
-            preparedStatement.setString(2, actividad.getMatricula());
-            preparedStatement.setString(3, actividad.getNombre());
-            preparedStatement.setString(4, actividad.getDescripcion());
-            preparedStatement.setDate(5, actividad.getFecha());
+            preparedStatement.setString(1, actividad.getMatricula());
+            preparedStatement.setString(2, actividad.getNombre());
+            preparedStatement.setString(3, actividad.getDescripcion());
+            preparedStatement.setDate(4, actividad.getFecha());
             preparedStatement.executeUpdate();
 
             try (ResultSet resultSet = preparedStatement.getGeneratedKeys()) {
@@ -37,12 +43,13 @@ public class ActividadDAO extends ConexionBD implements ActividadDAOInterfaz {
                 }
             }
         } catch (SQLException e) {
-            throw new SQLException("Error al agregar la actividad: " + e.getMessage());
+            logger.log(Level.SEVERE, "Error al agregar la actividad", e);
+            throw new DAOExcepcion("Error al agregar la actividad: ", e);
         }
     }
 
     @Override
-    public void actualizarProyecto(ActividadDTO actividad) throws Exception {
+    public void actualizarProyecto(ActividadDTO actividad) throws DAOExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_UPDATE)) {
             preparedStatement.setString(1, actividad.getMatricula());
             preparedStatement.setString(2, actividad.getNombre());
@@ -51,12 +58,13 @@ public class ActividadDAO extends ConexionBD implements ActividadDAOInterfaz {
             preparedStatement.setInt(5, actividad.getIdActividad());
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            throw new Exception("Error al actualizar la Actividad: " + e.getMessage());
+            logger.log(Level.SEVERE, "Error al actualizar la actividad", e);
+            throw new DAOExcepcion("Error al actualizar la Actividad: ", e);
         }
     }
 
     @Override
-    public ActividadDTO buscarActividadPorIdActividad(int idActividad) throws Exception {
+    public ActividadDTO buscarActividadPorIdActividad(int idActividad) throws DAOExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_BUSCAR_POR_ID_ACTIVIDAD)) {
             preparedStatement.setInt(1, idActividad);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -71,13 +79,14 @@ public class ActividadDAO extends ConexionBD implements ActividadDAOInterfaz {
                 }
             }
         } catch (SQLException e) {
-            throw new Exception("Error al buscar Proyecto por idActividad: " + e.getMessage());
+            logger.log(Level.SEVERE, "Error al buscar la actividad", e);
+            throw new DAOExcepcion("Error al buscar actividad por idActividad: ", e);
         }
         return null;
     }
 
     @Override
-    public List<ActividadDTO> listarActividades() throws Exception {
+    public List<ActividadDTO> listarActividades() throws DAOExcepcion {
         List<ActividadDTO> listaActividad = new ArrayList<>();
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_SELECT_ALL);
              ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -92,7 +101,8 @@ public class ActividadDAO extends ConexionBD implements ActividadDAOInterfaz {
                 listaActividad.add(actividad);
             }
         } catch (SQLException e) {
-            throw new Exception("Error al listar las actividades: " + e.getMessage());
+            logger.log(Level.SEVERE, "Error al listar actividades", e);
+            throw new DAOExcepcion("Error al listar las actividades: ", e);
         }
         return listaActividad;
     }

@@ -1,31 +1,38 @@
 package logica.dao;
 
+import excepciones.DAOExcepcion;
 import interfaces.CoordinadorDAOInterfaz;
 import accesodatos.ConexionBD;
 import logica.dto.CoordinadorDTO;
 import logica.enums.TipoDeUsuario;
 import logica.enums.TipoEstado;
 
+import java.io.IOException;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class CoordinadorDAO extends ConexionBD implements CoordinadorDAOInterfaz{
+public class CoordinadorDAO implements CoordinadorDAOInterfaz{
+    private final Connection conexion;
+    private static final Logger logger = Logger.getLogger(CoordinadorDAO.class.getName());
     private static final String SQL_INSERT  = "INSERT INTO Coordinador (idUsuario, NumeroDePersonal) VALUES (?, ?)";
     private static final String SQL_SELECT_ALL =
             "SELECT usuario.idUsuario, usuario.nombre, usuario.apellidoPaterno, usuario.apellidoMaterno, " +
             "usuario.contrasenia, usuario.tipoDeUsuario, usuario.estado, " +
-            "coordinador.NumeroDePersonal" +
+            "coordinador.NumeroDePersonal " +
             "FROM usuario JOIN coordinador ON usuario.idUsuario = coordinador.idUsuario";
 
-    public CoordinadorDAO(){
-        super();
+    public CoordinadorDAO() throws IOException, SQLException {
+        this.conexion = ConexionBD.obtenerInstancia().obtenerConexion();
     }
 
     @Override
-    public void agregarCoordinador(CoordinadorDTO coordinador) throws Exception {
+    public void agregarCoordinador(CoordinadorDTO coordinador) throws DAOExcepcion {
         UsuarioDAO usuarioDAO = new UsuarioDAO(this.conexion);
         try {
             conexion.setAutoCommit(false);
@@ -40,18 +47,27 @@ public class CoordinadorDAO extends ConexionBD implements CoordinadorDAOInterfaz
                 }
                 conexion.commit();
             } else {
-                throw new Exception("No se pudo crear el usuario base");
+                throw new DAOExcepcion("No se pudo crear el usuario base", null);
             }
         } catch (SQLException e) {
-            conexion.rollback();
-            throw new Exception("Error al agregar coordinador: " + e.getMessage());
+            try {
+                conexion.rollback();
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, "Error al hacer rollback", ex);
+            }
+            logger.log(Level.SEVERE, "Error al agregar coordinador", e);
+            throw new DAOExcepcion("Error al agregar coordinador: ", e);
         } finally {
-            conexion.setAutoCommit(true);
+            try {
+                conexion.setAutoCommit(true);
+            } catch (SQLException ex) {
+                logger.log(Level.SEVERE, "Error al restaurar AutoCommit", ex);
+            }
         }
     }
 
     @Override
-    public List<CoordinadorDTO> listarCoordinador() throws Exception {
+    public List<CoordinadorDTO> listarCoordinador() throws DAOExcepcion {
         List<CoordinadorDTO> listaCoordinador = new ArrayList<>();
         try {
             try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_SELECT_ALL);
@@ -72,7 +88,8 @@ public class CoordinadorDAO extends ConexionBD implements CoordinadorDAOInterfaz
             }
             return listaCoordinador;
         } catch (SQLException e) {
-            throw new Exception("Error al listar los coordinadores: " + e.getMessage());
+            logger.log(Level.SEVERE, "Error al listar a los coordinadores", e);
+            throw new DAOExcepcion("Error al listar los coordinadores: ", e);
         }
     }
 }
