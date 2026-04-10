@@ -76,13 +76,15 @@ public class ActividadDAO implements ActividadDAOInterfaz {
                             resultSet.getString("Descripcion"),
                             resultSet.getDate("Fecha")
                     );
+                }else{
+                    logger.log(Level.WARNING, "No se encontro alguna actividad con el id: " + idActividad);
+                    throw new DAOExcepcion("No existe actividad con id: " + idActividad, null);
                 }
             }
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error al buscar la actividad", e);
             throw new DAOExcepcion("Error al buscar actividad por idActividad: ", e);
         }
-        return null;
     }
 
     @Override

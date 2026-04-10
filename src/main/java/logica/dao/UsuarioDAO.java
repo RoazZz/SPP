@@ -88,7 +88,8 @@ public class UsuarioDAO implements UsuarioDAOInterfaz {
                 String tipoUsuario = resultSet.getString("TipoUsuario");
                 return new UsuarioDTO(idDeUsuario, nombre, apellidoPaterno, apellidoMaterno, contrasenia, TipoEstado.valueOf(estado), TipoDeUsuario.valueOf(tipoUsuario));
             }else{
-                return null;
+                logger.log(Level.WARNING, "No se encontro algun usuario con id: " + idUsuario);
+                throw new DAOExcepcion("No existe usuario con el id: " + idUsuario, null);
             }
         } catch (SQLException e){
             logger.log(Level.SEVERE, "Error al buscar al usuario", e);

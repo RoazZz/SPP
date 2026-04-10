@@ -59,13 +59,15 @@ public class BitacoraDAO implements BitacoraDAOInterfaz {
                             resultSet.getTimestamp("Fecha_Hora").toLocalDateTime(),
                             resultSet.getString("DescripcionEvento")
                     );
+                }else{
+                    logger.log(Level.WARNING, "No se encontro alguna bitacora con Matricula : " + matricula);
+                    throw new DAOExcepcion("No existe bitacora con Matricula : " + matricula, null);
                 }
             }
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error al buscar bitacora", e);
             throw new DAOExcepcion("Error al buscar Bitacora por Matricula: ", e);
         }
-        return null;
     }
 
     @Override

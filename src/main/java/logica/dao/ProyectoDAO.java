@@ -74,13 +74,15 @@ public class ProyectoDAO implements ProyectoDAOInterfaz {
                             resultSet.getString("Nombre"),
                             resultSet.getString("Descripcion")
                     );
+                } else {
+                    logger.log(Level.WARNING, "No se encontro algun proyecto con el id: " + idProyecto);
+                    throw new DAOExcepcion("No existe proyecto con el id: " + idProyecto, null);
                 }
             }
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error al buscar proyecto", e);
             throw new DAOExcepcion("Error al buscar Proyecto por idProyecto: ", e);
         }
-        return null;
     }
 
     @Override

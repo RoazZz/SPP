@@ -63,7 +63,8 @@ public class OrganizacionVinculadaDAO implements OrganizacionVinculadaDAOInterfa
                 String direccion = resultSet.getString("Direccion");
                 return new OrganizacionVinculadaDTO(idOrganizacionVinculada, nombre, direccion);
             }else{
-                return null;
+                logger.log(Level.WARNING, "No se encontro alguna organizacion vinculada con el id: " + idOrganizacion);
+                throw new DAOExcepcion("No existe organizacion vinculada con el id: " + idOrganizacion, null);
             }
         } catch (SQLException e){
             logger.log(Level.SEVERE, "Error al buscar a la Organizacion Vinculada", e);

@@ -118,7 +118,8 @@ public class PracticanteDAO implements PracticanteDAOInterfaz {
                         resultSet.getBoolean("LenguaIndigena")
                 );
             } else {
-                return null;
+                logger.log(Level.WARNING, "No se encontro algun practicante con el id: " + matricula);
+                throw new DAOExcepcion("No existe practicante con id: " + matricula, null);
             }
 
         } catch (SQLException e) {
