@@ -22,7 +22,7 @@ public class ActividadDAO extends ConexionBD implements ActividadDAOInterfaz {
     }
 
     @Override
-    public void agregarActividad(ActividadDTO actividad) throws Exception {
+    public void agregarActividad(ActividadDTO actividad) throws SQLException {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setInt(1, actividad.getIdActividad());
             preparedStatement.setString(2, actividad.getMatricula());
@@ -37,7 +37,7 @@ public class ActividadDAO extends ConexionBD implements ActividadDAOInterfaz {
                 }
             }
         } catch (SQLException e) {
-            throw new Exception("Error al agregar la actividad: " + e.getMessage());
+            throw new SQLException("Error al agregar la actividad: " + e.getMessage());
         }
     }
 

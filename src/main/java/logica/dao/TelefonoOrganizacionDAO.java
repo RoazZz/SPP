@@ -2,7 +2,6 @@ package logica.dao;
 
 import interfaces.TelefonoOrganizacionDAOInterfaz;
 import accesodatos.ConexionBD;
-import logica.dto.ProyectoDTO;
 import logica.dto.TelefonoOrganizacionDTO;
 
 import java.sql.PreparedStatement;

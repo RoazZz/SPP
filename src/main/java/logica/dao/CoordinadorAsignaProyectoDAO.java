@@ -3,9 +3,7 @@ package logica.dao;
 import accesodatos.ConexionBD;
 import interfaces.CoordinadorAsignaProyectoDAOInterfaz;
 import logica.dto.CoordinadorAsignaProyectoDTO;
-import logica.dto.SolicitaProyectoDTO;
 import logica.enums.TipoEstado;
-import logica.enums.TipoEstadoSolicitud;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
