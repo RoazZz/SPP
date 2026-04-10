@@ -47,4 +47,16 @@ public class ConexionBD{
         return conexion;
     }
 
+    public void cerrarConexion(){
+        if(conexion != null){
+            try{
+                conexion.close();
+                instancia = null;
+                logger.log(Level.INFO, "Conexión cerrada correctamente");
+            } catch (SQLException e) {
+                logger.log(Level.SEVERE, "Error al cerrar la conexión", e);
+            }
+        }
+    }
+
 }
