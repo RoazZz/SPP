@@ -1,6 +1,7 @@
 package logica.dao;
 
 import excepciones.DAOExcepcion;
+import excepciones.EntidadNoEncontradaExcepcion;
 import interfaces.ProyectoDAOInterfaz;
 import accesodatos.ConexionBD;
 import logica.dto.ProyectoDTO;
@@ -62,7 +63,7 @@ public class ProyectoDAO implements ProyectoDAOInterfaz {
     }
 
     @Override
-    public ProyectoDTO buscarProyectoPorIdProyecto(int idProyecto) throws DAOExcepcion {
+    public ProyectoDTO buscarProyectoPorIdProyecto(int idProyecto) throws DAOExcepcion, EntidadNoEncontradaExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_BUSCAR_POR_ID_PROYECTO)) {
             preparedStatement.setInt(1, idProyecto);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -76,7 +77,7 @@ public class ProyectoDAO implements ProyectoDAOInterfaz {
                     );
                 } else {
                     logger.log(Level.WARNING, "No se encontro algun proyecto con el id: " + idProyecto);
-                    throw new DAOExcepcion("No existe proyecto con el id: " + idProyecto, null);
+                    throw new EntidadNoEncontradaExcepcion("No existe proyecto con el id: " + idProyecto);
                 }
             }
         } catch (SQLException e) {

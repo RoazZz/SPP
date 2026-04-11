@@ -1,6 +1,7 @@
 package logica.dao;
 
 import excepciones.DAOExcepcion;
+import excepciones.EntidadNoEncontradaExcepcion;
 import interfaces.UsuarioDAOInterfaz;
 import accesodatos.ConexionBD;
 import logica.dto.UsuarioDTO;
@@ -74,7 +75,7 @@ public class UsuarioDAO implements UsuarioDAOInterfaz {
     }
 
     @Override
-    public UsuarioDTO buscarUsuarioPorIdUsuario(int idUsuario) throws DAOExcepcion {
+    public UsuarioDTO buscarUsuarioPorIdUsuario(int idUsuario) throws DAOExcepcion, EntidadNoEncontradaExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_BUSCAR_POR_ID_USUARIO)){
             preparedStatement.setInt(1, idUsuario);
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -89,7 +90,7 @@ public class UsuarioDAO implements UsuarioDAOInterfaz {
                 return new UsuarioDTO(idDeUsuario, nombre, apellidoPaterno, apellidoMaterno, contrasenia, TipoEstado.valueOf(estado), TipoDeUsuario.valueOf(tipoUsuario));
             }else{
                 logger.log(Level.WARNING, "No se encontro algun usuario con id: " + idUsuario);
-                throw new DAOExcepcion("No existe usuario con el id: " + idUsuario, null);
+                throw new EntidadNoEncontradaExcepcion("No existe usuario con el id: " + idUsuario);
             }
         } catch (SQLException e){
             logger.log(Level.SEVERE, "Error al buscar al usuario", e);

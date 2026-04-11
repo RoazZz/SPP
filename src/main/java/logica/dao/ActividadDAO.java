@@ -1,6 +1,7 @@
 package logica.dao;
 
 import excepciones.DAOExcepcion;
+import excepciones.EntidadNoEncontradaExcepcion;
 import interfaces.ActividadDAOInterfaz;
 import accesodatos.ConexionBD;
 import logica.dto.ActividadDTO;
@@ -77,8 +78,8 @@ public class ActividadDAO implements ActividadDAOInterfaz {
                             resultSet.getDate("Fecha")
                     );
                 }else{
-                    logger.log(Level.WARNING, "No se encontro alguna actividad con el id: " + idActividad);
-                    throw new DAOExcepcion("No existe actividad con id: " + idActividad, null);
+                    logger.log(Level.WARNING, "No se encontró actividad con id: " + idActividad);
+                    throw new EntidadNoEncontradaExcepcion("No existe actividad con id: " + idActividad);
                 }
             }
         } catch (SQLException e) {

@@ -1,6 +1,7 @@
 package logica.dao;
 
 import excepciones.DAOExcepcion;
+import excepciones.EntidadNoEncontradaExcepcion;
 import interfaces.OrganizacionVinculadaDAOInterfaz;
 import accesodatos.ConexionBD;
 import logica.dto.OrganizacionVinculadaDTO;
@@ -54,7 +55,7 @@ public class OrganizacionVinculadaDAO implements OrganizacionVinculadaDAOInterfa
     }
 
     @Override
-    public OrganizacionVinculadaDTO buscarOrganizacionVinculadaPorIdProyecto(String idOrganizacion) throws DAOExcepcion {
+    public OrganizacionVinculadaDTO buscarOrganizacionVinculadaPorIdProyecto(String idOrganizacion) throws DAOExcepcion, EntidadNoEncontradaExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_BUSCAR_POR_ID_ORGANIZACIONVINCULADA)){
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()){
@@ -64,7 +65,7 @@ public class OrganizacionVinculadaDAO implements OrganizacionVinculadaDAOInterfa
                 return new OrganizacionVinculadaDTO(idOrganizacionVinculada, nombre, direccion);
             }else{
                 logger.log(Level.WARNING, "No se encontro alguna organizacion vinculada con el id: " + idOrganizacion);
-                throw new DAOExcepcion("No existe organizacion vinculada con el id: " + idOrganizacion, null);
+                throw new EntidadNoEncontradaExcepcion("No existe organizacion vinculada con el id: " + idOrganizacion);
             }
         } catch (SQLException e){
             logger.log(Level.SEVERE, "Error al buscar a la Organizacion Vinculada", e);

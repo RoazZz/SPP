@@ -1,6 +1,7 @@
 package logica.dao;
 
 import excepciones.DAOExcepcion;
+import excepciones.EntidadNoEncontradaExcepcion;
 import interfaces.PracticanteDAOInterfaz;
 import accesodatos.ConexionBD;
 import logica.dto.PracticanteDTO;
@@ -97,7 +98,7 @@ public class PracticanteDAO implements PracticanteDAOInterfaz {
     }
 
     @Override
-    public PracticanteDTO buscarPracticantePorMatricula(String matricula) throws DAOExcepcion {
+    public PracticanteDTO buscarPracticantePorMatricula(String matricula) throws DAOExcepcion, EntidadNoEncontradaExcepcion{
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_BUSCAR_POR_MATRICULA)) {
             preparedStatement.setString(1, matricula);
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -118,8 +119,8 @@ public class PracticanteDAO implements PracticanteDAOInterfaz {
                         resultSet.getBoolean("LenguaIndigena")
                 );
             } else {
-                logger.log(Level.WARNING, "No se encontro algun practicante con el id: " + matricula);
-                throw new DAOExcepcion("No existe practicante con id: " + matricula, null);
+                logger.log(Level.WARNING, "No se encontró practicante con matricula: " + matricula);
+                throw new EntidadNoEncontradaExcepcion("No existe practicante con matricula: " + matricula);
             }
 
         } catch (SQLException e) {

@@ -1,6 +1,7 @@
 package logica.dao;
 
 import excepciones.DAOExcepcion;
+import excepciones.EntidadNoEncontradaExcepcion;
 import interfaces.BitacoraDAOInterfaz;
 import accesodatos.ConexionBD;
 import logica.dto.BitacoraDTO;
@@ -47,7 +48,7 @@ public class BitacoraDAO implements BitacoraDAOInterfaz {
     }
 
     @Override
-    public BitacoraDTO buscarBitacoraPorMatricula(String matricula) throws DAOExcepcion {
+    public BitacoraDTO buscarBitacoraPorMatricula(String matricula) throws DAOExcepcion, EntidadNoEncontradaExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_BUSCAR_POR_MATRICULA)) {
             preparedStatement.setString(1, matricula);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -61,7 +62,7 @@ public class BitacoraDAO implements BitacoraDAOInterfaz {
                     );
                 }else{
                     logger.log(Level.WARNING, "No se encontro alguna bitacora con Matricula : " + matricula);
-                    throw new DAOExcepcion("No existe bitacora con Matricula : " + matricula, null);
+                    throw new EntidadNoEncontradaExcepcion("No existe bitacora con Matricula : " + matricula);
                 }
             }
         } catch (SQLException e) {
