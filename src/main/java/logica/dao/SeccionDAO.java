@@ -2,6 +2,7 @@ package logica.dao;
 
 import accesodatos.ConexionBD;
 import excepciones.DAOExcepcion;
+import excepciones.EntidadNoEncontradaExcepcion;
 import interfaces.SeccionDAOInterfaz;
 import logica.dto.SeccionDTO;
 
@@ -73,7 +74,7 @@ public class SeccionDAO implements SeccionDAOInterfaz {
     }
 
     @Override
-    public SeccionDTO obtenerSeccionPorId(int idSeccion) throws DAOExcepcion {
+    public SeccionDTO obtenerSeccionPorId(int idSeccion) throws DAOExcepcion, EntidadNoEncontradaExcepcion{
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_SELECT_BY_ID)) {
             preparedStatement.setInt(1, idSeccion);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -84,7 +85,7 @@ public class SeccionDAO implements SeccionDAOInterfaz {
                     );
                 }else{
                     logger.log(Level.WARNING, "No se encontró la Sección con ID: " + idSeccion);
-                    throw new DAOExcepcion("No se encontró la Sección con el ID proporcionado", null);
+                    throw new EntidadNoEncontradaExcepcion("No se encontró la Sección con el ID proporcionado");
                 }
             }
         } catch (Exception e) {

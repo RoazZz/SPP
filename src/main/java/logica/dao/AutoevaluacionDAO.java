@@ -2,6 +2,7 @@ package logica.dao;
 
 import accesodatos.ConexionBD;
 import excepciones.DAOExcepcion;
+import excepciones.EntidadNoEncontradaExcepcion;
 import interfaces.AutoevaluacionDAOInterfaz;
 import logica.dto.AutoevaluacionDTO;
 
@@ -70,7 +71,7 @@ public class AutoevaluacionDAO implements AutoevaluacionDAOInterfaz {
     }
 
     @Override
-    public AutoevaluacionDTO buscarAutoevaluacionPorMatricula(String matricula) throws DAOExcepcion {
+    public AutoevaluacionDTO buscarAutoevaluacionPorMatricula(String matricula) throws DAOExcepcion, EntidadNoEncontradaExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_SELECT_BY_MATRICULA)) {
             preparedStatement.setString(1, matricula);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -83,7 +84,7 @@ public class AutoevaluacionDAO implements AutoevaluacionDAOInterfaz {
                     );
                 }else{
                     logger.log(Level.WARNING, "No se encontró Autoevaluación con matricula: " + matricula);
-                    throw new DAOExcepcion("Autoevaluación no encontrada con matricula: " + matricula, null);
+                    throw new EntidadNoEncontradaExcepcion("Autoevaluación no encontrada con matricula: " + matricula);
                 }
             }
         } catch (SQLException e) {

@@ -1,6 +1,7 @@
 package logica.dao;
 import accesodatos.ConexionBD;
 import excepciones.DAOExcepcion;
+import excepciones.EntidadNoEncontradaExcepcion;
 import interfaces.BitacoraPSPDAOInterfaz;
 import logica.dto.BitacoraPSPDTO;
 
@@ -54,7 +55,7 @@ public class BitacoraPSPDAO implements BitacoraPSPDAOInterfaz {
     }
 
     @Override
-    public BitacoraPSPDTO buscarBitacoraPSPPorId(int idBitacora) throws DAOExcepcion {
+    public BitacoraPSPDTO buscarBitacoraPSPPorId(int idBitacora) throws DAOExcepcion, EntidadNoEncontradaExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_SELECT_BY_IDBITACORA)) {
             preparedStatement.setInt(1, idBitacora);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -66,7 +67,7 @@ public class BitacoraPSPDAO implements BitacoraPSPDAOInterfaz {
                     );
                 }else{
                     logger.log(Level.WARNING, "No se encontró bitacoraPSP con ID: " + idBitacora);
-                    throw new DAOExcepcion("BitacoraPSP no encontrado con ID: " + idBitacora, null);
+                    throw new EntidadNoEncontradaExcepcion("BitacoraPSP no encontrado con ID: " + idBitacora);
                 }
             }
         } catch (SQLException e) {

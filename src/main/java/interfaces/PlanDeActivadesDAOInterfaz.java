@@ -1,6 +1,7 @@
 package interfaces;
 
 import excepciones.DAOExcepcion;
+import excepciones.EntidadNoEncontradaExcepcion;
 import logica.dto.PlanDeActividadesDTO;
 import java.util.List;
 
@@ -9,5 +10,5 @@ public interface PlanDeActivadesDAOInterfaz {
     public void actualizarPlanDeActividades(PlanDeActividadesDTO planDeActividadesDTO) throws DAOExcepcion;
     public List<PlanDeActividadesDTO> obtenerPlanesDeActividadesPorMatricula(String matricula) throws DAOExcepcion;
     public List<PlanDeActividadesDTO> obtenerTodosLosPlanesDeActividades() throws DAOExcepcion;
-    public PlanDeActividadesDTO obtenerPlanDeActividadesPorId(int idPlanDeActividades) throws DAOExcepcion;
+    public PlanDeActividadesDTO obtenerPlanDeActividadesPorId(int idPlanDeActividades) throws DAOExcepcion, EntidadNoEncontradaExcepcion;
 }
