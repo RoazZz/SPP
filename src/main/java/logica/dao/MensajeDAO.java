@@ -2,6 +2,7 @@ package logica.dao;
 
 import accesodatos.ConexionBD;
 import excepciones.DAOExcepcion;
+import excepciones.EntidadNoEncontradaExcepcion;
 import interfaces.MensajeDAOInterfaz;
 import logica.dto.MensajeDTO;
 
@@ -53,7 +54,7 @@ public class MensajeDAO implements MensajeDAOInterfaz {
     }
 
     @Override
-    public String obtenerMensaje(String idMensaje) throws DAOExcepcion{
+    public String obtenerMensaje(String idMensaje) throws DAOExcepcion, EntidadNoEncontradaExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_SELECT_BY_ID)) {
             preparedStatement.setString(1, idMensaje);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -61,7 +62,7 @@ public class MensajeDAO implements MensajeDAOInterfaz {
                     return resultSet.getString("Contenido");
                 }else{
                     logger.log(Level.WARNING, "No se encontró mensaje con ID: " + idMensaje);
-                    throw new DAOExcepcion("No se encontró el mensaje con el ID proporcionado", null);
+                    throw new EntidadNoEncontradaExcepcion("No se encontró el mensaje con ID: " + idMensaje);
                 }
             }
         } catch (Exception e) {

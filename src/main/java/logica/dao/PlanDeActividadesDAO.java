@@ -1,6 +1,7 @@
 package logica.dao;
 
 import accesodatos.ConexionBD;
+import excepciones.EntidadNoEncontradaExcepcion;
 import interfaces.PlanDeActivadesDAOInterfaz;
 import logica.dto.PlanDeActividadesDTO;
 import excepciones.DAOExcepcion;
@@ -127,7 +128,7 @@ public class PlanDeActividadesDAO implements PlanDeActivadesDAOInterfaz {
                     );
                 }else{
                     logger.log(Level.WARNING, "No se encontró Plan de Actividades con ID: " + idPlanDeActividades);
-                    throw new DAOExcepcion("No se encontró el Plan de Actividades con el ID proporcionado", null);
+                    throw new EntidadNoEncontradaExcepcion("No se encontró el Plan de Actividades con el ID proporcionado");
                 }
             }
         } catch (SQLException e) {

@@ -2,6 +2,7 @@ package logica.dao;
 
 import accesodatos.ConexionBD;
 import excepciones.DAOExcepcion;
+import excepciones.EntidadNoEncontradaExcepcion;
 import interfaces.ReporteDAOInterfaz;
 import logica.dto.ReporteDTO;
 import logica.enums.TipoReporte;
@@ -77,7 +78,7 @@ public class ReporteDAO implements ReporteDAOInterfaz {
     }
 
     @Override
-    public ReporteDTO buscarReportePorId(int idReporte) throws DAOExcepcion{
+    public ReporteDTO buscarReportePorId(int idReporte) throws DAOExcepcion, EntidadNoEncontradaExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_SELECT_BY_ID)) {
             preparedStatement.setInt(1, idReporte);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -91,7 +92,7 @@ public class ReporteDAO implements ReporteDAOInterfaz {
                     );
                 }else{
                         logger.log(Level.WARNING, "No se encontró Reporte con ID: " + idReporte);
-                        throw new DAOExcepcion("No se encontró el Reporte con el ID proporcionado", null);
+                        throw new EntidadNoEncontradaExcepcion("No se encontró el Reporte con el ID proporcionado");
                 }
             }
         } catch (SQLException e) {

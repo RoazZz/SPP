@@ -2,6 +2,7 @@ package logica.dao;
 
 import accesodatos.ConexionBD;
 import excepciones.DAOExcepcion;
+import excepciones.EntidadNoEncontradaExcepcion;
 import interfaces.ProfesorDAOInterfaz;
 import logica.dto.ProfesorDTO;
 import logica.enums.TipoDeUsuario;
@@ -111,7 +112,7 @@ public class ProfesorDAO implements ProfesorDAOInterfaz {
     }
 
     @Override
-    public ProfesorDTO buscarProfesorPorNumPersonal(String numPersonal) throws DAOExcepcion {
+    public ProfesorDTO buscarProfesorPorNumPersonal(String numPersonal) throws DAOExcepcion, EntidadNoEncontradaExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_BUSCAR_POR_NUM_PERSONAL)) {
             preparedStatement.setString(1, numPersonal);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -129,7 +130,7 @@ public class ProfesorDAO implements ProfesorDAOInterfaz {
                     );
                 }else{
                     logger.log(Level.WARNING, "No se encontró profesor con numero de personal: " + numPersonal);
-                    throw new DAOExcepcion("Profesor no encontrado con numero de personal: " + numPersonal, null);
+                    throw new EntidadNoEncontradaExcepcion("Profesor no encontrado con numero de personal: " + numPersonal);
                 }
             }
         } catch (SQLException e) {
