@@ -40,9 +40,9 @@ public class AdministradorDAO implements AdministradorDAOInterfaz {
             int idGenerado = admin.getIdUsuario();
 
             if (idGenerado > 0) {
-                try (PreparedStatement ps = conexion.prepareStatement(SQL_INSERT)) {
-                    ps.setInt(1, idGenerado);
-                    ps.executeUpdate();
+                try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT)) {
+                    preparedStatement.setInt(1, idGenerado);
+                    preparedStatement.executeUpdate();
                 }
                 conexion.commit();
                 logger.log(Level.INFO, "Administrador agregado correctamente: " + admin.getIdUsuario());

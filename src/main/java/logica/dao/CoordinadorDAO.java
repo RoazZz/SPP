@@ -40,10 +40,10 @@ public class CoordinadorDAO implements CoordinadorDAOInterfaz{
             int idGenerado = coordinador.getIdUsuario();
 
             if (idGenerado > 0) {
-                try (PreparedStatement ps = conexion.prepareStatement(SQL_INSERT)) {
-                    ps.setInt(1, idGenerado);
-                    ps.setString(2, coordinador.getNumeroPersonal());
-                    ps.executeUpdate();
+                try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT)) {
+                    preparedStatement.setInt(1, idGenerado);
+                    preparedStatement.setString(2, coordinador.getNumeroPersonal());
+                    preparedStatement.executeUpdate();
                 }
                 conexion.commit();
             } else {
