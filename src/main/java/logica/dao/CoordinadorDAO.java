@@ -22,10 +22,10 @@ public class CoordinadorDAO implements CoordinadorDAOInterfaz{
     private final Connection conexion;
     private static final Logger logger = Logger.getLogger(CoordinadorDAO.class.getName());
     private static final String SQL_INSERT  = "INSERT INTO Coordinador (idUsuario, NumeroDePersonal) VALUES (?, ?)";
-    private static final String SQL_UPDATE = "UPDATE Coordinador SET NumeroDePersonal = ? WHERE NumeroDePersonal = ?";
+    private static final String SQL_UPDATE = "UPDATE Coordinador SET NumeroDePersonal = ? WHERE idUsuario = ?";
     private static final String SQL_SELECT_ALL =
-            "SELECT usuario.idUsuario, usuario.nombre, usuario.apellidoPaterno, usuario.apellidoMaterno, " +
-            "usuario.contrasenia, usuario.tipoDeUsuario, usuario.estado, " +
+            "SELECT usuario.idUsuario, usuario.nombre, usuario.apellidoP, usuario.apellidoM, " +
+            "usuario.contrasenia, usuario.tipoUsuario, usuario.estado, " +
             "coordinador.NumeroDePersonal " +
             "FROM usuario JOIN coordinador ON usuario.idUsuario = coordinador.idUsuario";
 
@@ -42,7 +42,7 @@ public class CoordinadorDAO implements CoordinadorDAOInterfaz{
     }
 
     @Override
-    public void agregarCoordinador(CoordinadorDTO coordinador) throws DAOExcepcion {
+    public void agregarCoordinador(CoordinadorDTO coordinador) throws DAOExcepcion, EntidadNoEncontradaExcepcion {
         UsuarioDAO usuarioDAO = new UsuarioDAO(this.conexion);
         try {
             conexion.setAutoCommit(false);
@@ -56,7 +56,7 @@ public class CoordinadorDAO implements CoordinadorDAOInterfaz{
                     preparedStatements.executeUpdate();
                 }
                 conexion.commit();
-                logger.log(Level.INFO, "Practicante agregado exitosamente: " + coordinador.getNumeroPersonal());
+                logger.log(Level.INFO, "Coordinador agregado exitosamente: " + coordinador.getNumeroPersonal());
             } else {
                 logger.log(Level.SEVERE, "No se pudo crear usuario base para coordinador");
                 throw new EntidadNoEncontradaExcepcion( "No se pudo crear el usuario base");
@@ -82,6 +82,7 @@ public class CoordinadorDAO implements CoordinadorDAOInterfaz{
     public void actualizarCoordinador(CoordinadorDTO coordinador) throws DAOExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_UPDATE)) {
             preparedStatement.setString(1,coordinador.getNumeroPersonal());
+            preparedStatement.setInt(2, coordinador.getIdUsuario());
             preparedStatement.executeUpdate();
             logger.log(Level.INFO, "Coordinador actualizado correctamente: " + coordinador.getNumeroPersonal());
         } catch (SQLException e){
@@ -100,11 +101,11 @@ public class CoordinadorDAO implements CoordinadorDAOInterfaz{
                     CoordinadorDTO coordinador = new CoordinadorDTO(
                             resultSet.getInt("idUsuario"),
                             resultSet.getString("nombre"),
-                            resultSet.getString("apellidoPaterno"),
-                            resultSet.getString("apellidoMaterno"),
+                            resultSet.getString("apellidoP"),
+                            resultSet.getString("apellidoM"),
                             resultSet.getString("contrasenia"),
                             TipoEstado.valueOf(resultSet.getString("estado")),
-                            TipoDeUsuario.valueOf(resultSet.getString("tipoDeUsuario")),
+                            TipoDeUsuario.valueOf(resultSet.getString("tipoUsuario")),
                             resultSet.getString("NumeroDePersonal")
                     );
                     listaCoordinador.add(coordinador);

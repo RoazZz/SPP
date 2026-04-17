@@ -67,6 +67,7 @@ public class OrganizacionVinculadaDAO implements OrganizacionVinculadaDAOInterfa
     @Override
     public OrganizacionVinculadaDTO buscarOrganizacionVinculadaPorIdProyecto(String idOrganizacion) throws DAOExcepcion, EntidadNoEncontradaExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_BUSCAR_POR_ID_ORGANIZACIONVINCULADA)){
+            preparedStatement.setString(1, idOrganizacion);
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()){
                 String idOrganizacionVinculada = resultSet.getString("idOrganizacion");

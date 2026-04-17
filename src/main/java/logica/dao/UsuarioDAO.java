@@ -24,7 +24,7 @@ public class UsuarioDAO implements UsuarioDAOInterfaz {
     private static final Logger logger = Logger.getLogger(UsuarioDAO.class.getName());
     private static final String SQL_INSERT = "INSERT INTO Usuario(Nombre, ApellidoP, ApellidoM, Contrasenia, Estado, TipoUsuario) VALUES (?, ?, ?, ?, ?, ?)";
     private static final String SQL_BUSCAR_POR_ID_USUARIO = "SELECT * FROM Usuario WHERE idUsuario = ?";
-    private static final String SQL_UPDATE = "UPDATE Usuario SET Nombre = ?, ApellidoP = ?, ApellidoM = ?, Contrasenia = ?, TipoUsuario = ? WHERE NumeroDePersonal = ?";
+    private static final String SQL_UPDATE = "UPDATE Usuario SET Nombre = ?, ApellidoP = ?, ApellidoM = ?, Contrasenia = ?, Estado = ?, TipoUsuario = ? WHERE idUsuario = ?";
     private static final String SQL_SELECT_ALL = "SELECT * FROM Usuario";
 
     public UsuarioDAO() throws DAOExcepcion {
@@ -74,8 +74,9 @@ public class UsuarioDAO implements UsuarioDAOInterfaz {
             preparedStatement.setString(2, usuario.getApellidoPaterno());
             preparedStatement.setString(3, usuario.getApellidoMaterno());
             preparedStatement.setString(4, usuario.getContrasenia());
-            preparedStatement.setString(5, usuario.getTipoDeUsuario().name());
-            preparedStatement.setInt(6, usuario.getIdUsuario());
+            preparedStatement.setString(5, usuario.getTipoEstado().name());
+            preparedStatement.setString(6, usuario.getTipoDeUsuario().name());
+            preparedStatement.setInt(7, usuario.getIdUsuario());
             preparedStatement.executeUpdate();
             logger.log(Level.INFO, "Usuarios base actualizado exitosamente: " + usuario.getIdUsuario());
         } catch (SQLException e){
@@ -92,8 +93,8 @@ public class UsuarioDAO implements UsuarioDAOInterfaz {
             if (resultSet.next()){
                 int idDeUsuario = resultSet.getInt("IdUsuario");
                 String nombre = resultSet.getString("Nombre");
-                String apellidoPaterno = resultSet.getString("ApellidoPaterno");
-                String apellidoMaterno = resultSet.getString("ApellidoMaterno");
+                String apellidoPaterno = resultSet.getString("ApellidoP");
+                String apellidoMaterno = resultSet.getString("ApellidoM");
                 String contrasenia  = resultSet.getString("Contrasenia");
                 String estado = resultSet.getString("Estado");
                 String tipoUsuario = resultSet.getString("TipoUsuario");
@@ -116,8 +117,8 @@ public class UsuarioDAO implements UsuarioDAOInterfaz {
                 UsuarioDTO usuario = new UsuarioDTO(
                         resultSet.getInt("idUsuario"),
                         resultSet.getString("Nombre"),
-                        resultSet.getString("ApellidoPaterno"),
-                        resultSet.getString("ApellidoMaterno"),
+                        resultSet.getString("ApellidoP"),
+                        resultSet.getString("ApellidoM"),
                         resultSet.getString("Contrasenia"),
                         TipoEstado.valueOf(resultSet.getString("Estado")),
                         TipoDeUsuario.valueOf(resultSet.getString("TipoUsuario"))

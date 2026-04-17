@@ -67,7 +67,7 @@ public class BitacoraDAO implements BitacoraDAOInterfaz {
                             resultSet.getString("Matricula"),
                             resultSet.getString("TipoEvento"),
                             resultSet.getTimestamp("Fecha_Hora").toLocalDateTime(),
-                            resultSet.getString("DescripcionEvento")
+                            resultSet.getString("Descripcion")
                     );
                 }else{
                     logger.log(Level.WARNING, "No se encontro alguna bitacora con Matricula : " + matricula);
@@ -91,7 +91,7 @@ public class BitacoraDAO implements BitacoraDAOInterfaz {
                         resultSet.getString("Matricula"),
                         resultSet.getString("TipoEvento"),
                         resultSet.getTimestamp("Fecha_Hora").toLocalDateTime(),
-                        resultSet.getString("DescripcionEvento")
+                        resultSet.getString("Descripcion")
                 );
                 listaBitacora.add(bitacora);
             }

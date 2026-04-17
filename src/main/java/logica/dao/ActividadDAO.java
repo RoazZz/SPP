@@ -51,7 +51,7 @@ public class ActividadDAO implements ActividadDAOInterfaz {
                     actividad.setIdActividad(resultSet.getInt(1));
                 }
             }
-            logger.log(Level.SEVERE, "Actividad Insertada correctamente: " + actividad.getIdActividad());
+            logger.log(Level.INFO, "Actividad Insertada correctamente: " + actividad.getIdActividad());
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error al agregar la actividad", e);
             throw new DAOExcepcion("Error al agregar la actividad: ", e);

@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 
-public class pruebaActividadDAO {
+public class PruebaActividadDAO {
 
     @BeforeAll
     static void configurarConexion() throws Exception {
@@ -43,7 +43,23 @@ public class pruebaActividadDAO {
 
         conexion.createStatement().execute("SET FOREIGN_KEY_CHECKS = 0");
         conexion.createStatement().execute("TRUNCATE TABLE Actividad");
-        conexion.createStatement().execute("TRUNCATE TABLE Practicante");
+        conexion.createStatement().execute("TRUNCATE TABLE practicante");
+        conexion.createStatement().execute("TRUNCATE TABLE usuario");
+        conexion.createStatement().execute("SET FOREIGN_KEY_CHECKS = 1");
+    }
+
+    @BeforeEach
+    void insertarDatosPrevios() throws Exception {
+        Connection conexion = ConexionBD.obtenerInstancia().obtenerConexion();
+        conexion.createStatement().execute("SET FOREIGN_KEY_CHECKS = 0");
+        conexion.createStatement().execute(
+                "INSERT INTO usuario (idUsuario, Nombre, ApellidoP, ApellidoM, Contrasenia, Estado, TipoUsuario) " +
+                        "VALUES (1, 'Ana', 'Perez', 'Lopez', '123', 'ACTIVO', 'PRACTICANTE')"
+        );
+        conexion.createStatement().execute(
+                "INSERT INTO practicante (idUsuario, Matricula, idSeccion, Semestre, Genero, Edad, LenguaIndigena) " +
+                        "VALUES (1, 'S24021', 1, '5', 'FEMENINO', 20, false)"
+        );
         conexion.createStatement().execute("SET FOREIGN_KEY_CHECKS = 1");
     }
 
@@ -63,13 +79,13 @@ public class pruebaActividadDAO {
         ActividadDTO actividadDTO = crearActividadEjemplo();
 
         actividadDAO.agregarActividad(actividadDTO);
-        ActividadDTO resultado = actividadDAO.buscarActividadPorIdActividad(0);
+        ActividadDTO resultado = actividadDAO.buscarActividadPorIdActividad(1);
 
         assertEquals("Actividad 1", resultado.getNombre());
     }
 
     @Test
-    public void pruebaListarProfesores() throws Exception {
+    public void pruebaListarActividad() throws Exception {
         ActividadDAO actividadDAO = new ActividadDAO();
         ActividadDTO actividadDTO = crearActividadEjemplo();
 
@@ -80,7 +96,7 @@ public class pruebaActividadDAO {
     }
 
     @Test
-    public void pruebaActualizarProfesor() throws Exception {
+    public void pruebaActualizarActividad() throws Exception {
         ActividadDAO actividadDAO = new ActividadDAO();
         ActividadDTO actividadDTO = crearActividadEjemplo();
 
@@ -93,6 +109,4 @@ public class pruebaActividadDAO {
 
         assertEquals("Actividad 1.1", resultado.getNombre());
     }
-
-
 }

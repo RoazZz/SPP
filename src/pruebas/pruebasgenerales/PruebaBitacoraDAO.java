@@ -44,6 +44,22 @@ public class PruebaBitacoraDAO {
         conexion.createStatement().execute("SET FOREIGN_KEY_CHECKS = 0");
         conexion.createStatement().execute("TRUNCATE TABLE Bitacora");
         conexion.createStatement().execute("TRUNCATE TABLE Practicante");
+        conexion.createStatement().execute("TRUNCATE TABLE Usuario");
+        conexion.createStatement().execute("SET FOREIGN_KEY_CHECKS = 1");
+    }
+
+    @BeforeEach
+    void insertarDatosPrevios() throws Exception {
+        Connection conexion = ConexionBD.obtenerInstancia().obtenerConexion();
+        conexion.createStatement().execute("SET FOREIGN_KEY_CHECKS = 0");
+        conexion.createStatement().execute(
+                "INSERT INTO usuario (idUsuario, Nombre, ApellidoP, ApellidoM, Contrasenia, Estado, TipoUsuario) " +
+                        "VALUES (1, 'Ana', 'Perez', 'Lopez', '123', 'ACTIVO', 'PRACTICANTE')"
+        );
+        conexion.createStatement().execute(
+                "INSERT INTO practicante (idUsuario, Matricula, idSeccion, Semestre, Genero, Edad, LenguaIndigena) " +
+                        "VALUES (1, 'S24021', 1, '5', 'FEMENINO', 20, false)"
+        );
         conexion.createStatement().execute("SET FOREIGN_KEY_CHECKS = 1");
     }
 

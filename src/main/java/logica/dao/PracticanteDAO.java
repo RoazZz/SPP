@@ -24,18 +24,18 @@ public class PracticanteDAO implements PracticanteDAOInterfaz {
     private static final Logger logger = Logger.getLogger(PracticanteDAO.class.getName());
     private static final String SQL_INSERT = "INSERT INTO Practicante (idUsuario, Matricula, idSeccion, Semestre, Genero, Edad, LenguaIndigena) VALUES ( ?, ?, ?, ?, ?, ?, ?)";
     private static final String SQL_BUSCAR_POR_MATRICULA =
-            "SELECT usuario.idUsuario, usuario.nombre, usuario.apellidoPaterno, usuario.apellidoMaterno, " +
-            "usuario.contrasenia, usuario.tipoDeUsuario, usuario.estado, " +
-            "practicante.matricula, practicante.idSeccion, practicante.semestre, practicante.generoDelPracticante," +
+            "SELECT usuario.idUsuario, usuario.nombre, usuario.apellidoP, usuario.apellidoM, " +
+            "usuario.contrasenia, usuario.tipoUsuario, usuario.Estado, " +
+            "practicante.matricula, practicante.idSeccion, practicante.semestre, practicante.Genero," +
             "practicante.edad, practicante.lenguaIndigena " +
             "FROM usuario JOIN practicante ON usuario.idUsuario = practicante.idUsuario " +
             "WHERE practicante.Matricula = ?";
     private static final String SQL_UPDATE = "UPDATE Practicante SET idSeccion = ?, Semestre = ?, Genero = ?, Edad = ?, LenguaIndigena = ? WHERE Matricula = ?";
     private static final String SQL_SELECT_ALL =
-            "SELECT usuario.idUsuario, usuario.nombre, usuario.apellidoPaterno, usuario.apellidoMaterno, " +
-            "usuario.contrasenia, usuario.tipoDeUsuario, usuario.estado, " +
-            "practicante.matricula, practicante.idSeccion, practicante.semestre, practicante.generoDelPracticante," +
-            "practicante.edad, practicante.lenguaIndigena" +
+            "SELECT usuario.idUsuario, usuario.nombre, usuario.apellidoP, usuario.apellidoM, " +
+            "usuario.contrasenia, usuario.tipoUsuario, usuario.Estado, " +
+            "practicante.matricula, practicante.idSeccion, practicante.semestre, practicante.Genero," +
+            "practicante.edad, practicante.lenguaIndigena " +
                     "FROM usuario JOIN practicante ON usuario.idUsuario = practicante.idUsuario ";
 
     public PracticanteDAO() throws DAOExcepcion {
@@ -117,11 +117,11 @@ public class PracticanteDAO implements PracticanteDAOInterfaz {
                 return new PracticanteDTO(
                         resultSet.getInt("idUsuario"),
                         resultSet.getString("nombre"),
-                        resultSet.getString("apellidoPaterno"),
-                        resultSet.getString("apellidoMaterno"),
+                        resultSet.getString("apellidoP"),
+                        resultSet.getString("apellidoM"),
                         resultSet.getString("contrasenia"),
                         TipoEstado.valueOf(resultSet.getString("estado")),
-                        TipoDeUsuario.valueOf(resultSet.getString("tipoDeUsuario")),
+                        TipoDeUsuario.valueOf(resultSet.getString("tipoUsuario")),
                         resultSet.getString("Matricula"),
                         resultSet.getInt("idSeccion"),
                         resultSet.getString("Semestre"),
@@ -148,11 +148,11 @@ public class PracticanteDAO implements PracticanteDAOInterfaz {
                 PracticanteDTO practicante = new PracticanteDTO(
                         resultSet.getInt("idUsuario"),
                         resultSet.getString("nombre"),
-                        resultSet.getString("apellidoPaterno"),
-                        resultSet.getString("apellidoMaterno"),
+                        resultSet.getString("apellidoP"),
+                        resultSet.getString("apellidoM"),
                         resultSet.getString("contrasenia"),
                         TipoEstado.valueOf(resultSet.getString("estado")),
-                        TipoDeUsuario.valueOf(resultSet.getString("tipoDeUsuario")),
+                        TipoDeUsuario.valueOf(resultSet.getString("tipoUsuario")),
                         resultSet.getString("Matricula"),
                         resultSet.getInt("idSeccion"),
                         resultSet.getString("Semestre"),

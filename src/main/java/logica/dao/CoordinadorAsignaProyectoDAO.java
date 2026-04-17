@@ -39,8 +39,8 @@ public class CoordinadorAsignaProyectoDAO implements CoordinadorAsignaProyectoDA
         }
     }
 
-    @Override
-    public void insertarAsignacionDeProyecto(CoordinadorAsignaProyectoDTO coordinadorAsignaProyectoDTO) throws DAOExcepcion {
+   @Override
+   public void insertarAsignacionDeProyecto(CoordinadorAsignaProyectoDTO coordinadorAsignaProyectoDTO) throws DAOExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT)) {
             preparedStatement.setString(1, coordinadorAsignaProyectoDTO.getNumeroDePersonal());
             preparedStatement.setInt(2, coordinadorAsignaProyectoDTO.getIdProyecto());
@@ -54,7 +54,7 @@ public class CoordinadorAsignaProyectoDAO implements CoordinadorAsignaProyectoDA
     }
 
     @Override
-    public void actualizarAsigancionDeProyecto(CoordinadorAsignaProyectoDTO coordinadorAsignaProyectoDTO) throws DAOExcepcion {
+    public void actualizarAsignacionDeProyecto(CoordinadorAsignaProyectoDTO coordinadorAsignaProyectoDTO) throws DAOExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_UPDATE)) {
             preparedStatement.setString(1, coordinadorAsignaProyectoDTO.getTipoEstado().name());
             preparedStatement.setInt(2, coordinadorAsignaProyectoDTO.getIdProyecto());
@@ -67,7 +67,7 @@ public class CoordinadorAsignaProyectoDAO implements CoordinadorAsignaProyectoDA
     }
 
     @Override
-    public List<CoordinadorAsignaProyectoDTO> obtenerAsignacionDeProyectoPorNumeroDePersonal(String numeroDePersonal) throws DAOExcepcion, EntidadNoEncontradaExcepcion {
+    public List<CoordinadorAsignaProyectoDTO> obtenerAsignacionDeProyectoPorNumeroDePersonal(String numeroDePersonal) throws DAOExcepcion {
         List<CoordinadorAsignaProyectoDTO> listaAsignacionesProyecto = new ArrayList<>();
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_SELECT_BY_NUMERO_DE_PERSONAL);
              ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -87,7 +87,7 @@ public class CoordinadorAsignaProyectoDAO implements CoordinadorAsignaProyectoDA
     }
 
     @Override
-    public List<CoordinadorAsignaProyectoDTO> obtenerAsignacionDeProyectoPorIdSeccion(int idSeccion) throws DAOExcepcion, EntidadNoEncontradaExcepcion {
+    public List<CoordinadorAsignaProyectoDTO> obtenerAsignacionDeProyectoPorIdSeccion(int idSeccion) throws DAOExcepcion {
         List<CoordinadorAsignaProyectoDTO> listaAsignacionesProyecto = new ArrayList<>();
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_SELECT_BY_ID_PROYECTO);
              ResultSet resultSet = preparedStatement.executeQuery()) {
