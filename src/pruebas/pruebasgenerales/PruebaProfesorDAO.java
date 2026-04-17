@@ -67,7 +67,7 @@ public class PruebaProfesorDAO {
     }
 
     @Test
-    public void pruebaGuardarProfesor() throws Exception {
+    public void pruebaGuardarBuscarProfesor() throws Exception {
         ProfesorDAO profesorDAO = new ProfesorDAO();
         ProfesorDTO profesorDTO = crearProfesorEjemplo();
 
