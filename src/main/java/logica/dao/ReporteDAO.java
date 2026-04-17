@@ -18,7 +18,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ReporteDAO implements ReporteDAOInterfaz {
-    public static final String SQL_INSERT = "INSERT INTO reporte(idReporte, TipoReporte, Fecha, Ruta) VALUES (?, ?, ?, ?)";
+    public static final String SQL_INSERT = "INSERT INTO reporte(TipoReporte, Fecha, Ruta) VALUES (?, ?, ?)";
     public static final String SQL_UPDATE = "UPDATE reporte SET TipoReporte = ?, Fecha = ?, Ruta = ? WHERE idReporte = ?";
     public static final String SQL_SELECT_BY_ID = "SELECT * FROM reporte WHERE idReporte = ?";
     public static final String SQL_SELECT_ALL = "SELECT * FROM reporte";
@@ -40,11 +40,10 @@ public class ReporteDAO implements ReporteDAOInterfaz {
 
     @Override
     public void agregarReporte(ReporteDTO reporte) throws DAOExcepcion{
-        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT)) {
-            preparedStatement.setInt(1, reporte.getIdReporte());
-            preparedStatement.setString(2, reporte.getTipoReporte().name());
-            preparedStatement.setDate(3, java.sql.Date.valueOf(reporte.getFecha()));
-            preparedStatement.setString(4, reporte.getRuta());
+        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT, PreparedStatement.RETURN_GENERATED_KEYS)) {
+            preparedStatement.setString(1, reporte.getTipoReporte().name());
+            preparedStatement.setDate(2, java.sql.Date.valueOf(reporte.getFecha()));
+            preparedStatement.setString(3, reporte.getRuta());
             preparedStatement.executeUpdate();
 
             try (ResultSet resultSet = preparedStatement.getGeneratedKeys()) {
@@ -111,7 +110,7 @@ public class ReporteDAO implements ReporteDAOInterfaz {
                             resultSet.getInt("idReporte"),
                             TipoReporte.valueOf(tipoStr),
                             resultSet.getDate("Fecha").toLocalDate(),
-                            resultSet.getString("Reporte")
+                            resultSet.getString("Ruta")
                     );
                     listaReporte.add(reporte);
                 }

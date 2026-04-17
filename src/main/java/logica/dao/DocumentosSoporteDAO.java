@@ -13,7 +13,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class DocumentosSoporteDAO implements DocumentosSoporteDAOInterfaz {
-    private static final String SQL_INSERT = "INSERT INTO documentossoporte(idDocumentoSoporte, Matricula, TipoDocumento, Estado) VALUES (?, ?, ?, ?)";
+    private static final String SQL_INSERT = "INSERT INTO documentossoporte(Matricula, TipoDocumento, Estado) VALUES (?, ?, ?)";
     private static final String SQL_SELECT_BY_ID = "SELECT * FROM documentossoporte WHERE idDocumentoSoporte = ?";
     private static final String SQL_UPDATE = "UPDATE documentossoporte SET Matricula = ?, TipoDocumento = ?, Estado = ? WHERE idDocumentoSoporte = ?";
     private static final String SQL_SELECT_ALL = "SELECT * FROM documentossoporte";
@@ -36,10 +36,9 @@ public class DocumentosSoporteDAO implements DocumentosSoporteDAOInterfaz {
     @Override
     public void agregarDocumentoSoporte(DocumentosSoporteDTO documento) throws DAOExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
-            preparedStatement.setInt(1, documento.getIdDocumento());
-            preparedStatement.setString(2, documento.getMatricula());
-            preparedStatement.setString(3, documento.getTipoDocumento());
-            preparedStatement.setString(4, documento.getEstado());
+            preparedStatement.setString(1, documento.getMatricula());
+            preparedStatement.setString(2, documento.getTipoDocumento());
+            preparedStatement.setString(3, documento.getEstado());
             preparedStatement.executeUpdate();
 
             try (ResultSet resultSet = preparedStatement.getGeneratedKeys()) {

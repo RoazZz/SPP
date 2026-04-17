@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -42,13 +43,14 @@ public class PruebaAdministradorDAO {
     @BeforeEach
     void limpiarTablas() throws Exception {
         Connection conexion = ConexionBD.obtenerInstancia().obtenerConexion();
+        try (Statement comandoControl = conexion.createStatement()) {
+            comandoControl.execute("SET FOREIGN_KEY_CHECKS = 0");
+            comandoControl.execute("TRUNCATE TABLE administrador");
+            comandoControl.execute("TRUNCATE TABLE usuario");
+            comandoControl.execute("SET FOREIGN_KEY_CHECKS = 1");
+        }
 
-        conexion.createStatement().execute("SET FOREIGN_KEY_CHECKS = 0");
-        conexion.createStatement().execute("TRUNCATE TABLE administrador");
-        conexion.createStatement().execute("TRUNCATE TABLE usuario");
-        conexion.createStatement().execute("SET FOREIGN_KEY_CHECKS = 1");
-
-        System.out.println("Tablas limpiadas para prueba");
+        System.out.println("Tablas de Administración y Usuario limpiadas con éxito.");
     }
 
     private AdministradorDTO crearAdministradorEjemplo() {

@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 
 
 public class BitacoraPSPDAO implements BitacoraPSPDAOInterfaz {
-    private static final String SQL_INSERT = "INSERT INTO bitacorapsp(idBitacoraPSP, Matricula, Fecha) VALUES (?, ?, ?)"; //FALTA RUTA O NOMBRE DEL ARCHIVO
+    private static final String SQL_INSERT = "INSERT INTO bitacorapsp(Matricula, Fecha) VALUES (?, ?)"; //FALTA RUTA O NOMBRE DEL ARCHIVO
     private static final String SQL_SELECT_BY_IDBITACORA = "SELECT * FROM bitacorapsp WHERE idBitacoraPSP = ?";
     private static final String SQL_UPDATE = "UPDATE bitacorapsp SET Matricula = ?, Fecha = ? WHERE idBitacoraPSP = ?";
     private static final String SQL_SELECT_ALL = "SELECT * FROM bitacorapsp";
@@ -37,9 +37,8 @@ public class BitacoraPSPDAO implements BitacoraPSPDAOInterfaz {
     @Override
     public void agregarBitacoraPSP(BitacoraPSPDTO bitacora) throws DAOExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
-            preparedStatement.setInt(1, bitacora.getIdBBitacora());
-            preparedStatement.setString(2, bitacora.getMatricula());
-            preparedStatement.setDate(3, java.sql.Date.valueOf(bitacora.getFecha()));
+            preparedStatement.setString(1, bitacora.getMatricula());
+            preparedStatement.setDate(2, java.sql.Date.valueOf(bitacora.getFecha()));
             preparedStatement.executeUpdate();
 
             try (ResultSet resultSet = preparedStatement.getGeneratedKeys()) {

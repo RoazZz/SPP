@@ -16,7 +16,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class MensajeDAO implements MensajeDAOInterfaz {
-    public static final String SQL_INSERT = "INSERT INTO mensaje(idMensaje, Remitente, Destinatario, Asunto, Contenido, Fecha) VALUES (?, ?, ?, ?, ?, ?)";
+    public static final String SQL_INSERT = "INSERT INTO mensaje(Remitente, Destinatario, Asunto, Contenido, Fecha) VALUES (?, ?, ?, ?, ?)";
     public static final String SQL_SELECT_ALL_BY_DESTINATARIO = "SELECT * FROM mensaje WHERE Destinatario = ?";
     public static final String SQL_UPDATE = "UPDATE mensaje SET Contenido = ? WHERE idMensaje = ?";
     public static final String SQL_SELECT_BY_ID = "SELECT Contenido FROM mensaje WHERE idMensaje = ?";
@@ -38,14 +38,19 @@ public class MensajeDAO implements MensajeDAOInterfaz {
 
     @Override
     public void insertarMensaje(MensajeDTO mensaje) throws DAOExcepcion{
-        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT)) {
-            preparedStatement.setInt(1, mensaje.getIdMensaje());
-            preparedStatement.setString(2, mensaje.getRemitente());
-            preparedStatement.setString(3, mensaje.getDestinatario());
-            preparedStatement.setString(4, mensaje.getAsunto());
-            preparedStatement.setString(5, mensaje.getContenido());
-            preparedStatement.setTimestamp(6, java.sql.Timestamp.valueOf(mensaje.getFecha()));
+        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT, PreparedStatement.RETURN_GENERATED_KEYS)) {
+            preparedStatement.setString(1, mensaje.getRemitente());
+            preparedStatement.setString(2, mensaje.getDestinatario());
+            preparedStatement.setString(3, mensaje.getAsunto());
+            preparedStatement.setString(4, mensaje.getContenido());
+            preparedStatement.setTimestamp(5, java.sql.Timestamp.valueOf(mensaje.getFecha()));
             preparedStatement.executeUpdate();
+
+            try (ResultSet llavesGeneradas = preparedStatement.getGeneratedKeys()) {
+                if (llavesGeneradas.next()) {
+                    mensaje.setIdMensaje(llavesGeneradas.getInt(1));
+                }
+            }
 
             logger.log(Level.INFO, "Mensaje insertado correctamente. ID: " + mensaje.getIdMensaje());
         } catch (SQLException e) {
