@@ -24,12 +24,12 @@ public class ConexionBD{
         Properties properties = new Properties();
         try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream("config.properties")) {
             if (inputStream == null) {
-                throw new FileNotFoundException("Archivo config.properties no encontrado en resources");
+                throw new FileNotFoundException("Archivo config.properties no encontrado en recursos");
             }
             properties.load(inputStream);
-            this.ENLACE = properties.getProperty("db.enlace");
-            this.USUARIO = properties.getProperty("db.usuario");
-            this.CONTRASEÑA = properties.getProperty("db.contraseña");
+            this.ENLACE = System.getProperty("db.enlace", properties.getProperty("db.enlace"));
+            this.USUARIO = System.getProperty("db.usuario", properties.getProperty("db.usuario"));
+            this.CONTRASEÑA = System.getProperty("db.contraseña", properties.getProperty("db.contraseña"));
 
             conexion = DriverManager.getConnection(ENLACE, USUARIO, CONTRASEÑA);
             logger.log(Level.INFO, "Conexión exitosa a la base de datos");
@@ -62,4 +62,10 @@ public class ConexionBD{
         }
     }
 
+    public static void reset() {
+        if (instancia != null) {
+            instancia.cerrarConexion();
+            instancia = null;
+        }
+    }
 }
