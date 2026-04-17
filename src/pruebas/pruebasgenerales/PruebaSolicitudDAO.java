@@ -84,7 +84,6 @@ public class PruebaSolicitudDAO {
         solicitudDAO.insertarSolicitudProyecto(solicitudDTO);
         List<SolicitaProyectoDTO> lista = solicitudDAO.obtenerSolicitudesProyectoPorMatricula("S123");
 
-        assertFalse(lista.isEmpty(), "La lista de solicitudes no debería estar vacía");
         assertEquals(50, lista.get(0).getIdProyecto(), "El ID del proyecto solicitado debe coincidir");
     }
 
@@ -108,7 +107,6 @@ public class PruebaSolicitudDAO {
         solicitudDAO.insertarSolicitudProyecto(new SolicitaProyectoDTO("S123", 50, TipoEstadoSolicitud.PENDIENTE, "VERANO"));
 
         List<SolicitaProyectoDTO> lista = solicitudDAO.obtenerSolicitudesProyectoPorPeriodo("VERANO");
-        assertFalse(lista.isEmpty());
         assertEquals("VERANO", lista.get(0).getPeriodo());
     }
 }
