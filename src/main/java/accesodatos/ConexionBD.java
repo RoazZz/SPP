@@ -26,9 +26,9 @@ public class ConexionBD{
                 throw new FileNotFoundException("Archivo config.properties no encontrado en recursos");
             }
             properties.load(inputStream);
-            this.ENLACE = properties.getProperty("db.enlace");
-            this.USUARIO = properties.getProperty("db.usuario");
-            this.CONTRASEÑA =properties.getProperty("db.contraseña");
+            this.ENLACE = System.getProperty("db.enlace", properties.getProperty("db.enlace"));
+            this.USUARIO = System.getProperty("db.usuario", properties.getProperty("db.usuario"));
+            this.CONTRASEÑA = System.getProperty("db.contraseña", properties.getProperty("db.contraseña"));
 
             conexion = DriverManager.getConnection(ENLACE, USUARIO, CONTRASEÑA);
             logger.log(Level.INFO, "Conexión exitosa a la base de datos");
