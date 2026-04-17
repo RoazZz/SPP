@@ -23,15 +23,15 @@ import java.util.logging.Logger;
 public class ProfesorDAO implements ProfesorDAOInterfaz {
     private static final String SQL_INSERT = "INSERT INTO profesor(idUsuario, NumeroDePersonal, Turno) VALUES (?, ?, ?)";
     private static final String SQL_BUSCAR_POR_NUM_PERSONAL =
-            "SELECT usuario.idUsuario, usuario.nombre, usuario.apellidoPaterno, usuario.apellidoMaterno, " +
-            "usuario.contrasenia, usuario.tipoDeUsuario, usuario.estado, " +
+            "SELECT usuario.idUsuario, usuario.nombre, usuario.apellidoP, usuario.apellidoM, " +
+            "usuario.contrasenia, usuario.TipoUsuario, usuario.estado, " +
             "profesor.NumeroDePersonal, profesor.Turno " +
             "FROM usuario JOIN profesor ON usuario.idUsuario = profesor.idUsuario " +
             "WHERE profesor.NumeroDePersonal = ?";
-    private static final String SQL_UPDATE = "UPDATE profesor SET Turno = ?, Estado = ? WHERE NumeroDePersonal = ?";
+    private static final String SQL_UPDATE = "UPDATE profesor SET Turno = ? WHERE NumeroDePersonal = ?";
     private static final String SQL_SELECT_ALL =
-            "SELECT usuario.idUsuario, usuario.nombre, usuario.apellidoPaterno, usuario.apellidoMaterno, " +
-            "usuario.contrasenia, usuario.tipoDeUsuario, usuario.estado, " +
+            "SELECT usuario.idUsuario, usuario.nombre, usuario.apellidoP, usuario.apellidoM, " +
+            "usuario.contrasenia, usuario.TipoUsuario, usuario.estado, " +
             "profesor.NumeroDePersonal, profesor.Turno " +
             "FROM usuario JOIN profesor ON usuario.idUsuario = profesor.idUsuario";
 
@@ -104,8 +104,8 @@ public class ProfesorDAO implements ProfesorDAOInterfaz {
     @Override
     public void actualizarProfesor(ProfesorDTO profesor) throws DAOExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_UPDATE)) {
-            preparedStatement.setString(1, profesor.getNumeroDePersonal());
-            preparedStatement.setString(2, profesor.getTurno().name());
+            preparedStatement.setString(1, profesor.getTurno().name());
+            preparedStatement.setString(2, profesor.getNumeroDePersonal());
             preparedStatement.executeUpdate();
             logger.log(Level.INFO, "Profesor actualizado correctamente: " + profesor.getNumeroDePersonal());
         } catch (SQLException e) {
@@ -123,11 +123,11 @@ public class ProfesorDAO implements ProfesorDAOInterfaz {
                     return new ProfesorDTO(
                             resultSet.getInt("idUsuario"),
                             resultSet.getString("nombre"),
-                            resultSet.getString("apellidoPaterno"),
-                            resultSet.getString("apellidoMaterno"),
+                            resultSet.getString("apellidoP"),
+                            resultSet.getString("apellidoM"),
                             resultSet.getString("contrasenia"),
                             TipoEstado.valueOf(resultSet.getString("estado")),
-                            TipoDeUsuario.valueOf(resultSet.getString("tipoDeUsuario")),
+                            TipoDeUsuario.valueOf(resultSet.getString("TipoUsuario")),
                             resultSet.getString("NumeroDePersonal"),
                             TipoTurno.valueOf(resultSet.getString("Turno"))
                     );
@@ -150,11 +150,11 @@ public class ProfesorDAO implements ProfesorDAOInterfaz {
                 ProfesorDTO profesor = new ProfesorDTO(
                         resultSet.getInt("idUsuario"),
                         resultSet.getString("nombre"),
-                        resultSet.getString("apellidoPaterno"),
-                        resultSet.getString("apellidoMaterno"),
+                        resultSet.getString("apellidoP"),
+                        resultSet.getString("apellidoM"),
                         resultSet.getString("contrasenia"),
                         TipoEstado.valueOf(resultSet.getString("estado")),
-                        TipoDeUsuario.valueOf(resultSet.getString("tipoDeUsuario")),
+                        TipoDeUsuario.valueOf(resultSet.getString("tipoUsuario")),
                         resultSet.getString("NumeroDePersonal"),
                         TipoTurno.valueOf(resultSet.getString("Turno"))
                 );
