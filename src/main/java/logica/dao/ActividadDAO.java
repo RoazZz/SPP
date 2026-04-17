@@ -25,8 +25,16 @@ public class ActividadDAO implements ActividadDAOInterfaz {
     private static final String SQL_UPDATE = "UPDATE Actividad SET Matricula = ?, Nombre = ?, Descripcion = ?, Fecha = ? WHERE idActividad = ?";
     private static final String SQL_SELECT_ALL = "SELECT * FROM Actividad";
 
-    public ActividadDAO() throws SQLException, IOException {
-        this.conexion = ConexionBD.obtenerInstancia().obtenerConexion();
+    public ActividadDAO() throws DAOExcepcion{
+        try{
+            this.conexion = ConexionBD.obtenerInstancia().obtenerConexion();
+        }catch (IOException e){
+            logger.log(Level.SEVERE, "Error al leer archivo de configuración", e);
+            throw new DAOExcepcion("Error de configuracion", e);
+        }catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error de conexion SQL en ActividadDAO", e);
+            throw new DAOExcepcion("Error de base de datos", e);
+        }
     }
 
     @Override
@@ -43,6 +51,7 @@ public class ActividadDAO implements ActividadDAOInterfaz {
                     actividad.setIdActividad(resultSet.getInt(1));
                 }
             }
+            logger.log(Level.SEVERE, "Actividad Insertada correctamente: " + actividad.getIdActividad());
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error al agregar la actividad", e);
             throw new DAOExcepcion("Error al agregar la actividad: ", e);
@@ -58,6 +67,7 @@ public class ActividadDAO implements ActividadDAOInterfaz {
             preparedStatement.setDate(4, actividad.getFecha());
             preparedStatement.setInt(5, actividad.getIdActividad());
             preparedStatement.executeUpdate();
+            logger.log(Level.SEVERE, "Actividad Actualizada correctamente: " + actividad.getIdActividad());
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error al actualizar la actividad", e);
             throw new DAOExcepcion("Error al actualizar la Actividad: ", e);

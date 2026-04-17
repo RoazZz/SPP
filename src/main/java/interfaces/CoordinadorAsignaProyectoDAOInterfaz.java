@@ -1,12 +1,14 @@
 package interfaces;
 
+import excepciones.DAOExcepcion;
+import excepciones.EntidadNoEncontradaExcepcion;
 import logica.dto.CoordinadorAsignaProyectoDTO;
 import java.util.List;
 
 public interface CoordinadorAsignaProyectoDAOInterfaz {
-    public void insertarAsignacionDeProyecto (CoordinadorAsignaProyectoDTO coordinadorAsignaProyectoDTO) throws Exception;
-    public void actualizarAsigancionDeProyecto (CoordinadorAsignaProyectoDTO coordinadorAsignaProyectoDTO) throws Exception;
-    public List<CoordinadorAsignaProyectoDTO> obtenerAsignacionDeProyectoPorNumeroDePersonal (String numeroDePersonal) throws Exception;
-    public List<CoordinadorAsignaProyectoDTO> obtenerAsignacionDeProyectoPorIdSeccion (int idSeccion) throws Exception;
-    public List<CoordinadorAsignaProyectoDTO> obtenerTodasLasAsignacionesDeProyecto () throws Exception;
+    public void insertarAsignacionDeProyecto (CoordinadorAsignaProyectoDTO coordinadorAsignaProyectoDTO) throws DAOExcepcion;
+    public void actualizarAsigancionDeProyecto (CoordinadorAsignaProyectoDTO coordinadorAsignaProyectoDTO) throws DAOExcepcion;
+    public List<CoordinadorAsignaProyectoDTO> obtenerAsignacionDeProyectoPorNumeroDePersonal (String numeroDePersonal) throws DAOExcepcion, EntidadNoEncontradaExcepcion;
+    public List<CoordinadorAsignaProyectoDTO> obtenerAsignacionDeProyectoPorIdSeccion (int idSeccion) throws DAOExcepcion, EntidadNoEncontradaExcepcion;
+    public List<CoordinadorAsignaProyectoDTO> obtenerTodasLasAsignacionesDeProyecto () throws DAOExcepcion;
 }

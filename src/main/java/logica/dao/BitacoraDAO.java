@@ -24,8 +24,16 @@ public class BitacoraDAO implements BitacoraDAOInterfaz {
     private static final String SQL_BUSCAR_POR_MATRICULA = "SELECT * FROM Bitacora WHERE Matricula = ?";
     private static final String SQL_SELECT_ALL = "SELECT * FROM Bitacora";
 
-    public BitacoraDAO() throws IOException, SQLException {
+    public BitacoraDAO() throws DAOExcepcion {
+        try{
         this.conexion = ConexionBD.obtenerInstancia().obtenerConexion();
+        }catch (IOException e){
+            logger.log(Level.SEVERE, "Error al leer archivo de configuración", e);
+            throw new DAOExcepcion("Error de configuracion", e);
+        }catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error de conexion SQL en BitacoraDAO", e);
+            throw new DAOExcepcion("Error de base de datos", e);
+        }
     }
 
     @Override
@@ -41,6 +49,7 @@ public class BitacoraDAO implements BitacoraDAOInterfaz {
                     bitacora.setIdRegistro(resultSet.getInt(1));
                 }
             }
+            logger.log(Level.INFO, "Bitacora creada exitosamente: " + bitacora.getIdRegistro());
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error al agregar bitacora", e);
             throw new DAOExcepcion ("Error al agregar la bitacora: ", e);

@@ -25,8 +25,16 @@ public class ProyectoDAO implements ProyectoDAOInterfaz {
     private static final String SQL_UPDATE = "UPDATE Proyecto SET Nombre = ?, Descripcion = ? WHERE idProyecto = ?";
     private static final String SQL_SELECT_ALL = "SELECT * FROM Proyecto";
 
-    public ProyectoDAO() throws IOException, SQLException {
-        this.conexion = ConexionBD.obtenerInstancia().obtenerConexion();
+    public ProyectoDAO() throws DAOExcepcion {
+        try {
+            this.conexion = ConexionBD.obtenerInstancia().obtenerConexion();
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "Error al leer archivo de configuración", e);
+            throw new DAOExcepcion("Error de configuracion", e);
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error de conexion SQL en ProyectoDAO", e);
+            throw new DAOExcepcion("Error de base de datos", e);
+        }
     }
 
     @Override
@@ -43,6 +51,7 @@ public class ProyectoDAO implements ProyectoDAOInterfaz {
                     proyecto.setIdProyecto(resultSet.getInt(1));
                 }
             }
+            logger.log(Level.INFO, "Proyecto creado exitosamente: " + proyecto.getIdProyecto());
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error al agregar el proyecto", e);
             throw new DAOExcepcion("Error al agregar el proyecto: ", e);
@@ -56,6 +65,7 @@ public class ProyectoDAO implements ProyectoDAOInterfaz {
             preparedStatement.setString(2, proyecto.getDescripcion());
             preparedStatement.setInt(3, proyecto.getIdProyecto());
             preparedStatement.executeUpdate();
+            logger.log(Level.INFO, "Proyecto actualizado exitosamente: " + proyecto.getIdProyecto());
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error al actualizar proyecto", e);
             throw new DAOExcepcion("Error al actualizar el proyecto: ", e);

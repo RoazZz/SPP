@@ -27,8 +27,16 @@ public class UsuarioDAO implements UsuarioDAOInterfaz {
     private static final String SQL_UPDATE = "UPDATE Usuario SET Nombre = ?, ApellidoP = ?, ApellidoM = ?, Contrasenia = ?, TipoUsuario = ? WHERE NumeroDePersonal = ?";
     private static final String SQL_SELECT_ALL = "SELECT * FROM Usuario";
 
-    public UsuarioDAO() throws IOException, SQLException {
-        this.conexion = ConexionBD.obtenerInstancia().obtenerConexion();
+    public UsuarioDAO() throws DAOExcepcion {
+        try {
+            this.conexion = ConexionBD.obtenerInstancia().obtenerConexion();
+        }catch (IOException e){
+            logger.log(Level.SEVERE, "Error al leer archivo de configuración", e);
+            throw new DAOExcepcion("Error de configuracion", e);
+        }catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error de conexion SQL en UsuarioDAO", e);
+            throw new DAOExcepcion("Error de base de datos", e);
+        }
     }
 
     public UsuarioDAO(Connection conexionExistente) {
@@ -52,6 +60,7 @@ public class UsuarioDAO implements UsuarioDAOInterfaz {
                     usuario.setIdUsuario(resultSet.getInt(1));
                 }
             }
+            logger.log(Level.INFO, "Usuario base creado exitosamente: " + usuario.getIdUsuario());
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error al agregar usuario", e);
             throw new DAOExcepcion("Error al agregar usuario: ", e);
@@ -68,6 +77,7 @@ public class UsuarioDAO implements UsuarioDAOInterfaz {
             preparedStatement.setString(5, usuario.getTipoDeUsuario().name());
             preparedStatement.setInt(6, usuario.getIdUsuario());
             preparedStatement.executeUpdate();
+            logger.log(Level.INFO, "Usuarios base actualizado exitosamente: " + usuario.getIdUsuario());
         } catch (SQLException e){
             logger.log(Level.SEVERE, "Error al actualizar al usuario", e);
             throw new DAOExcepcion("Error al actualizar al usuario: ", e);

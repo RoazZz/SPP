@@ -38,12 +38,20 @@ public class PracticanteDAO implements PracticanteDAOInterfaz {
             "practicante.edad, practicante.lenguaIndigena" +
                     "FROM usuario JOIN practicante ON usuario.idUsuario = practicante.idUsuario ";
 
-    public PracticanteDAO() throws IOException, SQLException {
+    public PracticanteDAO() throws DAOExcepcion {
+        try{
         this.conexion = ConexionBD.obtenerInstancia().obtenerConexion();
+        }catch (IOException e){
+            logger.log(Level.SEVERE, "Error al leer archivo de configuración", e);
+            throw new DAOExcepcion("Error de configuracion", e);
+        }catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error de conexion SQL en PracticanteDAO", e);
+            throw new DAOExcepcion("Error de base de datos", e);
+        }
     }
 
     @Override
-    public void agregarPracticante(PracticanteDTO practicante) throws DAOExcepcion {
+    public void agregarPracticante(PracticanteDTO practicante) throws DAOExcepcion, EntidadNoEncontradaExcepcion {
         UsuarioDAO usuarioDAO = new UsuarioDAO(this.conexion);
         try {
             conexion.setAutoCommit(false);
@@ -61,8 +69,10 @@ public class PracticanteDAO implements PracticanteDAOInterfaz {
                     preparedStatement.executeUpdate();
                 }
                 conexion.commit();
+                logger.log(Level.INFO, "Practicante agregado exitosamente: " + practicante.getMatricula());
             } else {
-                throw new DAOExcepcion( "No se pudo crear el usuario base", null);
+                logger.log(Level.SEVERE, "No se pudo crear usuario base para practicante");
+                throw new EntidadNoEncontradaExcepcion( "No se pudo crear el usuario base");
             }
         } catch (SQLException e) {
             try {
@@ -91,6 +101,7 @@ public class PracticanteDAO implements PracticanteDAOInterfaz {
             preparedStatement.setBoolean(5, practicante.isLenguaIndigena());
             preparedStatement.setString(6, practicante.getMatricula());
             preparedStatement.executeUpdate();
+            logger.log(Level.INFO, "Practicante actualizado correctamente: " + practicante.getMatricula());
         } catch (SQLException e){
             logger.log(Level.SEVERE, "Error al actualizar al practicante", e);
             throw new DAOExcepcion("Error al actualizar al Practicante: ", e);

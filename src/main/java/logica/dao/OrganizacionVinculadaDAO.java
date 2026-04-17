@@ -24,8 +24,16 @@ public class OrganizacionVinculadaDAO implements OrganizacionVinculadaDAOInterfa
     private static final String SQL_UPDATE = "UPDATE OrganizacionVinculada SET Nombre = ?, Direccion = ? WHERE idOrganizacion = ?";
     private static final String SQL_SELECT_ALL = "SELECT * FROM OrganizacionVinculada";
 
-    public OrganizacionVinculadaDAO() throws SQLException, IOException {
+    public OrganizacionVinculadaDAO() throws DAOExcepcion {
+        try{
         this.conexion = ConexionBD.obtenerInstancia().obtenerConexion();
+        }catch (IOException e){
+            logger.log(Level.SEVERE, "Error al leer archivo de configuración", e);
+            throw new DAOExcepcion("Error de configuracion", e);
+        }catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error de conexion SQL en OrganizaciónVinculadaDAO", e);
+            throw new DAOExcepcion("Error de base de datos", e);
+        }
     }
 
     @Override
@@ -35,6 +43,7 @@ public class OrganizacionVinculadaDAO implements OrganizacionVinculadaDAOInterfa
             preparedStatement.setString(2, organizacionVinculada.getNombre());
             preparedStatement.setString(3, organizacionVinculada.getDireccion());
             preparedStatement.executeUpdate();
+            logger.log(Level.INFO, "Organización Vinculada creada exitosamente: " + organizacionVinculada.getidOrganizacion());
         } catch (SQLException e){
             logger.log(Level.SEVERE, "Error al agregar Organizacion Vinculada", e);
             throw new DAOExcepcion("Error al agregar la Organizacion Vinculada: ", e);
@@ -48,6 +57,7 @@ public class OrganizacionVinculadaDAO implements OrganizacionVinculadaDAOInterfa
             preparedStatement.setString(2, organizacionVinculada.getDireccion());
             preparedStatement.setString(3, organizacionVinculada.getidOrganizacion());
             preparedStatement.executeUpdate();
+            logger.log(Level.INFO, "Organización Vinculada actualizada exitosamente: " + organizacionVinculada.getidOrganizacion());
         } catch (SQLException e){
             logger.log(Level.SEVERE, "Error al actualizar Organizacion Vinculada", e);
             throw new DAOExcepcion("Error al actualizar a la Organizacion Vinculada: ", e);

@@ -1,6 +1,8 @@
 package logica.dao;
 
 import accesodatos.ConexionBD;
+import excepciones.DAOExcepcion;
+import excepciones.EntidadNoEncontradaExcepcion;
 import interfaces.CoordinadorAsignaProyectoDAOInterfaz;
 import logica.dto.CoordinadorAsignaProyectoDTO;
 import logica.enums.TipoEstado;
@@ -12,6 +14,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class CoordinadorAsignaProyectoDAO implements CoordinadorAsignaProyectoDAOInterfaz {
@@ -24,36 +27,47 @@ public class CoordinadorAsignaProyectoDAO implements CoordinadorAsignaProyectoDA
     public static final String SQL_SELECT_ALL = "SELECT * FROM Asigna ";
 
 
-    public CoordinadorAsignaProyectoDAO() throws SQLException, IOException {
+    public CoordinadorAsignaProyectoDAO() throws DAOExcepcion {
+        try{
         this.conexion = ConexionBD.obtenerInstancia().obtenerConexion();
+        }catch (IOException e){
+            logger.log(Level.SEVERE, "Error al leer archivo de configuración", e);
+            throw new DAOExcepcion("Error de configuracion", e);
+        }catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error de conexion SQL en CoordinadorAsignaProyectoDAO", e);
+            throw new DAOExcepcion("Error de base de datos", e);
+        }
     }
 
     @Override
-    public void insertarAsignacionDeProyecto(CoordinadorAsignaProyectoDTO coordinadorAsignaProyectoDTO) throws Exception {
+    public void insertarAsignacionDeProyecto(CoordinadorAsignaProyectoDTO coordinadorAsignaProyectoDTO) throws DAOExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT)) {
             preparedStatement.setString(1, coordinadorAsignaProyectoDTO.getNumeroDePersonal());
             preparedStatement.setInt(2, coordinadorAsignaProyectoDTO.getIdProyecto());
             preparedStatement.setString(3, coordinadorAsignaProyectoDTO.getTipoEstado().name());
             preparedStatement.executeUpdate();
+            logger.log(Level.INFO, "Asignación de Proyecto creada exitosamente: " + coordinadorAsignaProyectoDTO.getNumeroDePersonal());
         }catch (Exception e){
-            throw new Exception("Error al insertar la asignacion de proyecto: " + e.getMessage());
+            logger.log(Level.SEVERE, "Error al insertar Asignación de Proyecto", e);
+            throw new DAOExcepcion("Error al insertar la asignacion de proyecto: ", e);
         }
     }
 
     @Override
-    public void actualizarAsigancionDeProyecto(CoordinadorAsignaProyectoDTO coordinadorAsignaProyectoDTO) throws Exception {
+    public void actualizarAsigancionDeProyecto(CoordinadorAsignaProyectoDTO coordinadorAsignaProyectoDTO) throws DAOExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_UPDATE)) {
             preparedStatement.setString(1, coordinadorAsignaProyectoDTO.getTipoEstado().name());
             preparedStatement.setInt(2, coordinadorAsignaProyectoDTO.getIdProyecto());
             preparedStatement.executeUpdate();
         }catch (Exception e){
-            throw new Exception("Error al actualizar la asignacion del proyecto: " + e.getMessage());
+            logger.log(Level.SEVERE, "Error al actualizar Asignación de Proyecto", e);
+            throw new DAOExcepcion("Error al actualizar la asignacion del proyecto: ", e);
         }
 
     }
 
     @Override
-    public List<CoordinadorAsignaProyectoDTO> obtenerAsignacionDeProyectoPorNumeroDePersonal(String numeroDePersonal) throws Exception {
+    public List<CoordinadorAsignaProyectoDTO> obtenerAsignacionDeProyectoPorNumeroDePersonal(String numeroDePersonal) throws DAOExcepcion, EntidadNoEncontradaExcepcion {
         List<CoordinadorAsignaProyectoDTO> listaAsignacionesProyecto = new ArrayList<>();
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_SELECT_BY_NUMERO_DE_PERSONAL);
              ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -67,12 +81,13 @@ public class CoordinadorAsignaProyectoDAO implements CoordinadorAsignaProyectoDA
             }
             return listaAsignacionesProyecto;
         }catch (Exception e){
-            throw new Exception("Error al obtener las asignaciones de proyecto por numero de personal: " + e.getMessage());
+            logger.log(Level.SEVERE, "Error al listar las Asignaciones de Proyecto por numero de personal", e);
+            throw new DAOExcepcion("Error al obtener las asignaciones de proyecto por numero de personal: ", e);
         }
     }
 
     @Override
-    public List<CoordinadorAsignaProyectoDTO> obtenerAsignacionDeProyectoPorIdSeccion(int idSeccion) throws Exception {
+    public List<CoordinadorAsignaProyectoDTO> obtenerAsignacionDeProyectoPorIdSeccion(int idSeccion) throws DAOExcepcion, EntidadNoEncontradaExcepcion {
         List<CoordinadorAsignaProyectoDTO> listaAsignacionesProyecto = new ArrayList<>();
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_SELECT_BY_ID_PROYECTO);
              ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -86,12 +101,13 @@ public class CoordinadorAsignaProyectoDAO implements CoordinadorAsignaProyectoDA
             }
             return listaAsignacionesProyecto;
         }catch (Exception e){
-            throw new Exception("Error al obtener las asignaciones de proyecto por id de Proyecto: " + e.getMessage());
+            logger.log(Level.SEVERE, "Error al listar las Asignaciones de Proyecto por id de proyecto", e);
+            throw new DAOExcepcion("Error al obtener las asignaciones de proyecto por id de Proyecto: ", e);
         }
     }
 
     @Override
-    public List<CoordinadorAsignaProyectoDTO> obtenerTodasLasAsignacionesDeProyecto() throws Exception {
+    public List<CoordinadorAsignaProyectoDTO> obtenerTodasLasAsignacionesDeProyecto() throws DAOExcepcion {
         List<CoordinadorAsignaProyectoDTO> listaAsignacionesProyecto = new ArrayList<>();
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_SELECT_ALL);
              ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -105,7 +121,8 @@ public class CoordinadorAsignaProyectoDAO implements CoordinadorAsignaProyectoDA
             }
             return listaAsignacionesProyecto;
         }catch (Exception e){
-            throw new Exception("Error al obtener todas las asignaciones de proyecto: " + e.getMessage());
+            logger.log(Level.SEVERE, "Error al listar las asignaciones de proyecto", e);
+            throw new DAOExcepcion("Error al obtener todas las asignaciones de proyecto: ", e);
         }
     }
 }

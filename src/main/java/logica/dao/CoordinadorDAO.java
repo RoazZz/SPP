@@ -1,6 +1,7 @@
 package logica.dao;
 
 import excepciones.DAOExcepcion;
+import excepciones.EntidadNoEncontradaExcepcion;
 import interfaces.CoordinadorDAOInterfaz;
 import accesodatos.ConexionBD;
 import logica.dto.CoordinadorDTO;
@@ -21,14 +22,23 @@ public class CoordinadorDAO implements CoordinadorDAOInterfaz{
     private final Connection conexion;
     private static final Logger logger = Logger.getLogger(CoordinadorDAO.class.getName());
     private static final String SQL_INSERT  = "INSERT INTO Coordinador (idUsuario, NumeroDePersonal) VALUES (?, ?)";
+    private static final String SQL_UPDATE = "UPDATE Coordinador SET NumeroDePersonal = ? WHERE NumeroDePersonal = ?";
     private static final String SQL_SELECT_ALL =
             "SELECT usuario.idUsuario, usuario.nombre, usuario.apellidoPaterno, usuario.apellidoMaterno, " +
             "usuario.contrasenia, usuario.tipoDeUsuario, usuario.estado, " +
             "coordinador.NumeroDePersonal " +
             "FROM usuario JOIN coordinador ON usuario.idUsuario = coordinador.idUsuario";
 
-    public CoordinadorDAO() throws IOException, SQLException {
-        this.conexion = ConexionBD.obtenerInstancia().obtenerConexion();
+    public CoordinadorDAO() throws DAOExcepcion {
+        try {
+            this.conexion = ConexionBD.obtenerInstancia().obtenerConexion();
+        }catch (IOException e){
+            logger.log(Level.SEVERE, "Error al leer archivo de configuración", e);
+            throw new DAOExcepcion("Error de configuracion", e);
+        }catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error de conexion SQL en CoordinadorDAO", e);
+            throw new DAOExcepcion("Error de base de datos", e);
+        }
     }
 
     @Override
@@ -46,8 +56,10 @@ public class CoordinadorDAO implements CoordinadorDAOInterfaz{
                     preparedStatements.executeUpdate();
                 }
                 conexion.commit();
+                logger.log(Level.INFO, "Practicante agregado exitosamente: " + coordinador.getNumeroPersonal());
             } else {
-                throw new DAOExcepcion("No se pudo crear el usuario base", null);
+                logger.log(Level.SEVERE, "No se pudo crear usuario base para coordinador");
+                throw new EntidadNoEncontradaExcepcion( "No se pudo crear el usuario base");
             }
         } catch (SQLException e) {
             try {
@@ -63,6 +75,18 @@ public class CoordinadorDAO implements CoordinadorDAOInterfaz{
             } catch (SQLException ex) {
                 logger.log(Level.SEVERE, "Error al restaurar AutoCommit", ex);
             }
+        }
+    }
+
+    @Override
+    public void actualizarCoordinador(CoordinadorDTO coordinador) throws DAOExcepcion {
+        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_UPDATE)) {
+            preparedStatement.setString(1,coordinador.getNumeroPersonal());
+            preparedStatement.executeUpdate();
+            logger.log(Level.INFO, "Coordinador actualizado correctamente: " + coordinador.getNumeroPersonal());
+        } catch (SQLException e){
+            logger.log(Level.SEVERE, "Error al actualizar al Coordinador", e);
+            throw new DAOExcepcion("Error al actualizar al Coordinador: ", e);
         }
     }
 
