@@ -105,7 +105,4 @@ public class PruebaUsuarioDAO {
 
         assertFalse(lista.isEmpty());
     }
-
-
-
 }

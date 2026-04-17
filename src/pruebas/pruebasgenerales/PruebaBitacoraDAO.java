@@ -100,7 +100,7 @@ public class PruebaBitacoraDAO {
 
         List<BitacoraDTO> lista = bitacoraDAO.listarBitacoras();
 
-        assertFalse(lista.isEmpty(), "La lista no debe estar vacia");
+        assertFalse(lista.isEmpty());
     }
 
 }

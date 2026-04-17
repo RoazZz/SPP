@@ -5,6 +5,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 
+import java.sql.Connection;
+
 public class PruebaCoordinadorAsignaProyectoDAO {
 
     @BeforeAll
@@ -18,12 +20,15 @@ public class PruebaCoordinadorAsignaProyectoDAO {
 
     @BeforeEach
     void limpiarAntes() throws Exception {
-        // limpiarTablas();
+        limpiarTablas();
     }
 
     @AfterEach
     void limpiarDespues() throws Exception {
-         // limpiarTablas();
+        limpiarTablas();
     }
 
+    void limpiarTablas() throws Exception {
+        Connection conexion = ConexionBD.obtenerInstancia().obtenerConexion();
+    }
 }
