@@ -3,18 +3,25 @@ package logica.dao;
 import accesodatos.ConexionBD;
 import excepciones.DAOExcepcion;
 import excepciones.EntidadNoCreadaExcepcion;
+import excepciones.EntidadNoEncontradaExcepcion;
 import interfaces.AdministradorDAOInterfaz;
 import logica.dto.AdministradorDTO;
+import logica.enums.TipoDeUsuario;
+import logica.enums.TipoEstado;
 
 import java.io.IOException;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Connection;
+import java.sql.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class AdministradorDAO implements AdministradorDAOInterfaz {
     private static final String SQL_INSERT = "INSERT INTO administrador (idUsuario) VALUES (?)";
+    private static final String SQL_BUSCAR_POR_ID =
+            "SELECT usuario.idUsuario, usuario.nombre, usuario.apellidoP, usuario.apellidoM, " +
+                    "usuario.contrasenia, usuario.TipoUsuario, usuario.estado, " +
+                    "administrador.idAdministrador" +
+                    " FROM usuario JOIN administrador ON usuario.idUsuario = administrador.idUsuario " +
+                    "WHERE administrador.idAdministrador = ?";
 
     private Connection conexion;
     private static final Logger logger = Logger.getLogger(AdministradorDAO.class.getName());
@@ -41,9 +48,18 @@ public class AdministradorDAO implements AdministradorDAOInterfaz {
             int idGenerado = admin.getIdUsuario();
 
             if (idGenerado > 0) {
-                try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT)) {
+                try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
                     preparedStatement.setInt(1, idGenerado);
                     preparedStatement.executeUpdate();
+
+                    try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
+                        if (generatedKeys.next()) {
+                            int idAdminGenerado = generatedKeys.getInt(1);
+                            admin.setIdAdministrador(idAdminGenerado);
+                            logger.log(Level.INFO, "Admin vinculado con ID de Usuario: " + idGenerado +
+                                    " y ID de Admin: " + idAdminGenerado);
+                        }
+                    }
                 }
                 conexion.commit();
                 logger.log(Level.INFO, "Administrador agregado correctamente: " + admin.getIdUsuario());
@@ -77,6 +93,32 @@ public class AdministradorDAO implements AdministradorDAOInterfaz {
             } catch (SQLException e) {
                 logger.log(Level.WARNING, "No se pudo resetear autocommit", e);
             }
+        }
+    }
+
+    @Override
+    public AdministradorDTO buscarAdministradorPorId(int idAdministrador) throws DAOExcepcion, EntidadNoEncontradaExcepcion {
+        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_BUSCAR_POR_ID)) {
+            preparedStatement.setInt(1, idAdministrador);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return new AdministradorDTO(
+                    resultSet.getInt("idUsuario"),
+                    resultSet.getString("nombre"),
+                    resultSet.getString("apellidoP"),
+                    resultSet.getString("apellidoM"),
+                    resultSet.getString("contrasenia"), TipoEstado.valueOf(resultSet.getString("estado")),
+                    TipoDeUsuario.valueOf(resultSet.getString("TipoUsuario")),
+                    resultSet.getInt("idAdministrador")
+                    );
+                } else {
+                    logger.log(Level.INFO, "Administrador no encontrado con ID: " + idAdministrador);
+                    throw new EntidadNoEncontradaExcepcion("Administrador no encontrado con ID: " + idAdministrador);
+                }
+            }
+        }catch (SQLException e){
+            logger.log(Level.SEVERE, "Error SQL al buscar administrador por ID", e);
+            throw new DAOExcepcion("Error al buscar administrador por ID", e);
         }
     }
 }

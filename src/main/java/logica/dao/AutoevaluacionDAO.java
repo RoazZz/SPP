@@ -14,10 +14,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class AutoevaluacionDAO implements AutoevaluacionDAOInterfaz {
-    private static String SQL_INSERT = "INSERT INTO autoevaluacion(idAutoEvaluacion, Matricula, Calificacion, Comentarios) VALUES (?,?,?,?)";
+    private static String SQL_INSERT = "INSERT INTO autoevaluacion(Matricula, Calificacion, Comentarios) VALUES (?,?,?)";
     private static String SQL_SELECT_BY_MATRICULA = "SELECT * FROM autoevaluacion WHERE Matricula = ?";
     private static String SQL_UPDATE = "UPDATE autoevaluacion SET Calificacion = ?, Comentarios = ? WHERE Matricula = ?";
-    private static String SQL_EXISTS_PRACTICANTE = "SELECT 1 FROM practicante WHERE Matricula = ?";
     private static String SQL_SELECT_ALL = "SELECT * FROM autoevaluacion";
 
     private Connection conexion;
@@ -38,10 +37,9 @@ public class AutoevaluacionDAO implements AutoevaluacionDAOInterfaz {
     @Override
     public void agregarAutoevalaucion(AutoevaluacionDTO autoevaluacion) throws DAOExcepcion {
         try(PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)){
-            preparedStatement.setInt(1, autoevaluacion.getIdAutoevalaucion());
-            preparedStatement.setString(2, autoevaluacion.getMatricula());
-            preparedStatement.setBigDecimal(3, autoevaluacion.getCalificacion());
-            preparedStatement.setString(4, autoevaluacion.getComentarios());
+            preparedStatement.setString(1, autoevaluacion.getMatricula());
+            preparedStatement.setBigDecimal(2, autoevaluacion.getCalificacion());
+            preparedStatement.setString(3, autoevaluacion.getComentarios());
             preparedStatement.executeUpdate();
 
             try (ResultSet resultSet = preparedStatement.getGeneratedKeys()) {

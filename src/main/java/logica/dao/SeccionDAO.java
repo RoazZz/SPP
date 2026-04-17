@@ -39,16 +39,11 @@ public class SeccionDAO implements SeccionDAOInterfaz {
 
     @Override
     public void agregarSeccion(logica.dto.SeccionDTO seccionDTO) throws DAOExcepcion {
-        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT, PreparedStatement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT)) {
             preparedStatement.setInt(1, seccionDTO.getIdSeccion());
             preparedStatement.setString(2, seccionDTO.getNombre());
             preparedStatement.executeUpdate();
 
-            try (ResultSet resultSet = preparedStatement.getGeneratedKeys()) {
-                if (resultSet.next()) {
-                    seccionDTO.setIdSeccion(resultSet.getInt(1));
-                }
-            }
             logger.log(Level.INFO, "Seccion agregada exitosamente: " + seccionDTO.getNombre());
         }catch (SQLException e) {
             logger.log(Level.SEVERE, "Error SQL al agregar seccion", e);
