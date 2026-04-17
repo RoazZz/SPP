@@ -2,6 +2,7 @@ package logica.dao;
 
 import accesodatos.ConexionBD;
 import excepciones.DAOExcepcion;
+import excepciones.EntidadNoCreadaExcepcion;
 import interfaces.AdministradorDAOInterfaz;
 import logica.dto.AdministradorDTO;
 
@@ -46,6 +47,9 @@ public class AdministradorDAO implements AdministradorDAOInterfaz {
                 }
                 conexion.commit();
                 logger.log(Level.INFO, "Administrador agregado correctamente: " + admin.getIdUsuario());
+            }else{
+                logger.log(Level.WARNING, "Usuario base no generado para el Administrador");
+                throw new EntidadNoCreadaExcepcion("Usuario base no creado correctamente");
             }
         } catch (SQLException e) {
             try {

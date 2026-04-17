@@ -2,6 +2,7 @@ package logica.dao;
 
 import accesodatos.ConexionBD;
 import excepciones.DAOExcepcion;
+import excepciones.EntidadNoCreadaExcepcion;
 import excepciones.EntidadNoEncontradaExcepcion;
 import interfaces.ProfesorDAOInterfaz;
 import logica.dto.ProfesorDTO;
@@ -68,7 +69,9 @@ public class ProfesorDAO implements ProfesorDAOInterfaz {
                 conexion.commit();
                 logger.log(Level.INFO, "Profesor agregado exitosamente: " + profesor.getNumeroDePersonal());
             } else {
-                throw new DAOExcepcion("No se pudo crear el usuario base", null);            }
+                logger.log(Level.WARNING, "Usuario base no generado para profesor");
+                throw new EntidadNoCreadaExcepcion("Usuario base no creado correctamente");
+            }
         } catch (SQLException e) {
             try {
                 if (conexion != null){
@@ -101,8 +104,8 @@ public class ProfesorDAO implements ProfesorDAOInterfaz {
     @Override
     public void actualizarProfesor(ProfesorDTO profesor) throws DAOExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_UPDATE)) {
-            preparedStatement.setString(1, profesor.getTurno().name());
-            preparedStatement.setString(3, profesor.getNumeroDePersonal());
+            preparedStatement.setString(1, profesor.getNumeroDePersonal());
+            preparedStatement.setString(2, profesor.getTurno().name());
             preparedStatement.executeUpdate();
             logger.log(Level.INFO, "Profesor actualizado correctamente: " + profesor.getNumeroDePersonal());
         } catch (SQLException e) {
