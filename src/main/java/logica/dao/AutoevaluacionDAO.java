@@ -17,7 +17,6 @@ public class AutoevaluacionDAO implements AutoevaluacionDAOInterfaz {
     private static String SQL_INSERT = "INSERT INTO autoevaluacion(idAutoEvaluacion, Matricula, Calificacion, Comentarios) VALUES (?,?,?,?)";
     private static String SQL_SELECT_BY_MATRICULA = "SELECT * FROM autoevaluacion WHERE Matricula = ?";
     private static String SQL_UPDATE = "UPDATE autoevaluacion SET Calificacion = ?, Comentarios = ? WHERE Matricula = ?";
-    private static String SQL_EXISTS_PRACTICANTE = "SELECT 1 FROM practicante WHERE Matricula = ?";
     private static String SQL_SELECT_ALL = "SELECT * FROM autoevaluacion";
 
     private Connection conexion;
