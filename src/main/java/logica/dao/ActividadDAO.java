@@ -59,7 +59,7 @@ public class ActividadDAO implements ActividadDAOInterfaz {
     }
 
     @Override
-    public void actualizarProyecto(ActividadDTO actividad) throws DAOExcepcion {
+    public void actualizarActividad(ActividadDTO actividad) throws DAOExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_UPDATE)) {
             preparedStatement.setString(1, actividad.getMatricula());
             preparedStatement.setString(2, actividad.getNombre());
@@ -73,6 +73,7 @@ public class ActividadDAO implements ActividadDAOInterfaz {
             throw new DAOExcepcion("Error al actualizar la Actividad: ", e);
         }
     }
+
 
     @Override
     public ActividadDTO buscarActividadPorIdActividad(int idActividad) throws DAOExcepcion {
