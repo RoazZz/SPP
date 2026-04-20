@@ -17,8 +17,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class PruebaSolicitaProyectoDAO {
     private static SolicitaProyectoDAO solicitaProyectoDAO;
-    private SolicitaProyectoDTO dtoParaAgregar;
-    private SolicitaProyectoDTO dtoInvalido;
+    private SolicitaProyectoDTO solicitaProyectoValido;
+    private SolicitaProyectoDTO solicitaProyectoInvalidoMatriculaNula;
 
     @BeforeAll
     static void prepararEntorno() throws Exception {
@@ -66,14 +66,13 @@ public class PruebaSolicitaProyectoDAO {
             statement.execute("SET FOREIGN_KEY_CHECKS = 1");
         }
 
-        // Ahora usamos el Proyecto 60, así no hay duplicados con el 50
-        dtoParaAgregar = new SolicitaProyectoDTO("S123", 60, TipoEstadoSolicitud.PENDIENTE, "NUEVO-2026");
-        dtoInvalido = new SolicitaProyectoDTO(null, 50, TipoEstadoSolicitud.PENDIENTE, "ERROR");
+        solicitaProyectoValido = new SolicitaProyectoDTO("S123", 60, TipoEstadoSolicitud.PENDIENTE, "NUEVO-2026");
+        solicitaProyectoInvalidoMatriculaNula = new SolicitaProyectoDTO(null, 50, TipoEstadoSolicitud.PENDIENTE, "ERROR");
     }
 
     @Test
     public void pruebaInsertarSolicitudProyectoExitoso() throws Exception {
-        SolicitaProyectoDTO resultado = solicitaProyectoDAO.insertarSolicitudProyecto(dtoParaAgregar);
+        SolicitaProyectoDTO resultado = solicitaProyectoDAO.insertarSolicitudProyecto(solicitaProyectoValido);
         assertNotNull(resultado);
     }
 
@@ -85,13 +84,13 @@ public class PruebaSolicitaProyectoDAO {
 
     @Test
     public void pruebaInsertarSolicitudExcepcionMatriculaNula() {
-        assertThrows(DAOExcepcion.class, () -> solicitaProyectoDAO.insertarSolicitudProyecto(dtoInvalido));
+        assertThrows(DAOExcepcion.class, () -> solicitaProyectoDAO.insertarSolicitudProyecto(solicitaProyectoInvalidoMatriculaNula));
     }
 
     @Test
     public void pruebaActualizarSolicitudExcepcionConexionCerrada() throws Exception {
         ConexionBD.obtenerInstancia().obtenerConexion().close();
-        assertThrows(DAOExcepcion.class, () -> solicitaProyectoDAO.actualizarSolicitudProyecto(dtoParaAgregar));
+        assertThrows(DAOExcepcion.class, () -> solicitaProyectoDAO.actualizarSolicitudProyecto(solicitaProyectoValido));
         ConexionBD.reset();
         solicitaProyectoDAO = new SolicitaProyectoDAO();
     }

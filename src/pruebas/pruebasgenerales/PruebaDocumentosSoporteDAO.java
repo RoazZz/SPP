@@ -16,8 +16,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class PruebaDocumentosSoporteDAO {
     private static DocumentosSoporteDAO documentosSoporteDAO;
-    private DocumentosSoporteDTO dtoParaAgregar;
-    private DocumentosSoporteDTO dtoInvalido;
+    private DocumentosSoporteDTO documentosSoporteValido;
+    private DocumentosSoporteDTO documentoSoporteInvalidoMatriculaNula;
 
     @BeforeAll
     static void prepararEntorno() throws Exception {
@@ -58,13 +58,13 @@ public class PruebaDocumentosSoporteDAO {
             statement.execute("SET FOREIGN_KEY_CHECKS = 1");
         }
 
-        dtoParaAgregar = new DocumentosSoporteDTO(0, "S21012345", "Carta Aceptación", "Pendiente");
-        dtoInvalido = new DocumentosSoporteDTO(0, null, "Error", "Fallo");
+        documentosSoporteValido = new DocumentosSoporteDTO(0, "S21012345", "Carta Aceptación", "Pendiente");
+        documentoSoporteInvalidoMatriculaNula = new DocumentosSoporteDTO(0, null, "Error", "Fallo");
     }
 
     @Test
     public void pruebaAgregarDocumentoSoporteExitoso() throws Exception {
-        DocumentosSoporteDTO resultado = documentosSoporteDAO.agregarDocumentoSoporte(dtoParaAgregar);
+        DocumentosSoporteDTO resultado = documentosSoporteDAO.agregarDocumentoSoporte(documentosSoporteValido);
         assertNotNull(resultado);
     }
 
@@ -82,13 +82,13 @@ public class PruebaDocumentosSoporteDAO {
 
     @Test
     public void pruebaAgregarDocumentoExcepcionMatriculaNula() {
-        assertThrows(DAOExcepcion.class, () -> documentosSoporteDAO.agregarDocumentoSoporte(dtoInvalido));
+        assertThrows(DAOExcepcion.class, () -> documentosSoporteDAO.agregarDocumentoSoporte(documentoSoporteInvalidoMatriculaNula));
     }
 
     @Test
     public void pruebaActualizarDocumentoExcepcionConexionCerrada() throws Exception {
         ConexionBD.obtenerInstancia().obtenerConexion().close();
-        assertThrows(DAOExcepcion.class, () -> documentosSoporteDAO.actualizarDocumentoSoporte(dtoParaAgregar));
+        assertThrows(DAOExcepcion.class, () -> documentosSoporteDAO.actualizarDocumentoSoporte(documentosSoporteValido));
         ConexionBD.reset();
         documentosSoporteDAO = new DocumentosSoporteDAO();
     }

@@ -18,8 +18,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class PruebaReporteDAO {
     private static ReporteDAO reporteDAO;
-    private ReporteDTO dtoParaAgregar;
-    private ReporteDTO dtoInvalido;
+    private ReporteDTO reporteValido;
+    private ReporteDTO reporteInvalidoDatosNulos;
 
     @BeforeAll
     static void prepararEntorno() throws Exception {
@@ -50,13 +50,13 @@ public class PruebaReporteDAO {
             statement.execute("SET FOREIGN_KEY_CHECKS = 1");
         }
 
-        dtoParaAgregar = new ReporteDTO(0, TipoReporte.MENSUAL, LocalDate.now(), "/rutas/nuevo.pdf");
-        dtoInvalido = new ReporteDTO(0, null, LocalDate.now(), null);
+        reporteValido = new ReporteDTO(0, TipoReporte.MENSUAL, LocalDate.now(), "/rutas/nuevo.pdf");
+        reporteInvalidoDatosNulos = new ReporteDTO(0, null, LocalDate.now(), null);
     }
 
     @Test
     public void pruebaAgregarReporteExitoso() throws Exception {
-        ReporteDTO resultado = reporteDAO.agregarReporte(dtoParaAgregar);
+        ReporteDTO resultado = reporteDAO.agregarReporte(reporteValido);
         assertNotNull(resultado);
     }
 
@@ -73,14 +73,14 @@ public class PruebaReporteDAO {
     }
 
     @Test
-    public void pruebaAgregarReporteExcepcionDatosNulos() {
-        assertThrows(DAOExcepcion.class, () -> reporteDAO.agregarReporte(dtoInvalido));
+    public void pruebaAgregarReporteErrorDatosNulos() {
+        assertThrows(DAOExcepcion.class, () -> reporteDAO.agregarReporte(reporteInvalidoDatosNulos));
     }
 
     @Test
     public void pruebaActualizarReporteExcepcionConexionCerrada() throws Exception {
         ConexionBD.obtenerInstancia().obtenerConexion().close();
-        assertThrows(DAOExcepcion.class, () -> reporteDAO.actualizarReporte(dtoParaAgregar));
+        assertThrows(DAOExcepcion.class, () -> reporteDAO.actualizarReporte(reporteValido));
 
         ConexionBD.reset();
         reporteDAO = new ReporteDAO();

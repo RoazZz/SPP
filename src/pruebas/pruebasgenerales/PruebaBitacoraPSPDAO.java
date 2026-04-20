@@ -17,8 +17,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class PruebaBitacoraPSPDAO {
     private static BitacoraPSPDAO bitacoraPSPDAO;
-    private BitacoraPSPDTO dtoParaAgregar;
-    private BitacoraPSPDTO dtoInvalido;
+    private BitacoraPSPDTO bitacoraPSPValida;
+    private BitacoraPSPDTO bitacoraPSPInvalidaMatriculaNula;
 
     @BeforeAll
     static void prepararEntorno() throws Exception {
@@ -59,13 +59,13 @@ public class PruebaBitacoraPSPDAO {
             statement.execute("SET FOREIGN_KEY_CHECKS = 1");
         }
 
-        dtoParaAgregar = new BitacoraPSPDTO(0, "S21012345", LocalDate.now());
-        dtoInvalido = new BitacoraPSPDTO(0, null, LocalDate.now());
+        bitacoraPSPValida = new BitacoraPSPDTO(0, "S21012345", LocalDate.now());
+        bitacoraPSPInvalidaMatriculaNula = new BitacoraPSPDTO(0, null, LocalDate.now());
     }
 
     @Test
     public void pruebaAgregarBitacoraPSPExitoso() throws Exception {
-        BitacoraPSPDTO resultado = bitacoraPSPDAO.agregarBitacoraPSP(dtoParaAgregar);
+        BitacoraPSPDTO resultado = bitacoraPSPDAO.agregarBitacoraPSP(bitacoraPSPValida);
         assertNotNull(resultado);
     }
 
@@ -83,13 +83,13 @@ public class PruebaBitacoraPSPDAO {
 
     @Test
     public void pruebaAgregarBitacoraErrorMatriculaNula() {
-        assertThrows(DAOExcepcion.class, () -> bitacoraPSPDAO.agregarBitacoraPSP(dtoInvalido));
+        assertThrows(DAOExcepcion.class, () -> bitacoraPSPDAO.agregarBitacoraPSP(bitacoraPSPInvalidaMatriculaNula));
     }
 
     @Test
     public void pruebaActualizarBitacoraExcepcionConexionCerrada() throws Exception {
         ConexionBD.obtenerInstancia().obtenerConexion().close();
-        assertThrows(DAOExcepcion.class, () -> bitacoraPSPDAO.actualizarBitacoraPSP(dtoParaAgregar));
+        assertThrows(DAOExcepcion.class, () -> bitacoraPSPDAO.actualizarBitacoraPSP(bitacoraPSPValida));
         ConexionBD.reset();
         bitacoraPSPDAO = new BitacoraPSPDAO();
     }

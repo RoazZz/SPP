@@ -17,8 +17,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class PruebaMensajeDAO {
     private static MensajeDAO mensajeDAO;
-    private MensajeDTO dtoParaAgregar;
-    private MensajeDTO dtoInvalido;
+    private MensajeDTO mensajeValido;
+    private MensajeDTO mensajeInvalidoRemitenteNulo;
 
     @BeforeAll
     static void prepararEntorno() throws Exception {
@@ -49,13 +49,13 @@ public class PruebaMensajeDAO {
             statement.execute("SET FOREIGN_KEY_CHECKS = 1");
         }
 
-        dtoParaAgregar = new MensajeDTO(0, "rem@test.com", "des@test.com", "Test", "Nuevo Contenido", LocalDateTime.now());
-        dtoInvalido = new MensajeDTO(0, null, "des@test.com", "Error", "Contenido", LocalDateTime.now());
+        mensajeValido = new MensajeDTO(0, "rem@test.com", "des@test.com", "Test", "Nuevo Contenido", LocalDateTime.now());
+        mensajeInvalidoRemitenteNulo = new MensajeDTO(0, null, "des@test.com", "Error", "Contenido", LocalDateTime.now());
     }
 
     @Test
     public void pruebaInsertarMensajeExitoso() throws Exception {
-        MensajeDTO resultado = mensajeDAO.insertarMensaje(dtoParaAgregar);
+        MensajeDTO resultado = mensajeDAO.insertarMensaje(mensajeValido);
         assertNotNull(resultado);
     }
 
@@ -73,13 +73,13 @@ public class PruebaMensajeDAO {
 
     @Test
     public void pruebaInsertarMensajeExcepcionRemitenteNulo() {
-        assertThrows(DAOExcepcion.class, () -> mensajeDAO.insertarMensaje(dtoInvalido));
+        assertThrows(DAOExcepcion.class, () -> mensajeDAO.insertarMensaje(mensajeInvalidoRemitenteNulo));
     }
 
     @Test
     public void pruebaActualizarMensajeExcepcionConexionCerrada() throws Exception {
         ConexionBD.obtenerInstancia().obtenerConexion().close();
-        assertThrows(DAOExcepcion.class, () -> mensajeDAO.actualizarMensaje(dtoParaAgregar));
+        assertThrows(DAOExcepcion.class, () -> mensajeDAO.actualizarMensaje(mensajeValido));
         ConexionBD.reset();
         mensajeDAO = new MensajeDAO();
     }
