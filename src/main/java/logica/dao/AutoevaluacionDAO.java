@@ -35,7 +35,7 @@ public class AutoevaluacionDAO implements AutoevaluacionDAOInterfaz {
     }
 
     @Override
-    public void agregarAutoevalaucion(AutoevaluacionDTO autoevaluacion) throws DAOExcepcion {
+    public AutoevaluacionDTO agregarAutoevalaucion(AutoevaluacionDTO autoevaluacion) throws DAOExcepcion {
         try(PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)){
             preparedStatement.setString(1, autoevaluacion.getMatricula());
             preparedStatement.setBigDecimal(2, autoevaluacion.getCalificacion());
@@ -48,6 +48,7 @@ public class AutoevaluacionDAO implements AutoevaluacionDAOInterfaz {
                 }
             }
             logger.log(Level.INFO, "Autoevaluacion registrada exitosamente para: " + autoevaluacion.getMatricula());
+            return autoevaluacion;
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error SQL al agregar autoevaluacion", e);
             throw new DAOExcepcion("Error al agregar autoevaluación", e);
@@ -55,13 +56,21 @@ public class AutoevaluacionDAO implements AutoevaluacionDAOInterfaz {
     }
 
     @Override
-    public void actualizarAutoevaluacion(AutoevaluacionDTO autoevaluacion) throws DAOExcepcion {
+    public boolean actualizarAutoevaluacion(AutoevaluacionDTO autoevaluacion) throws DAOExcepcion {
             try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_UPDATE)) {
                 preparedStatement.setBigDecimal(1, autoevaluacion.getCalificacion());
                 preparedStatement.setString(2, autoevaluacion.getComentarios());
                 preparedStatement.setString(3, autoevaluacion.getMatricula());
                 preparedStatement.executeUpdate();
-                logger.log(Level.INFO, "Autoevaluacion actualizada para matricula: " + autoevaluacion.getMatricula());
+
+                int filasAfectadas = preparedStatement.getUpdateCount();
+                if (filasAfectadas > 0) {
+                    logger.log(Level.INFO, "Autoevaluacion actualizada para matricula: " + autoevaluacion.getMatricula());
+                    return true;
+                }else{
+                    logger.log(Level.WARNING, "No se encontró Autoevaluación para actualizar con matricula: " + autoevaluacion.getMatricula());
+                    throw new EntidadNoEncontradaExcepcion("No se encontró autoevaluación para actualizar con matricula: " + autoevaluacion.getMatricula());
+                }
             } catch (SQLException e) {
                 logger.log(Level.SEVERE, "Error SQL al actualizar datos de autoevaluacion", e);
                 throw new DAOExcepcion("Error al actualizar autoevaluación", e);

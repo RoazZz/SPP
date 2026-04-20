@@ -37,7 +37,7 @@ public class MensajeDAO implements MensajeDAOInterfaz {
     }
 
     @Override
-    public void insertarMensaje(MensajeDTO mensaje) throws DAOExcepcion{
+    public MensajeDTO insertarMensaje(MensajeDTO mensaje) throws DAOExcepcion{
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT, PreparedStatement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setString(1, mensaje.getRemitente());
             preparedStatement.setString(2, mensaje.getDestinatario());
@@ -53,6 +53,7 @@ public class MensajeDAO implements MensajeDAOInterfaz {
             }
 
             logger.log(Level.INFO, "Mensaje insertado correctamente. ID: " + mensaje.getIdMensaje());
+            return mensaje;
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error SQL al insertar el mensaje", e);
             throw new DAOExcepcion("Error al guardar el mensaje", e);        }
@@ -76,16 +77,18 @@ public class MensajeDAO implements MensajeDAOInterfaz {
     }
 
     @Override
-    public void actualizarMensaje(MensajeDTO mensaje) throws DAOExcepcion {
+    public boolean actualizarMensaje(MensajeDTO mensaje) throws DAOExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_UPDATE)) {
             preparedStatement.setString(1, mensaje.getContenido());
             preparedStatement.setInt(2, mensaje.getIdMensaje());
-            int rowsAffected = preparedStatement.executeUpdate();
-            if (rowsAffected == 0) {
+            int filasAfectadas = preparedStatement.executeUpdate();
+            if (filasAfectadas > 0) {
+                logger.log(Level.INFO, "Mensaje actualizado correctamente. ID: " + mensaje.getIdMensaje());
+                return true;
+            }else{
                 logger.log(Level.WARNING, "No se encontró mensaje para actualizar con ID: " + mensaje.getIdMensaje());
-                throw new DAOExcepcion("No se encontró el mensaje a actualizar", null);
+                throw new EntidadNoEncontradaExcepcion("No se encontró el mensaje con ID: " + mensaje.getIdMensaje());
             }
-            logger.log(Level.INFO, "Mensaje actualizado correctamente. ID: " + mensaje.getIdMensaje());
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error SQL al actualizar el mensaje", e);
             throw new DAOExcepcion("Error al modificar el mensaje", e);        }

@@ -39,7 +39,7 @@ public class AdministradorDAO implements AdministradorDAOInterfaz {
     }
 
     @Override
-    public void agregarAdministrador(AdministradorDTO admin) throws DAOExcepcion {
+    public AdministradorDTO agregarAdministrador(AdministradorDTO admin) throws DAOExcepcion {
         UsuarioDAO usuarioDAO = new UsuarioDAO(this.conexion);
         try {
             conexion.setAutoCommit(false);
@@ -56,13 +56,13 @@ public class AdministradorDAO implements AdministradorDAOInterfaz {
                         if (generatedKeys.next()) {
                             int idAdminGenerado = generatedKeys.getInt(1);
                             admin.setIdAdministrador(idAdminGenerado);
-                            logger.log(Level.INFO, "Admin vinculado con ID de Usuario: " + idGenerado +
-                                    " y ID de Admin: " + idAdminGenerado);
+                            logger.log(Level.INFO, "Admin vinculado con ID de Usuario: " + idGenerado + " y ID de Admin: " + idAdminGenerado);
                         }
                     }
                 }
                 conexion.commit();
                 logger.log(Level.INFO, "Administrador agregado correctamente: " + admin.getIdUsuario());
+                return admin;
             }else{
                 logger.log(Level.WARNING, "Usuario base no generado para el Administrador");
                 throw new EntidadNoCreadaExcepcion("Usuario base no creado correctamente");

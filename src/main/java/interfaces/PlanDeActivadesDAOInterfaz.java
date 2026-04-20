@@ -6,8 +6,8 @@ import logica.dto.PlanDeActividadesDTO;
 import java.util.List;
 
 public interface PlanDeActivadesDAOInterfaz {
-    public void agregarPlanDeActividades(PlanDeActividadesDTO planDeActividadesDTO) throws DAOExcepcion;
-    public void actualizarPlanDeActividades(PlanDeActividadesDTO planDeActividadesDTO) throws DAOExcepcion;
+    public PlanDeActividadesDTO agregarPlanDeActividades(PlanDeActividadesDTO planDeActividadesDTO) throws DAOExcepcion;
+    public boolean actualizarPlanDeActividades(PlanDeActividadesDTO planDeActividadesDTO) throws DAOExcepcion;
     public List<PlanDeActividadesDTO> obtenerPlanesDeActividadesPorMatricula(String matricula) throws DAOExcepcion;
     public List<PlanDeActividadesDTO> obtenerTodosLosPlanesDeActividades() throws DAOExcepcion;
     public PlanDeActividadesDTO obtenerPlanDeActividadesPorId(int idPlanDeActividades) throws DAOExcepcion, EntidadNoEncontradaExcepcion;

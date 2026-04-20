@@ -2,6 +2,7 @@ package logica.dao;
 
 import accesodatos.ConexionBD;
 import excepciones.DAOExcepcion;
+import excepciones.EntidadNoEncontradaExcepcion;
 import interfaces.SolicitudProyectoDAOInterfaz;
 import logica.dto.SolicitaProyectoDTO;
 import logica.enums.TipoEstadoSolicitud;
@@ -16,7 +17,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class SolicitudProyectoDAO implements SolicitudProyectoDAOInterfaz {
+public class SolicitaProyectoDAO implements SolicitudProyectoDAOInterfaz {
     public static final String SQL_INSERT = "INSERT INTO solicita(Matricula, idProyecto, EstadoProyecto, Periodo) VALUES (?, ?, 'Pendiente', ?)";
     public static final String SQL_UPDATE = "UPDATE solicita SET EstadoProyecto = ? WHERE idProyecto = ?";
     public static final String SQL_SELECT_BY_MATRICULA = "SELECT * FROM solicita WHERE Matricula = ?";
@@ -25,9 +26,9 @@ public class SolicitudProyectoDAO implements SolicitudProyectoDAOInterfaz {
     public static final String SQL_SELECT_ALL = "SELECT * FROM solicita";
 
     private Connection conexion;
-    private static final Logger logger = Logger.getLogger(SolicitudProyectoDAO.class.getName());
+    private static final Logger logger = Logger.getLogger(SolicitaProyectoDAO.class.getName());
 
-    public SolicitudProyectoDAO() throws DAOExcepcion {
+    public SolicitaProyectoDAO() throws DAOExcepcion {
         try{
             this.conexion = ConexionBD.obtenerInstancia().obtenerConexion();
         }catch (IOException e){
@@ -40,13 +41,15 @@ public class SolicitudProyectoDAO implements SolicitudProyectoDAOInterfaz {
     }
 
     @Override
-    public void insertarSolicitudProyecto(SolicitaProyectoDTO solicitaProyectoDTO) throws DAOExcepcion {
+    public SolicitaProyectoDTO insertarSolicitudProyecto(SolicitaProyectoDTO solicitaProyectoDTO) throws DAOExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT)) {
             preparedStatement.setString(1, solicitaProyectoDTO.getMatricula());
             preparedStatement.setInt(2, solicitaProyectoDTO.getIdProyecto());
             preparedStatement.setString(3, solicitaProyectoDTO.getPeriodo());
             preparedStatement.executeUpdate();
+
             logger.log(Level.INFO, "Solicitud de proyecto insertada. Proyecto ID: " + solicitaProyectoDTO.getIdProyecto());
+            return solicitaProyectoDTO;
         }catch (Exception e){
             logger.log(Level.SEVERE, "Error SQL al insertar solicitud de proyecto", e);
             throw new DAOExcepcion("Error al insertar la solicitud de proyecto", e);
@@ -54,12 +57,18 @@ public class SolicitudProyectoDAO implements SolicitudProyectoDAOInterfaz {
     }
 
     @Override
-    public void actualizarSolicitudProyecto(SolicitaProyectoDTO solicitaProyectoDTO) throws DAOExcepcion {
+    public boolean actualizarSolicitudProyecto(SolicitaProyectoDTO solicitaProyectoDTO) throws DAOExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_UPDATE)) {
             preparedStatement.setString(1, solicitaProyectoDTO.getEstadoProyecto().name());
             preparedStatement.setInt(2, solicitaProyectoDTO.getIdProyecto());
-            preparedStatement.executeUpdate();
-            logger.log(Level.INFO, "Solicitud de proyecto actualizada. Proyecto ID: " + solicitaProyectoDTO.getIdProyecto());
+            int filasAfectadas = preparedStatement.executeUpdate();
+            if(filasAfectadas > 0){
+                logger.log(Level.INFO, "Solicitud de proyecto actualizada exitosamente. Proyecto ID: " + solicitaProyectoDTO.getIdProyecto());
+                return true;
+            } else {
+                logger.log(Level.WARNING, "No se encontró la solicitud de proyecto para actualizar. Proyecto ID: " + solicitaProyectoDTO.getIdProyecto());
+                throw new EntidadNoEncontradaExcepcion("No se encontró la solicitud de proyecto para actualizar con ID: " + solicitaProyectoDTO.getIdProyecto());
+            }
         }catch (Exception e){
             logger.log(Level.SEVERE, "Error SQL al actualizar solicitud de proyecto", e);
             throw new DAOExcepcion("Error al actualizar la solicitud de proyecto", e);

@@ -38,13 +38,14 @@ public class SeccionDAO implements SeccionDAOInterfaz {
     }
 
     @Override
-    public void agregarSeccion(logica.dto.SeccionDTO seccionDTO) throws DAOExcepcion {
+    public SeccionDTO agregarSeccion(logica.dto.SeccionDTO seccionDTO) throws DAOExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT)) {
             preparedStatement.setInt(1, seccionDTO.getIdSeccion());
             preparedStatement.setString(2, seccionDTO.getNombre());
             preparedStatement.executeUpdate();
 
             logger.log(Level.INFO, "Seccion agregada exitosamente: " + seccionDTO.getNombre());
+            return seccionDTO;
         }catch (SQLException e) {
             logger.log(Level.SEVERE, "Error SQL al agregar seccion", e);
             throw new DAOExcepcion("Error al guardar la sección en la base de datos", e);
@@ -52,16 +53,18 @@ public class SeccionDAO implements SeccionDAOInterfaz {
     }
 
     @Override
-    public void actualizarSeccion(logica.dto.SeccionDTO seccionDTO) throws DAOExcepcion {
+    public boolean actualizarSeccion(logica.dto.SeccionDTO seccionDTO) throws DAOExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_UPDATE)) {
             preparedStatement.setString(1, seccionDTO.getNombre());
             preparedStatement.setInt(2, seccionDTO.getIdSeccion());
             int filasAfectadas = preparedStatement.executeUpdate();
-            if (filasAfectadas == 0) {
-                throw new DAOExcepcion("No se encontró la sección para actualizar con ID: " + seccionDTO.getIdSeccion(), null);
+            if (filasAfectadas > 0) {
+                logger.log(Level.INFO, "Seccion actualizada exitosamente: " + seccionDTO.getNombre());
+                return true;
+            }else{
+                logger.log(Level.WARNING, "No se encontró la Sección para actualizar. ID: " + seccionDTO.getIdSeccion());
+                throw new EntidadNoEncontradaExcepcion("No se encontró la Sección con el ID: " + seccionDTO.getIdSeccion());
             }
-            logger.log(Level.INFO, "Seccion actualizada exitosamente. ID: " + seccionDTO.getIdSeccion());
-
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error SQL al actualizar seccion", e);
             throw new DAOExcepcion("Error al modificar los datos de la sección", e);

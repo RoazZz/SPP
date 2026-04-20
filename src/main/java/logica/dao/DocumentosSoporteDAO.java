@@ -2,6 +2,7 @@ package logica.dao;
 
 import accesodatos.ConexionBD;
 import excepciones.DAOExcepcion;
+import excepciones.EntidadNoEncontradaExcepcion;
 import interfaces.DocumentosSoporteDAOInterfaz;
 import logica.dto.DocumentosSoporteDTO;
 
@@ -34,7 +35,7 @@ public class DocumentosSoporteDAO implements DocumentosSoporteDAOInterfaz {
     }
 
     @Override
-    public void agregarDocumentoSoporte(DocumentosSoporteDTO documento) throws DAOExcepcion {
+    public DocumentosSoporteDTO agregarDocumentoSoporte(DocumentosSoporteDTO documento) throws DAOExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setString(1, documento.getMatricula());
             preparedStatement.setString(2, documento.getTipoDocumento());
@@ -47,6 +48,7 @@ public class DocumentosSoporteDAO implements DocumentosSoporteDAOInterfaz {
                 }
             }
             logger.log(Level.INFO, "Documento de soporte agregado con éxito. ID: " + documento.getIdDocumento());
+            return documento;
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error SQL al agregar documento de soporte", e);
             throw new DAOExcepcion("Error al agregar documento de soporte", e);        }
@@ -75,15 +77,20 @@ public class DocumentosSoporteDAO implements DocumentosSoporteDAOInterfaz {
     }
 
     @Override
-    public void actualizarDocumentoSoporte(DocumentosSoporteDTO documento) throws DAOExcepcion {
+    public boolean actualizarDocumentoSoporte(DocumentosSoporteDTO documento) throws DAOExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_UPDATE)) {
             preparedStatement.setString(1, documento.getMatricula());
             preparedStatement.setString(2, documento.getTipoDocumento());
             preparedStatement.setString(3, documento.getEstado());
             preparedStatement.setInt(4, documento.getIdDocumento());
-            preparedStatement.executeUpdate();
-            logger.log(Level.INFO, "Documento de soporte actualizado con éxito. ID: " + documento.getIdDocumento());
-
+            int filasAfectadas = preparedStatement.executeUpdate();
+            if (filasAfectadas > 0){
+                logger.log(Level.INFO, "Documento de soporte actualizado con éxito. ID: " + documento.getIdDocumento());
+                return true;
+            }else{
+                logger.log(Level.WARNING, "No se encontró documento de soporte para actualizar con ID: " + documento.getIdDocumento());
+                throw new EntidadNoEncontradaExcepcion("Documento de soporte no encontrado para actualizar con ID: " + documento.getIdDocumento());
+            }
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error SQL al actualizar documento de soporte", e);
             throw new DAOExcepcion("Error al actualizar documento de soporte", e);        }

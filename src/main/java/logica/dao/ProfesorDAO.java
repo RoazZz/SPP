@@ -51,7 +51,7 @@ public class ProfesorDAO implements ProfesorDAOInterfaz {
     }
 
     @Override
-    public void agregarProfesor(ProfesorDTO profesor) throws DAOExcepcion {
+    public ProfesorDTO agregarProfesor(ProfesorDTO profesor) throws DAOExcepcion {
         UsuarioDAO usuarioDAO = new UsuarioDAO(this.conexion);
 
         try {
@@ -68,6 +68,7 @@ public class ProfesorDAO implements ProfesorDAOInterfaz {
                 }
                 conexion.commit();
                 logger.log(Level.INFO, "Profesor agregado exitosamente: " + profesor.getNumeroDePersonal());
+                return profesor;
             } else {
                 logger.log(Level.WARNING, "Usuario base no generado para profesor");
                 throw new EntidadNoCreadaExcepcion("Usuario base no creado correctamente");
@@ -102,12 +103,18 @@ public class ProfesorDAO implements ProfesorDAOInterfaz {
     }
 
     @Override
-    public void actualizarProfesor(ProfesorDTO profesor) throws DAOExcepcion {
+    public boolean actualizarProfesor(ProfesorDTO profesor) throws DAOExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_UPDATE)) {
             preparedStatement.setString(1, profesor.getTurno().name());
             preparedStatement.setString(2, profesor.getNumeroDePersonal());
-            preparedStatement.executeUpdate();
-            logger.log(Level.INFO, "Profesor actualizado correctamente: " + profesor.getNumeroDePersonal());
+            int filasAfectadas = preparedStatement.executeUpdate();
+            if(filasAfectadas > 0){
+                logger.log(Level.INFO, "Profesor actualizado en tabla profesor con numero personal: " + profesor.getNumeroDePersonal());
+                return true;
+            } else {
+                logger.log(Level.WARNING, "No se encontró profesor para actualizar con numero de personal: " + profesor.getNumeroDePersonal());
+                throw new EntidadNoEncontradaExcepcion("Profesor no encontrado para actualizar con numero de personal: " + profesor.getNumeroDePersonal());
+            }
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error al actualizar profesor", e);
             throw new DAOExcepcion("Error al actualizar el profesor", e);

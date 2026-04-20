@@ -35,7 +35,7 @@ public class BitacoraPSPDAO implements BitacoraPSPDAOInterfaz {
     }
 
     @Override
-    public void agregarBitacoraPSP(BitacoraPSPDTO bitacora) throws DAOExcepcion {
+    public BitacoraPSPDTO agregarBitacoraPSP(BitacoraPSPDTO bitacora) throws DAOExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setString(1, bitacora.getMatricula());
             preparedStatement.setDate(2, java.sql.Date.valueOf(bitacora.getFecha()));
@@ -47,6 +47,7 @@ public class BitacoraPSPDAO implements BitacoraPSPDAOInterfaz {
                 }
             }
             logger.log(Level.INFO, "Bitacora PSP agregada con éxito. ID: " + bitacora.getIdBBitacora());
+            return bitacora;
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error SQL al agregar bitacora PSP", e);
             throw new DAOExcepcion("Error al agregar bitácora PSP", e);
@@ -76,15 +77,22 @@ public class BitacoraPSPDAO implements BitacoraPSPDAOInterfaz {
     }
 
     @Override
-    public void actualizarBitacoraPSP(BitacoraPSPDTO bitacora) throws DAOExcepcion {
+    public boolean actualizarBitacoraPSP(BitacoraPSPDTO bitacora) throws DAOExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_UPDATE)) {
                 preparedStatement.setString(1, bitacora.getMatricula());
                 preparedStatement.setDate(2, java.sql.Date.valueOf(bitacora.getFecha()));
                 preparedStatement.setInt(3, bitacora.getIdBBitacora());
-                preparedStatement.executeUpdate();
+                int filasAfectadas = preparedStatement.executeUpdate();
+                if(filasAfectadas > 0){
+                    logger.log(Level.INFO, "Bitacora PSP actualizada con éxito. ID: " + bitacora.getIdBBitacora());
+                    return true;
+                }else{
+                    logger.log(Level.WARNING, "No se encontró BitacoraPSP para actualizar con ID: " + bitacora.getIdBBitacora());
+                    throw new EntidadNoEncontradaExcepcion("BitacoraPSP no encontrado para actualizar con ID: " + bitacora.getIdBBitacora());
+                }
             } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error SQL al actualizar bitacora PSP", e);
-            throw new DAOExcepcion("Error al actualizar bitácora PSP", e);
+                logger.log(Level.SEVERE, "Error SQL al actualizar bitacora PSP", e);
+                throw new DAOExcepcion("Error al actualizar bitácora PSP", e);
         }
     }
 

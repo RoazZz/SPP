@@ -39,7 +39,7 @@ public class ReporteDAO implements ReporteDAOInterfaz {
     }
 
     @Override
-    public void agregarReporte(ReporteDTO reporte) throws DAOExcepcion{
+    public ReporteDTO agregarReporte(ReporteDTO reporte) throws DAOExcepcion{
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT, PreparedStatement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setString(1, reporte.getTipoReporte().name());
             preparedStatement.setDate(2, java.sql.Date.valueOf(reporte.getFecha()));
@@ -52,6 +52,7 @@ public class ReporteDAO implements ReporteDAOInterfaz {
                 }
             }
             logger.log(Level.INFO, "Reporte agregado exitosamente. ID: " + reporte.getIdReporte());
+            return reporte;
         }catch (Exception e){
                 logger.log(Level.SEVERE, "Error SQL al agregar reporte", e);
                 throw new DAOExcepcion("Error al guardar el reporte en la base de datos", e);
@@ -59,17 +60,20 @@ public class ReporteDAO implements ReporteDAOInterfaz {
     }
 
     @Override
-    public void actualizarReporte(ReporteDTO reporte) throws DAOExcepcion{
+    public boolean actualizarReporte(ReporteDTO reporte) throws DAOExcepcion{
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_UPDATE)) {
             preparedStatement.setString(1, reporte.getTipoReporte().name());
             preparedStatement.setDate(2, java.sql.Date.valueOf(reporte.getFecha()));
             preparedStatement.setString(3, reporte.getRuta());
             preparedStatement.setInt(4, reporte.getIdReporte());
             int filasAfectadas = preparedStatement.executeUpdate();
-            if (filasAfectadas == 0) {
-                throw new DAOExcepcion("No se encontró el reporte para actualizar con ID: " + reporte.getIdReporte(), null);
+            if (filasAfectadas > 0) {
+                logger.log(Level.INFO, "Reporte actualizado exitosamente. ID: " + reporte.getIdReporte());
+                return true;
+            }else{
+                logger.log(Level.WARNING, "No se encontró Reporte para actualizar con ID: " + reporte.getIdReporte());
+                throw new EntidadNoEncontradaExcepcion("No se encontró el Reporte con el ID: " + reporte.getIdReporte());
             }
-            logger.log(Level.INFO, "Reporte actualizado exitosamente. ID: " + reporte.getIdReporte());
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error SQL al actualizar reporte", e);
             throw new DAOExcepcion("Error al modificar los datos del reporte", e);
