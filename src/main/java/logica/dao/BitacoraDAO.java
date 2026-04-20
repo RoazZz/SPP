@@ -37,7 +37,7 @@ public class BitacoraDAO implements BitacoraDAOInterfaz {
     }
 
     @Override
-    public void agregarBitacora(BitacoraDTO bitacora) throws DAOExcepcion {
+    public boolean agregarBitacora(BitacoraDTO bitacora) throws DAOExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setString(1, bitacora.getMatricula());
             preparedStatement.setTimestamp(2, java.sql.Timestamp.valueOf(bitacora.getFechaHora()));
@@ -50,6 +50,7 @@ public class BitacoraDAO implements BitacoraDAOInterfaz {
                 }
             }
             logger.log(Level.INFO, "Bitacora creada exitosamente: " + bitacora.getIdRegistro());
+            return true;
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error al agregar bitacora", e);
             throw new DAOExcepcion ("Error al agregar la bitacora: ", e);

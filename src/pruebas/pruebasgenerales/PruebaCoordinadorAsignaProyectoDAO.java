@@ -1,6 +1,8 @@
 package pruebasgenerales;
 
 import accesodatos.ConexionBD;
+import logica.dto.CoordinadorAsignaProyectoDTO;
+import logica.enums.TipoEstado;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,4 +33,12 @@ public class PruebaCoordinadorAsignaProyectoDAO {
     void limpiarTablas() throws Exception {
         Connection conexion = ConexionBD.obtenerInstancia().obtenerConexion();
     }
+
+    // private CoordinadorAsignaProyectoDTO crearAsignacionProyecto() {
+        // return new CoordinadorAsignaProyectoDTO(
+                // "00000",
+               //"",
+                // TipoEstado.ACTIVO
+       // );
+   // }
 }

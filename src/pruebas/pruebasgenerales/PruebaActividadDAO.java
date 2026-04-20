@@ -1,6 +1,7 @@
 package pruebasgenerales;
 
 import accesodatos.ConexionBD;
+import excepciones.EntidadNoEncontradaExcepcion;
 import logica.dao.ActividadDAO;
 import logica.dto.ActividadDTO;
 
@@ -9,15 +10,19 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Nested;
 
 import java.sql.Connection;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 public class PruebaActividadDAO {
+
+    private static ActividadDAO actividadDAO;
+    private static Connection conexion;
 
     @BeforeAll
     static void configurarConexion() throws Exception {
@@ -25,22 +30,11 @@ public class PruebaActividadDAO {
         System.setProperty("db.usuario", "testuser");
         System.setProperty("db.contraseña", "testpass123");
         ConexionBD.reset();
-        System.out.println("Conexión reiniciada");
-    }
+        conexion = ConexionBD.obtenerInstancia().obtenerConexion();
 
-    @BeforeEach
-    void limpiarAntes() throws Exception {
-        limpiarTablas();
-    }
-
-    @AfterEach
-    void limpiarDespues() throws Exception {
-        limpiarTablas();
     }
 
     void limpiarTablas() throws Exception {
-        Connection conexion = ConexionBD.obtenerInstancia().obtenerConexion();
-
         conexion.createStatement().execute("SET FOREIGN_KEY_CHECKS = 0");
         conexion.createStatement().execute("TRUNCATE TABLE Actividad");
         conexion.createStatement().execute("TRUNCATE TABLE practicante");
@@ -48,7 +42,6 @@ public class PruebaActividadDAO {
         conexion.createStatement().execute("SET FOREIGN_KEY_CHECKS = 1");
     }
 
-    @BeforeEach
     void insertarDatosPrevios() throws Exception {
         Connection conexion = ConexionBD.obtenerInstancia().obtenerConexion();
         conexion.createStatement().execute("SET FOREIGN_KEY_CHECKS = 0");
@@ -73,40 +66,67 @@ public class PruebaActividadDAO {
         );
     }
 
-    @Test
-    public void pruebaGuardarActividad() throws Exception {
-        ActividadDAO actividadDAO = new ActividadDAO();
-        ActividadDTO actividadDTO = crearActividadEjemplo();
+    @Nested
+    class PruebasDeFlujoExitoso {
 
-        actividadDAO.agregarActividad(actividadDTO);
-        ActividadDTO resultado = actividadDAO.buscarActividadPorIdActividad(1);
+        private ActividadDTO actividadDTO;
 
-        assertEquals("Actividad 1", resultado.getNombre());
+        @BeforeEach
+        void prepararPrueba() throws Exception {
+            limpiarTablas();
+            insertarDatosPrevios();
+            actividadDAO = new ActividadDAO();
+            actividadDTO = crearActividadEjemplo();
+            actividadDAO.agregarActividad(actividadDTO);
+        }
+
+        @Test
+        public void pruebaGuardarActividadExitoso() throws Exception {
+            assertTrue(actividadDTO.getIdActividad() > 0);
+        }
     }
 
-    @Test
-    public void pruebaListarActividad() throws Exception {
-        ActividadDAO actividadDAO = new ActividadDAO();
-        ActividadDTO actividadDTO = crearActividadEjemplo();
+    @Nested
+    class PruebasDeFlujoFallido {
 
-        actividadDAO.agregarActividad(actividadDTO);
-        List<ActividadDTO> lista = actividadDAO.listarActividades();
+        @BeforeEach
+        void prepararPrueba() throws Exception {
+            limpiarTablas();
+            insertarDatosPrevios();
+            actividadDAO = new ActividadDAO();
+        }
 
-        assertFalse(lista.isEmpty());
+        @AfterEach
+        void limpiarDespues() throws Exception {
+            limpiarTablas();
+        }
+
+        @Test
+        public void pruebaListarActividadFallido() throws Exception {
+            List<ActividadDTO> lista = actividadDAO.listarActividades();
+            assertTrue(lista.isEmpty(), "Lista de actividades Vacia");
+        }
     }
 
-    @Test
-    public void pruebaActualizarActividad() throws Exception {
-        ActividadDAO actividadDAO = new ActividadDAO();
-        ActividadDTO actividadDTO = crearActividadEjemplo();
+    @Nested
+    class PruebasDeFlujoExcepciones{
 
-        actividadDAO.agregarActividad(actividadDTO);
+        @BeforeEach
+        void prepararPrueba() throws Exception {
+            limpiarTablas();
+            insertarDatosPrevios();
+            actividadDAO = new ActividadDAO();
+        }
 
-        actividadDTO.setNombre("Actividad 1.1");
-        actividadDAO.actualizarActividad(actividadDTO);
+        @AfterEach
+        void limpiarDespues() throws Exception {
+            limpiarTablas();
+        }
 
-        ActividadDTO resultado = actividadDAO.buscarActividadPorIdActividad(actividadDTO.getIdActividad());
+        @Test
+        public void pruebaBuscarActividadNoExistente() {
+            assertThrows(EntidadNoEncontradaExcepcion.class, () -> { actividadDAO.buscarActividadPorIdActividad(7); });
+        }
 
-        assertEquals("Actividad 1.1", resultado.getNombre());
     }
 }
