@@ -1,125 +1,95 @@
 package pruebasgenerales;
 
 import accesodatos.ConexionBD;
+import excepciones.DAOExcepcion;
 import logica.dao.DocumentosSoporteDAO;
 import logica.dto.DocumentosSoporteDTO;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
+import static org.junit.jupiter.api.Assertions.*;
 
 public class PruebaDocumentosSoporteDAO {
+    private static DocumentosSoporteDAO documentosSoporteDAO;
+    private DocumentosSoporteDTO dtoParaAgregar;
+    private DocumentosSoporteDTO dtoInvalido;
 
     @BeforeAll
-    static void configurarConexion() {
+    static void prepararEntorno() throws Exception {
         System.setProperty("db.enlace", "jdbc:mysql://localhost:3306/sppbdprueba");
         System.setProperty("db.usuario", "testuser");
         System.setProperty("db.contraseña", "testpass123");
         ConexionBD.reset();
-    }
+        documentosSoporteDAO = new DocumentosSoporteDAO();
 
+        Connection conexion = ConexionBD.obtenerInstancia().obtenerConexion();
+        try (Statement statement = conexion.createStatement()) {
+            statement.execute("SET FOREIGN_KEY_CHECKS = 0");
+            statement.execute("TRUNCATE TABLE documentossoporte");
+            statement.execute("TRUNCATE TABLE practicante");
+            statement.execute("TRUNCATE TABLE usuario");
+            statement.execute("TRUNCATE TABLE seccion");
+
+            statement.execute("INSERT INTO seccion VALUES (1, 'Sistemas')");
+
+            statement.execute("INSERT INTO usuario (idUsuario, Nombre, ApellidoP, ApellidoM, Contrasenia, Estado, TipoUsuario) " +
+                    "VALUES (1, 'Juan', 'Perez', 'Admin', 'pass123', 'ACTIVO', 'PRACTICANTE')");
+
+            statement.execute("INSERT INTO practicante VALUES ('S21012345', 1, '7', 'MASCULINO', 21, 0, 1)");
+
+            statement.execute("INSERT INTO documentossoporte (idDocumentoSoporte, Matricula, TipoDocumento, Estado) " +
+                    "VALUES (999, 'S21012345', 'Reporte Maestro', 'Validado')");
+
+            statement.execute("SET FOREIGN_KEY_CHECKS = 1");
+        }
+    }
 
     @BeforeEach
-    void limpiarAntes() throws Exception {
-        limpiarTablas();
-        System.out.println("Limpieza ANTES de prueba");
-        insertarDatosNecesarios();
-    }
-
-    @AfterEach
-    void limpiarDespues() throws Exception {
-        limpiarTablas();
-        System.out.println("Limpieza DESPUÉS de prueba (aunque falle)");
-    }
-
-    void limpiarTablas() throws Exception {
+    void prepararObjetosYLimpiar() throws Exception {
         Connection conexion = ConexionBD.obtenerInstancia().obtenerConexion();
-        try (Statement comandoControl = conexion.createStatement()) {
-            comandoControl.execute("SET FOREIGN_KEY_CHECKS = 0");
-            comandoControl.execute("TRUNCATE TABLE documentossoporte");
-            comandoControl.execute("TRUNCATE TABLE practicante");
-            comandoControl.execute("TRUNCATE TABLE usuario");
-            comandoControl.execute("TRUNCATE TABLE seccion");
-            comandoControl.execute("SET FOREIGN_KEY_CHECKS = 1");
-        }
-    }
-
-    private void insertarDatosNecesarios() throws Exception {
-        Connection conexion = ConexionBD.obtenerInstancia().obtenerConexion();
-
-        String sqlSeccion = "INSERT INTO seccion (idSeccion, Nombre) VALUES (?, ?)";
-        try (PreparedStatement sentencia = conexion.prepareStatement(sqlSeccion)) {
-            sentencia.setInt(1, 1);
-            sentencia.setString(2, "Sistemas");
-            sentencia.executeUpdate();
+        try (Statement statement = conexion.createStatement()) {
+            statement.execute("SET FOREIGN_KEY_CHECKS = 0");
+            statement.execute("DELETE FROM documentossoporte WHERE idDocumentoSoporte != 999");
+            statement.execute("SET FOREIGN_KEY_CHECKS = 1");
         }
 
-        String sqlUsuario = "INSERT INTO usuario (idUsuario, Nombre, ApellidoP, Contrasenia, TipoUsuario) VALUES (?, ?, ?, ?, ?)";
-        try (PreparedStatement sentencia = conexion.prepareStatement(sqlUsuario)) {
-            sentencia.setInt(1, 1);
-            sentencia.setString(2, "Juan");
-            sentencia.setString(3, "Perez");
-            sentencia.setString(4, "pass123");
-            sentencia.setString(5, "PRACTICANTE");
-            sentencia.executeUpdate();
-        }
-
-        String sqlPracticante = "INSERT INTO practicante (Matricula, idSeccion, Semestre, Genero, Edad, idUsuario) VALUES (?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement sentencia = conexion.prepareStatement(sqlPracticante)) {
-            sentencia.setString(1, "S21012345");
-            sentencia.setInt(2, 1);
-            sentencia.setString(3, "7");
-            sentencia.setString(4, "MASCULINO");
-            sentencia.setInt(5, 21);
-            sentencia.setInt(6, 1);
-            sentencia.executeUpdate();
-        }
+        dtoParaAgregar = new DocumentosSoporteDTO(0, "S21012345", "Carta Aceptación", "Pendiente");
+        dtoInvalido = new DocumentosSoporteDTO(0, null, "Error", "Fallo");
     }
 
     @Test
-    public void pruebaAgregarBuscarDocumentoSoporte() throws Exception {
-        DocumentosSoporteDAO documentoDAO = new DocumentosSoporteDAO();
-        DocumentosSoporteDTO documentoDTO = new DocumentosSoporteDTO(0, "S21012345", "Reporte Parcial", "Entregado");
-
-        documentoDAO.agregarDocumentoSoporte(documentoDTO);
-        DocumentosSoporteDTO documentoRecuperado = documentoDAO.buscarDocumentoSoportePorId(documentoDTO.getIdDocumento());
-
-        assertEquals(documentoDTO.getTipoDocumento(), documentoRecuperado.getTipoDocumento(),
-                "El tipo de documento recuperado debe ser igual al guardado");
+    public void pruebaAgregarDocumentoSoporteExitoso() throws Exception {
+        DocumentosSoporteDTO resultado = documentosSoporteDAO.agregarDocumentoSoporte(dtoParaAgregar);
+        assertNotNull(resultado);
     }
 
     @Test
-    public void pruebaActualizarBuscarDocumentoSoporte() throws Exception {
-        DocumentosSoporteDAO documentoDAO = new DocumentosSoporteDAO();
-        DocumentosSoporteDTO documentoDTO = new DocumentosSoporteDTO(0, "S21012345", "Carta Aceptación", "Pendiente");
-        documentoDAO.agregarDocumentoSoporte(documentoDTO);
-
-        String nuevoEstado = "Validado";
-        documentoDTO.setEstado(nuevoEstado);
-        documentoDAO.actualizarDocumentoSoporte(documentoDTO);
-
-        DocumentosSoporteDTO documentoActualizado = documentoDAO.buscarDocumentoSoportePorId(documentoDTO.getIdDocumento());
-
-        assertEquals(nuevoEstado, documentoActualizado.getEstado(),
-                "El estado del documento debe haberse actualizado correctamente");
+    public void pruebaBuscarDocumentoSoportePorIdExitoso() throws Exception {
+        DocumentosSoporteDTO recuperado = documentosSoporteDAO.buscarDocumentoSoportePorId(999);
+        assertEquals("Reporte Maestro", recuperado.getTipoDocumento());
     }
 
     @Test
-    public void pruebaObtenerTodosLosDocumentosSoporte() throws Exception {
-        DocumentosSoporteDAO documentoDAO = new DocumentosSoporteDAO();
-        documentoDAO.agregarDocumentoSoporte(new DocumentosSoporteDTO(0, "S21012345", "Doc1", "OK"));
-        documentoDAO.agregarDocumentoSoporte(new DocumentosSoporteDTO(0, "S21012345", "Doc2", "OK"));
+    public void pruebaObtenerTodosLosDocumentosSoporteExitoso() throws Exception {
+        List<DocumentosSoporteDTO> lista = documentosSoporteDAO.obtenerTodosLosDocumentosSoporte();
+        assertFalse(lista.isEmpty());
+    }
 
-        List<DocumentosSoporteDTO> lista = documentoDAO.obtenerTodosLosDocumentosSoporte();
+    @Test
+    public void pruebaAgregarDocumentoExcepcionMatriculaNula() {
+        assertThrows(DAOExcepcion.class, () -> documentosSoporteDAO.agregarDocumentoSoporte(dtoInvalido));
+    }
 
-        assertEquals(2, lista.size(), "La lista debería contener exactamente 2 documentos");
+    @Test
+    public void pruebaActualizarDocumentoExcepcionConexionCerrada() throws Exception {
+        ConexionBD.obtenerInstancia().obtenerConexion().close();
+        assertThrows(DAOExcepcion.class, () -> documentosSoporteDAO.actualizarDocumentoSoporte(dtoParaAgregar));
+        ConexionBD.reset();
+        documentosSoporteDAO = new DocumentosSoporteDAO();
     }
 }

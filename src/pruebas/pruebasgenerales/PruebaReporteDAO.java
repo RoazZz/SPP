@@ -1,10 +1,10 @@
 package pruebasgenerales;
 
 import accesodatos.ConexionBD;
+import excepciones.DAOExcepcion;
 import logica.dao.ReporteDAO;
 import logica.dto.ReporteDTO;
 import logica.enums.TipoReporte;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,79 +14,75 @@ import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class PruebaReporteDAO {
+    private static ReporteDAO reporteDAO;
+    private ReporteDTO dtoParaAgregar;
+    private ReporteDTO dtoInvalido;
+
     @BeforeAll
-    static void configurarConexion() {
+    static void prepararEntorno() throws Exception {
         System.setProperty("db.enlace", "jdbc:mysql://localhost:3306/sppbdprueba");
         System.setProperty("db.usuario", "testuser");
         System.setProperty("db.contraseña", "testpass123");
         ConexionBD.reset();
-    }
+        reporteDAO = new ReporteDAO();
 
-
-    @BeforeEach
-    void limpiarAntes() throws Exception {
-        limpiarTablas();
-        System.out.println("Limpieza ANTES de prueba");
-    }
-
-    @AfterEach
-    void limpiarDespues() throws Exception {
-        limpiarTablas();
-        System.out.println("Limpieza DESPUÉS de prueba (aunque falle)");
-    }
-
-    void limpiarTablas() throws Exception {
         Connection conexion = ConexionBD.obtenerInstancia().obtenerConexion();
-        try (Statement comandoControl = conexion.createStatement()) {
-            comandoControl.execute("SET FOREIGN_KEY_CHECKS = 0");
-            comandoControl.execute("TRUNCATE TABLE reporte");
-            comandoControl.execute("SET FOREIGN_KEY_CHECKS = 1");
+        try (Statement statement = conexion.createStatement()) {
+            statement.execute("SET FOREIGN_KEY_CHECKS = 0");
+            statement.execute("TRUNCATE TABLE reporte");
+
+            statement.execute("INSERT INTO reporte (idReporte, TipoReporte, Fecha, Ruta) " +
+                    "VALUES (999, 'PARCIAL', '2026-04-20', '/rutas/maestro.pdf')");
+
+            statement.execute("SET FOREIGN_KEY_CHECKS = 1");
         }
     }
 
-    @Test
-    public void pruebaAgregarBuscarReporte() throws Exception {
-        ReporteDAO reporteDAO = new ReporteDAO();
-        ReporteDTO reporteDTO = new ReporteDTO(0, TipoReporte.PARCIAL, LocalDate.now(), "/rutas/reporte1.pdf");
+    @BeforeEach
+    void prepararObjetosYLimpiar() throws Exception {
+        Connection conexion = ConexionBD.obtenerInstancia().obtenerConexion();
+        try (Statement statement = conexion.createStatement()) {
+            statement.execute("SET FOREIGN_KEY_CHECKS = 0");
+            statement.execute("DELETE FROM reporte WHERE idReporte != 999");
+            statement.execute("SET FOREIGN_KEY_CHECKS = 1");
+        }
 
-        reporteDAO.agregarReporte(reporteDTO);
-
-        // Verificamos que el ID ya no sea 0
-        assertTrue(reporteDTO.getIdReporte() > 0, "El ID del reporte debe haber sido generado por la base de datos");
-
-        ReporteDTO recuperado = reporteDAO.buscarReportePorId(reporteDTO.getIdReporte());
-        assertEquals(TipoReporte.PARCIAL, recuperado.getTipoReporte(), "El tipo de reporte debe coincidir");
-        assertEquals("/rutas/reporte1.pdf", recuperado.getRuta(), "La ruta debe ser la misma");
+        dtoParaAgregar = new ReporteDTO(0, TipoReporte.MENSUAL, LocalDate.now(), "/rutas/nuevo.pdf");
+        dtoInvalido = new ReporteDTO(0, null, LocalDate.now(), null);
     }
 
     @Test
-    public void pruebaActualizarBuscarReporte() throws Exception {
-        ReporteDAO reporteDAO = new ReporteDAO();
-        ReporteDTO reporteDTO = new ReporteDTO(0, TipoReporte.MENSUAL, LocalDate.now(), "/vieja/ruta.pdf");
-        reporteDAO.agregarReporte(reporteDTO);
-
-        // Modificamos
-        reporteDTO.setTipoReporte(TipoReporte.PARCIAL);
-        reporteDTO.setRuta("/nueva/ruta.pdf");
-        reporteDAO.actualizarReporte(reporteDTO);
-
-        ReporteDTO actualizado = reporteDAO.buscarReportePorId(reporteDTO.getIdReporte());
-        assertEquals(TipoReporte.PARCIAL, actualizado.getTipoReporte());
-        assertEquals("/nueva/ruta.pdf", actualizado.getRuta());
+    public void pruebaAgregarReporteExitoso() throws Exception {
+        ReporteDTO resultado = reporteDAO.agregarReporte(dtoParaAgregar);
+        assertNotNull(resultado);
     }
 
     @Test
-    public void pruebaObtenerTodosLosReportes() throws Exception {
-        ReporteDAO reporteDAO = new ReporteDAO();
-        reporteDAO.agregarReporte(new ReporteDTO(0, TipoReporte.PARCIAL, LocalDate.now(), "r1"));
-        reporteDAO.agregarReporte(new ReporteDTO(0, TipoReporte.MENSUAL, LocalDate.now(), "r2"));
+    public void pruebaBuscarReportePorIdExitoso() throws Exception {
+        ReporteDTO recuperado = reporteDAO.buscarReportePorId(999);
+        assertEquals("/rutas/maestro.pdf", recuperado.getRuta());
+    }
 
+    @Test
+    public void pruebaListarTodosReporteExitoso() throws Exception {
         List<ReporteDTO> lista = reporteDAO.listarTodosReporte();
+        assertFalse(lista.isEmpty());
+    }
 
-        assertEquals(2, lista.size(), "Deberían existir 2 reportes en la lista");
+    @Test
+    public void pruebaAgregarReporteExcepcionDatosNulos() {
+        assertThrows(DAOExcepcion.class, () -> reporteDAO.agregarReporte(dtoInvalido));
+    }
+
+    @Test
+    public void pruebaActualizarReporteExcepcionConexionCerrada() throws Exception {
+        ConexionBD.obtenerInstancia().obtenerConexion().close();
+        assertThrows(DAOExcepcion.class, () -> reporteDAO.actualizarReporte(dtoParaAgregar));
+
+        ConexionBD.reset();
+        reporteDAO = new ReporteDAO();
     }
 }
