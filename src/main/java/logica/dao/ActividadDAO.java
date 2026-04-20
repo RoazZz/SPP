@@ -38,7 +38,7 @@ public class ActividadDAO implements ActividadDAOInterfaz {
     }
 
     @Override
-    public void agregarActividad(ActividadDTO actividad) throws DAOExcepcion {
+    public boolean agregarActividad(ActividadDTO actividad) throws DAOExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setString(1, actividad.getMatricula());
             preparedStatement.setString(2, actividad.getNombre());
@@ -56,18 +56,25 @@ public class ActividadDAO implements ActividadDAOInterfaz {
             logger.log(Level.SEVERE, "Error al agregar la actividad", e);
             throw new DAOExcepcion("Error al agregar la actividad: ", e);
         }
+        return false;
     }
 
     @Override
-    public void actualizarActividad(ActividadDTO actividad) throws DAOExcepcion {
+    public boolean actualizarActividad(ActividadDTO actividad) throws DAOExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_UPDATE)) {
             preparedStatement.setString(1, actividad.getMatricula());
             preparedStatement.setString(2, actividad.getNombre());
             preparedStatement.setString(3, actividad.getDescripcion());
             preparedStatement.setDate(4, actividad.getFecha());
             preparedStatement.setInt(5, actividad.getIdActividad());
-            preparedStatement.executeUpdate();
-            logger.log(Level.SEVERE, "Actividad Actualizada correctamente: " + actividad.getIdActividad());
+            int filasAfectadas = preparedStatement.executeUpdate();
+            if (filasAfectadas > 0) {
+                logger.log(Level.SEVERE, "Actividad Actualizada correctamente: " + actividad.getIdActividad());
+            } else {
+                logger.log(Level.WARNING, "No se encontro Actividad con el ID: " + actividad.getIdActividad());
+                throw new EntidadNoEncontradaExcepcion("No existe actividad con id: " + actividad.getIdActividad());
+            }
+            return true;
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error al actualizar la actividad", e);
             throw new DAOExcepcion("Error al actualizar la Actividad: ", e);
@@ -76,7 +83,7 @@ public class ActividadDAO implements ActividadDAOInterfaz {
 
 
     @Override
-    public ActividadDTO buscarActividadPorIdActividad(int idActividad) throws DAOExcepcion {
+    public ActividadDTO buscarActividadPorIdActividad(int idActividad) throws DAOExcepcion, EntidadNoEncontradaExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_BUSCAR_POR_ID_ACTIVIDAD)) {
             preparedStatement.setInt(1, idActividad);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {

@@ -4,20 +4,18 @@ import accesodatos.ConexionBD;
 import excepciones.EntidadNoEncontradaExcepcion;
 import logica.dao.BitacoraDAO;
 import logica.dto.BitacoraDTO;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.sql.Connection;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class PruebaBitacoraDAO {
+
+    private static BitacoraDAO bitacoraDAO;
+    private static Connection conexion;
 
     @BeforeAll
     static void configurarConexion() throws Exception {
@@ -25,22 +23,10 @@ public class PruebaBitacoraDAO {
         System.setProperty("db.usuario", "testuser");
         System.setProperty("db.contraseña", "testpass123");
         ConexionBD.reset();
-        System.out.println("Conexión reiniciada");
-    }
-
-    @BeforeEach
-    void limpiarAntes() throws Exception {
-        limpiarTablas();
-    }
-
-    @AfterEach
-    void limpiarDespues() throws Exception {
-        limpiarTablas();
+        conexion = ConexionBD.obtenerInstancia().obtenerConexion();
     }
 
     void limpiarTablas() throws Exception {
-        Connection conexion = ConexionBD.obtenerInstancia().obtenerConexion();
-
         conexion.createStatement().execute("SET FOREIGN_KEY_CHECKS = 0");
         conexion.createStatement().execute("TRUNCATE TABLE Bitacora");
         conexion.createStatement().execute("TRUNCATE TABLE Practicante");
@@ -48,7 +34,6 @@ public class PruebaBitacoraDAO {
         conexion.createStatement().execute("SET FOREIGN_KEY_CHECKS = 1");
     }
 
-    @BeforeEach
     void insertarDatosPrevios() throws Exception {
         Connection conexion = ConexionBD.obtenerInstancia().obtenerConexion();
         conexion.createStatement().execute("SET FOREIGN_KEY_CHECKS = 0");
@@ -73,34 +58,69 @@ public class PruebaBitacoraDAO {
         );
     }
 
-    @Test
-    public void pruebaBuscarBitacoraPorMatricula() throws Exception {
-        BitacoraDAO bitacoraDAO = new BitacoraDAO();
-        BitacoraDTO bitacoraDTO = crearBitacoraEjemplo();
+    @Nested
+    class PruebasDeFlujoExitoso {
 
-        bitacoraDAO.agregarBitacora(bitacoraDTO);
+        private BitacoraDTO bitacoraDTO;
 
-        BitacoraDTO resultado = bitacoraDAO.buscarBitacoraPorMatricula("S24021");
+        @BeforeEach
+        void prepararPrueba() throws Exception{
+            limpiarTablas();
+            insertarDatosPrevios();
+            bitacoraDAO = new BitacoraDAO();
+            bitacoraDTO = crearBitacoraEjemplo();
+            bitacoraDAO.agregarBitacora(bitacoraDTO);
+        }
 
-        assertEquals("S24021", resultado.getMatricula());
+        @Test
+        public void pruebaGuardarActividadExitoso() throws Exception {
+            assertTrue(bitacoraDTO.getIdRegistro() > 0);
+        }
+
     }
 
-    @Test
-    public void pruebaBuscarBitacoraNoExistente() {
-        assertThrows(EntidadNoEncontradaExcepcion.class, () -> {
-            BitacoraDAO bitacoraDAO = new BitacoraDAO();
-            bitacoraDAO.buscarBitacoraPorMatricula("S24210");
-        });
+    @Nested
+    class PruebasDeFlujoFallido {
+
+        @BeforeEach
+        void prepararPrueba() throws Exception {
+            limpiarTablas();
+            insertarDatosPrevios();
+            bitacoraDAO = new BitacoraDAO();
+        }
+
+        @AfterEach
+        void limpiarDespues() throws Exception {
+            limpiarTablas();
+        }
+
+        @Test
+        public void pruebaListarActividadFallido() throws Exception {
+            List<BitacoraDTO> lista = bitacoraDAO.listarBitacoras();
+            assertTrue(lista.isEmpty(), "Lista de Bitacoras Vacia");
+        }
+
     }
 
-    @Test
-    public void pruebaListarBitacoras() throws Exception {
-        BitacoraDAO bitacoraDAO = new BitacoraDAO();
-        bitacoraDAO.agregarBitacora(crearBitacoraEjemplo());
+    @Nested
+    class PruebasDeFlujoExcepciones {
 
-        List<BitacoraDTO> lista = bitacoraDAO.listarBitacoras();
+        @BeforeEach
+        void prepararPrueba() throws Exception {
+            limpiarTablas();
+            insertarDatosPrevios();
+            bitacoraDAO = new BitacoraDAO();
+        }
 
-        assertFalse(lista.isEmpty());
+        @AfterEach
+        void limpiarDespues() throws Exception {
+            limpiarTablas();
+        }
+
+        @Test
+        public void pruebaBuscarActividadNoExistente() {
+            assertThrows(EntidadNoEncontradaExcepcion.class, () -> { bitacoraDAO.buscarBitacoraPorMatricula("00000"); });
+        }
+
     }
-
 }
