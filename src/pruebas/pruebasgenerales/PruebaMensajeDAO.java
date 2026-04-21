@@ -3,7 +3,9 @@ package pruebasgenerales;
 import accesodatos.ConexionBD;
 import excepciones.DAOExcepcion;
 import logica.dao.MensajeDAO;
+import logica.dao.ProfesorDAO;
 import logica.dto.MensajeDTO;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -53,6 +55,16 @@ public class PruebaMensajeDAO {
         mensajeInvalidoRemitenteNulo = new MensajeDTO(0, null, "des@test.com", "Error", "Contenido", LocalDateTime.now());
     }
 
+    @AfterEach
+    void restaurarRecursos() {
+        ConexionBD.reset();
+        try {
+            mensajeDAO = new MensajeDAO();
+        } catch (Exception e) {
+            System.err.println("Error al restaurar el DAO: " + e.getMessage());
+        }
+    }
+
     @Test
     public void pruebaInsertarMensajeExitoso() throws Exception {
         MensajeDTO resultado = mensajeDAO.insertarMensaje(mensajeValido);
@@ -80,7 +92,5 @@ public class PruebaMensajeDAO {
     public void pruebaActualizarMensajeExcepcionConexionCerrada() throws Exception {
         ConexionBD.obtenerInstancia().obtenerConexion().close();
         assertThrows(DAOExcepcion.class, () -> mensajeDAO.actualizarMensaje(mensajeValido));
-        ConexionBD.reset();
-        mensajeDAO = new MensajeDAO();
     }
 }

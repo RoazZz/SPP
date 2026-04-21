@@ -3,7 +3,9 @@ package pruebasgenerales;
 import accesodatos.ConexionBD;
 import excepciones.DAOExcepcion;
 import logica.dao.BitacoraPSPDAO;
+import logica.dao.ProfesorDAO;
 import logica.dto.BitacoraPSPDTO;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -63,6 +65,16 @@ public class PruebaBitacoraPSPDAO {
         bitacoraPSPInvalidaMatriculaNula = new BitacoraPSPDTO(0, null, LocalDate.now());
     }
 
+    @AfterEach
+    void restaurarRecursos() {
+        ConexionBD.reset();
+        try {
+            bitacoraPSPDAO = new BitacoraPSPDAO();
+        } catch (Exception e) {
+            System.err.println("Error al restaurar el DAO: " + e.getMessage());
+        }
+    }
+
     @Test
     public void pruebaAgregarBitacoraPSPExitoso() throws Exception {
         BitacoraPSPDTO resultado = bitacoraPSPDAO.agregarBitacoraPSP(bitacoraPSPValida);
@@ -90,7 +102,5 @@ public class PruebaBitacoraPSPDAO {
     public void pruebaActualizarBitacoraExcepcionConexionCerrada() throws Exception {
         ConexionBD.obtenerInstancia().obtenerConexion().close();
         assertThrows(DAOExcepcion.class, () -> bitacoraPSPDAO.actualizarBitacoraPSP(bitacoraPSPValida));
-        ConexionBD.reset();
-        bitacoraPSPDAO = new BitacoraPSPDAO();
     }
 }

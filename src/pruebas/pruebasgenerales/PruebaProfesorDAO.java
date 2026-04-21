@@ -7,6 +7,7 @@ import logica.dto.ProfesorDTO;
 import logica.enums.TipoDeUsuario;
 import logica.enums.TipoEstado;
 import logica.enums.TipoTurno;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -60,6 +61,16 @@ public class PruebaProfesorDAO {
         profesorInvalidoNombreNulo = new ProfesorDTO(0, null, "Error", "M", "123", TipoEstado.ACTIVO, TipoDeUsuario.PROFESOR, "00000", TipoTurno.VESPERTINO);
     }
 
+    @AfterEach
+    void restaurarRecursos() {
+        ConexionBD.reset();
+        try {
+            profesorDAO = new ProfesorDAO();
+        } catch (Exception e) {
+            System.err.println("Error al restaurar el DAO: " + e.getMessage());
+        }
+    }
+
     @Test
     public void pruebaAgregarProfesorExitoso() throws Exception {
         ProfesorDTO resultado = profesorDAO.agregarProfesor(profesorValido);
@@ -87,7 +98,5 @@ public class PruebaProfesorDAO {
     public void pruebaActualizarProfesorExcepcionConexionCerrada() throws Exception {
         ConexionBD.obtenerInstancia().obtenerConexion().close();
         assertThrows(DAOExcepcion.class, () -> profesorDAO.actualizarProfesor(profesorValido));
-        ConexionBD.reset();
-        profesorDAO = new ProfesorDAO();
     }
 }

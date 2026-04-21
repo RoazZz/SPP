@@ -3,7 +3,9 @@ package pruebasgenerales;
 import accesodatos.ConexionBD;
 import excepciones.DAOExcepcion;
 import logica.dao.PlanDeActividadesDAO;
+import logica.dao.ProfesorDAO;
 import logica.dto.PlanDeActividadesDTO;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -74,6 +76,16 @@ public class PruebaPlanDeActividadesDAO {
         planDeActividadesInvalidoMatriculaNula = new PlanDeActividadesDTO(0, null, 1, "Error");
     }
 
+    @AfterEach
+    void restaurarRecursos() {
+        ConexionBD.reset();
+        try {
+            planDeActividadesDAO = new PlanDeActividadesDAO();
+        } catch (Exception e) {
+            System.err.println("Error al restaurar el DAO: " + e.getMessage());
+        }
+    }
+
     @Test
     public void pruebaAgregarPlanDeActividadesExitoso() throws Exception {
         PlanDeActividadesDTO resultado = planDeActividadesDAO.agregarPlanDeActividades(planDeActividadesValido);
@@ -101,7 +113,5 @@ public class PruebaPlanDeActividadesDAO {
     public void pruebaActualizarPlanExcepcionConexionCerrada() throws Exception {
         ConexionBD.obtenerInstancia().obtenerConexion().close();
         assertThrows(DAOExcepcion.class, () -> planDeActividadesDAO.actualizarPlanDeActividades(planDeActividadesValido));
-        ConexionBD.reset();
-        planDeActividadesDAO = new PlanDeActividadesDAO();
     }
 }

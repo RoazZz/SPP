@@ -3,7 +3,9 @@ package pruebasgenerales;
 import accesodatos.ConexionBD;
 import excepciones.DAOExcepcion;
 import logica.dao.DocumentosSoporteDAO;
+import logica.dao.ProfesorDAO;
 import logica.dto.DocumentosSoporteDTO;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -62,6 +64,15 @@ public class PruebaDocumentosSoporteDAO {
         documentoSoporteInvalidoMatriculaNula = new DocumentosSoporteDTO(0, null, "Error", "Fallo");
     }
 
+    @AfterEach
+    void restaurarRecursos() {
+        ConexionBD.reset();
+        try {
+            documentosSoporteDAO = new DocumentosSoporteDAO();
+        } catch (Exception e) {
+            System.err.println("Error al restaurar el DAO: " + e.getMessage());
+        }
+    }
     @Test
     public void pruebaAgregarDocumentoSoporteExitoso() throws Exception {
         DocumentosSoporteDTO resultado = documentosSoporteDAO.agregarDocumentoSoporte(documentosSoporteValido);
@@ -89,7 +100,5 @@ public class PruebaDocumentosSoporteDAO {
     public void pruebaActualizarDocumentoExcepcionConexionCerrada() throws Exception {
         ConexionBD.obtenerInstancia().obtenerConexion().close();
         assertThrows(DAOExcepcion.class, () -> documentosSoporteDAO.actualizarDocumentoSoporte(documentosSoporteValido));
-        ConexionBD.reset();
-        documentosSoporteDAO = new DocumentosSoporteDAO();
     }
 }

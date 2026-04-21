@@ -2,9 +2,11 @@ package pruebasgenerales;
 
 import accesodatos.ConexionBD;
 import excepciones.DAOExcepcion;
+import logica.dao.ProfesorDAO;
 import logica.dao.ReporteDAO;
 import logica.dto.ReporteDTO;
 import logica.enums.TipoReporte;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -54,6 +56,16 @@ public class PruebaReporteDAO {
         reporteInvalidoDatosNulos = new ReporteDTO(0, null, LocalDate.now(), null);
     }
 
+    @AfterEach
+    void restaurarRecursos() {
+        ConexionBD.reset();
+        try {
+            reporteDAO = new ReporteDAO();
+        } catch (Exception e) {
+            System.err.println("Error al restaurar el DAO: " + e.getMessage());
+        }
+    }
+
     @Test
     public void pruebaAgregarReporteExitoso() throws Exception {
         ReporteDTO resultado = reporteDAO.agregarReporte(reporteValido);
@@ -81,8 +93,5 @@ public class PruebaReporteDAO {
     public void pruebaActualizarReporteExcepcionConexionCerrada() throws Exception {
         ConexionBD.obtenerInstancia().obtenerConexion().close();
         assertThrows(DAOExcepcion.class, () -> reporteDAO.actualizarReporte(reporteValido));
-
-        ConexionBD.reset();
-        reporteDAO = new ReporteDAO();
     }
 }

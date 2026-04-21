@@ -3,7 +3,9 @@ package pruebasgenerales;
 import accesodatos.ConexionBD;
 import excepciones.DAOExcepcion;
 import logica.dao.AutoevaluacionDAO;
+import logica.dao.ProfesorDAO;
 import logica.dto.AutoevaluacionDTO;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -55,6 +57,16 @@ public class PruebaAutoevaluacionDAO {
         autoevaluacionInvalidaMatriculaNula = new AutoevaluacionDTO(0, null, new BigDecimal("0.00"), "Error");
     }
 
+    @AfterEach
+    void restaurarRecursos() {
+        ConexionBD.reset();
+        try {
+            autoevaluacionDAO = new AutoevaluacionDAO();
+        } catch (Exception e) {
+            System.err.println("Error al restaurar el DAO: " + e.getMessage());
+        }
+    }
+
     @Test
     public void pruebaAgregarAutoevaluacionExitoso() throws Exception {
         AutoevaluacionDTO resultado = autoevaluacionDAO.agregarAutoevalaucion(autoevalaucionValida);
@@ -76,7 +88,5 @@ public class PruebaAutoevaluacionDAO {
     public void pruebaObtenerTodasLasAutoevaluacionesExcepcionConexionCerrada() throws Exception {
         ConexionBD.obtenerInstancia().obtenerConexion().close();
         assertThrows(DAOExcepcion.class, () -> autoevaluacionDAO.obtenerTodasLasAutoevaluaciones());
-        ConexionBD.reset();
-        autoevaluacionDAO = new AutoevaluacionDAO();
     }
 }

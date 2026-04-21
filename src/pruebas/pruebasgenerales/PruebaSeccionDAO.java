@@ -2,8 +2,10 @@ package pruebasgenerales;
 
 import accesodatos.ConexionBD;
 import excepciones.DAOExcepcion;
+import logica.dao.ProfesorDAO;
 import logica.dao.SeccionDAO;
 import logica.dto.SeccionDTO;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,6 +54,16 @@ public class PruebaSeccionDAO {
         seccionInvalidaNombreNulo = new SeccionDTO(0, null);
     }
 
+    @AfterEach
+    void restaurarRecursos() {
+        ConexionBD.reset();
+        try {
+            seccionDAO = new SeccionDAO();
+        } catch (Exception e) {
+            System.err.println("Error al restaurar el DAO: " + e.getMessage());
+        }
+    }
+
     @Test
     public void pruebaAgregarSeccionExitoso() throws Exception {
         SeccionDTO resultado = seccionDAO.agregarSeccion(seccionValida);
@@ -79,8 +91,5 @@ public class PruebaSeccionDAO {
     public void pruebaActualizarSeccionExcepcionConexionCerrada() throws Exception {
         ConexionBD.obtenerInstancia().obtenerConexion().close();
         assertThrows(DAOExcepcion.class, () -> seccionDAO.actualizarSeccion(seccionValida));
-
-        ConexionBD.reset();
-        seccionDAO = new SeccionDAO();
     }
 }

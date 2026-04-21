@@ -2,9 +2,11 @@ package pruebasgenerales;
 
 import accesodatos.ConexionBD;
 import excepciones.DAOExcepcion;
+import logica.dao.ProfesorDAO;
 import logica.dao.SolicitaProyectoDAO;
 import logica.dto.SolicitaProyectoDTO;
 import logica.enums.TipoEstadoSolicitud;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -70,6 +72,16 @@ public class PruebaSolicitaProyectoDAO {
         solicitaProyectoInvalidoMatriculaNula = new SolicitaProyectoDTO(null, 50, TipoEstadoSolicitud.PENDIENTE, "ERROR");
     }
 
+    @AfterEach
+    void restaurarRecursos() {
+        ConexionBD.reset();
+        try {
+            solicitaProyectoDAO = new SolicitaProyectoDAO();
+        } catch (Exception e) {
+            System.err.println("Error al restaurar el DAO: " + e.getMessage());
+        }
+    }
+
     @Test
     public void pruebaInsertarSolicitudProyectoExitoso() throws Exception {
         SolicitaProyectoDTO resultado = solicitaProyectoDAO.insertarSolicitudProyecto(solicitaProyectoValido);
@@ -91,7 +103,5 @@ public class PruebaSolicitaProyectoDAO {
     public void pruebaActualizarSolicitudExcepcionConexionCerrada() throws Exception {
         ConexionBD.obtenerInstancia().obtenerConexion().close();
         assertThrows(DAOExcepcion.class, () -> solicitaProyectoDAO.actualizarSolicitudProyecto(solicitaProyectoValido));
-        ConexionBD.reset();
-        solicitaProyectoDAO = new SolicitaProyectoDAO();
     }
 }
