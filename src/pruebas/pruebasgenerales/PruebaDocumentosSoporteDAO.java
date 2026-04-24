@@ -3,7 +3,9 @@ package pruebasgenerales;
 import accesodatos.ConexionBD;
 import excepciones.DAOExcepcion;
 import logica.dao.DocumentosSoporteDAO;
+import logica.dao.ProfesorDAO;
 import logica.dto.DocumentosSoporteDTO;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,8 +18,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class PruebaDocumentosSoporteDAO {
     private static DocumentosSoporteDAO documentosSoporteDAO;
-    private DocumentosSoporteDTO dtoParaAgregar;
-    private DocumentosSoporteDTO dtoInvalido;
+    private DocumentosSoporteDTO documentosSoporteValido;
+    private DocumentosSoporteDTO documentoSoporteInvalidoMatriculaNula;
 
     @BeforeAll
     static void prepararEntorno() throws Exception {
@@ -58,13 +60,22 @@ public class PruebaDocumentosSoporteDAO {
             statement.execute("SET FOREIGN_KEY_CHECKS = 1");
         }
 
-        dtoParaAgregar = new DocumentosSoporteDTO(0, "S21012345", "Carta Aceptación", "Pendiente");
-        dtoInvalido = new DocumentosSoporteDTO(0, null, "Error", "Fallo");
+        documentosSoporteValido = new DocumentosSoporteDTO(0, "S21012345", "Carta Aceptación", "Pendiente");
+        documentoSoporteInvalidoMatriculaNula = new DocumentosSoporteDTO(0, null, "Error", "Fallo");
     }
 
+    @AfterEach
+    void restaurarRecursos() {
+        ConexionBD.reset();
+        try {
+            documentosSoporteDAO = new DocumentosSoporteDAO();
+        } catch (Exception e) {
+            System.err.println("Error al restaurar el DAO: " + e.getMessage());
+        }
+    }
     @Test
     public void pruebaAgregarDocumentoSoporteExitoso() throws Exception {
-        DocumentosSoporteDTO resultado = documentosSoporteDAO.agregarDocumentoSoporte(dtoParaAgregar);
+        DocumentosSoporteDTO resultado = documentosSoporteDAO.agregarDocumentoSoporte(documentosSoporteValido);
         assertNotNull(resultado);
     }
 
@@ -82,14 +93,12 @@ public class PruebaDocumentosSoporteDAO {
 
     @Test
     public void pruebaAgregarDocumentoExcepcionMatriculaNula() {
-        assertThrows(DAOExcepcion.class, () -> documentosSoporteDAO.agregarDocumentoSoporte(dtoInvalido));
+        assertThrows(DAOExcepcion.class, () -> documentosSoporteDAO.agregarDocumentoSoporte(documentoSoporteInvalidoMatriculaNula));
     }
 
     @Test
     public void pruebaActualizarDocumentoExcepcionConexionCerrada() throws Exception {
         ConexionBD.obtenerInstancia().obtenerConexion().close();
-        assertThrows(DAOExcepcion.class, () -> documentosSoporteDAO.actualizarDocumentoSoporte(dtoParaAgregar));
-        ConexionBD.reset();
-        documentosSoporteDAO = new DocumentosSoporteDAO();
+        assertThrows(DAOExcepcion.class, () -> documentosSoporteDAO.actualizarDocumentoSoporte(documentosSoporteValido));
     }
 }

@@ -2,9 +2,11 @@ package pruebasgenerales;
 
 import accesodatos.ConexionBD;
 import excepciones.DAOExcepcion;
+import logica.dao.ProfesorDAO;
 import logica.dao.ReporteDAO;
 import logica.dto.ReporteDTO;
 import logica.enums.TipoReporte;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,8 +20,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class PruebaReporteDAO {
     private static ReporteDAO reporteDAO;
-    private ReporteDTO dtoParaAgregar;
-    private ReporteDTO dtoInvalido;
+    private ReporteDTO reporteValido;
+    private ReporteDTO reporteInvalidoDatosNulos;
 
     @BeforeAll
     static void prepararEntorno() throws Exception {
@@ -50,13 +52,23 @@ public class PruebaReporteDAO {
             statement.execute("SET FOREIGN_KEY_CHECKS = 1");
         }
 
-        dtoParaAgregar = new ReporteDTO(0, TipoReporte.MENSUAL, LocalDate.now(), "/rutas/nuevo.pdf");
-        dtoInvalido = new ReporteDTO(0, null, LocalDate.now(), null);
+        reporteValido = new ReporteDTO(0, TipoReporte.MENSUAL, LocalDate.now(), "/rutas/nuevo.pdf");
+        reporteInvalidoDatosNulos = new ReporteDTO(0, null, LocalDate.now(), null);
+    }
+
+    @AfterEach
+    void restaurarRecursos() {
+        ConexionBD.reset();
+        try {
+            reporteDAO = new ReporteDAO();
+        } catch (Exception e) {
+            System.err.println("Error al restaurar el DAO: " + e.getMessage());
+        }
     }
 
     @Test
     public void pruebaAgregarReporteExitoso() throws Exception {
-        ReporteDTO resultado = reporteDAO.agregarReporte(dtoParaAgregar);
+        ReporteDTO resultado = reporteDAO.agregarReporte(reporteValido);
         assertNotNull(resultado);
     }
 
@@ -73,16 +85,13 @@ public class PruebaReporteDAO {
     }
 
     @Test
-    public void pruebaAgregarReporteExcepcionDatosNulos() {
-        assertThrows(DAOExcepcion.class, () -> reporteDAO.agregarReporte(dtoInvalido));
+    public void pruebaAgregarReporteErrorDatosNulos() {
+        assertThrows(DAOExcepcion.class, () -> reporteDAO.agregarReporte(reporteInvalidoDatosNulos));
     }
 
     @Test
     public void pruebaActualizarReporteExcepcionConexionCerrada() throws Exception {
         ConexionBD.obtenerInstancia().obtenerConexion().close();
-        assertThrows(DAOExcepcion.class, () -> reporteDAO.actualizarReporte(dtoParaAgregar));
-
-        ConexionBD.reset();
-        reporteDAO = new ReporteDAO();
+        assertThrows(DAOExcepcion.class, () -> reporteDAO.actualizarReporte(reporteValido));
     }
 }

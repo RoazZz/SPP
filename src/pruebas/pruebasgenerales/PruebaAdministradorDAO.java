@@ -4,9 +4,11 @@ import accesodatos.ConexionBD;
 import excepciones.DAOExcepcion;
 import excepciones.EntidadNoEncontradaExcepcion;
 import logica.dao.AdministradorDAO;
+import logica.dao.ProfesorDAO;
 import logica.dto.AdministradorDTO;
 import logica.enums.TipoDeUsuario;
 import logica.enums.TipoEstado;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,8 +20,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class PruebaAdministradorDAO {
     private static AdministradorDAO administradorDAO;
-    private AdministradorDTO dtoParaAgregar;
-    private AdministradorDTO dtoInvalido;
+    private AdministradorDTO administradorValido;
+    private AdministradorDTO administradorInvalidoNombreNulo;
 
     @BeforeAll
     static void prepararEntorno() throws Exception {
@@ -52,19 +54,28 @@ public class PruebaAdministradorDAO {
             statement.execute("SET FOREIGN_KEY_CHECKS = 1");
         }
 
-        dtoParaAgregar = new AdministradorDTO(0, "Ignacio", "Calixto", "León", "pass123", TipoEstado.ACTIVO, TipoDeUsuario.ADMIN, 0);
-        dtoInvalido = new AdministradorDTO(0, null, "Error", "M", "123", TipoEstado.ACTIVO, TipoDeUsuario.ADMIN, 0);
+        administradorValido = new AdministradorDTO(0, "Ignacio", "Calixto", "León", "pass123", TipoEstado.ACTIVO, TipoDeUsuario.ADMIN, 0);
+        administradorInvalidoNombreNulo = new AdministradorDTO(0, null, "Error", "M", "123", TipoEstado.ACTIVO, TipoDeUsuario.ADMIN, 0);
+    }
+    @AfterEach
+    void restaurarRecursos() {
+        ConexionBD.reset();
+        try {
+            administradorDAO = new AdministradorDAO();
+        } catch (Exception e) {
+            System.err.println("Error al restaurar el DAO: " + e.getMessage());
+        }
     }
 
     @Test
     public void pruebaAgregarAdministradorExitoso() throws Exception {
-        AdministradorDTO resultado = administradorDAO.agregarAdministrador(dtoParaAgregar);
+        AdministradorDTO resultado = administradorDAO.agregarAdministrador(administradorValido);
         assertTrue(resultado.getIdAdministrador() > 0);
     }
 
     @Test
     public void pruebaAgregarAdministradorErrorNombreNulo() {
-        assertThrows(DAOExcepcion.class, () -> administradorDAO.agregarAdministrador(dtoInvalido));
+        assertThrows(DAOExcepcion.class, () -> administradorDAO.agregarAdministrador(administradorInvalidoNombreNulo));
     }
 
     @Test
@@ -82,8 +93,6 @@ public class PruebaAdministradorDAO {
     public void pruebaBuscarAdministradorPorIdExcepcionConexionCerrada() throws Exception {
         ConexionBD.obtenerInstancia().obtenerConexion().close();
         assertThrows(DAOExcepcion.class, () -> administradorDAO.buscarAdministradorPorId(999));
-        ConexionBD.reset();
-        administradorDAO = new AdministradorDAO();
     }
 }
 

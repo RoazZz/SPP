@@ -7,6 +7,7 @@ import logica.dto.ProfesorDTO;
 import logica.enums.TipoDeUsuario;
 import logica.enums.TipoEstado;
 import logica.enums.TipoTurno;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,8 +20,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class PruebaProfesorDAO {
     private static ProfesorDAO profesorDAO;
-    private ProfesorDTO dtoParaAgregar;
-    private ProfesorDTO dtoInvalido;
+    private ProfesorDTO profesorValido;
+    private ProfesorDTO profesorInvalidoNombreNulo;
 
     @BeforeAll
     static void prepararEntorno() throws Exception {
@@ -56,13 +57,23 @@ public class PruebaProfesorDAO {
             statement.execute("SET FOREIGN_KEY_CHECKS = 1");
         }
 
-        dtoParaAgregar = new ProfesorDTO(0, "Roaz", "León", "M", "roaz123", TipoEstado.ACTIVO, TipoDeUsuario.PROFESOR, "12345", TipoTurno.MATUTINO);
-        dtoInvalido = new ProfesorDTO(0, null, "Error", "M", "123", TipoEstado.ACTIVO, TipoDeUsuario.PROFESOR, "00000", TipoTurno.VESPERTINO);
+        profesorValido = new ProfesorDTO(0, "Roaz", "León", "M", "roaz123", TipoEstado.ACTIVO, TipoDeUsuario.PROFESOR, "12345", TipoTurno.MATUTINO);
+        profesorInvalidoNombreNulo = new ProfesorDTO(0, null, "Error", "M", "123", TipoEstado.ACTIVO, TipoDeUsuario.PROFESOR, "00000", TipoTurno.VESPERTINO);
+    }
+
+    @AfterEach
+    void restaurarRecursos() {
+        ConexionBD.reset();
+        try {
+            profesorDAO = new ProfesorDAO();
+        } catch (Exception e) {
+            System.err.println("Error al restaurar el DAO: " + e.getMessage());
+        }
     }
 
     @Test
     public void pruebaAgregarProfesorExitoso() throws Exception {
-        ProfesorDTO resultado = profesorDAO.agregarProfesor(dtoParaAgregar);
+        ProfesorDTO resultado = profesorDAO.agregarProfesor(profesorValido);
         assertNotNull(resultado);
     }
 
@@ -80,14 +91,12 @@ public class PruebaProfesorDAO {
 
     @Test
     public void pruebaAgregarProfesorExcepcionNombreNulo() {
-        assertThrows(DAOExcepcion.class, () -> profesorDAO.agregarProfesor(dtoInvalido));
+        assertThrows(DAOExcepcion.class, () -> profesorDAO.agregarProfesor(profesorInvalidoNombreNulo));
     }
 
     @Test
     public void pruebaActualizarProfesorExcepcionConexionCerrada() throws Exception {
         ConexionBD.obtenerInstancia().obtenerConexion().close();
-        assertThrows(DAOExcepcion.class, () -> profesorDAO.actualizarProfesor(dtoParaAgregar));
-        ConexionBD.reset();
-        profesorDAO = new ProfesorDAO();
+        assertThrows(DAOExcepcion.class, () -> profesorDAO.actualizarProfesor(profesorValido));
     }
 }

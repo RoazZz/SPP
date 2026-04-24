@@ -3,7 +3,9 @@ package pruebasgenerales;
 import accesodatos.ConexionBD;
 import excepciones.DAOExcepcion;
 import logica.dao.PlanDeActividadesDAO;
+import logica.dao.ProfesorDAO;
 import logica.dto.PlanDeActividadesDTO;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,8 +18,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class PruebaPlanDeActividadesDAO {
     private static PlanDeActividadesDAO planDeActividadesDAO;
-    private PlanDeActividadesDTO dtoParaAgregar;
-    private PlanDeActividadesDTO dtoInvalido;
+    private PlanDeActividadesDTO planDeActividadesValido;
+    private PlanDeActividadesDTO planDeActividadesInvalidoMatriculaNula;
 
     @BeforeAll
     static void prepararEntorno() throws Exception {
@@ -70,13 +72,23 @@ public class PruebaPlanDeActividadesDAO {
             statement.execute("SET FOREIGN_KEY_CHECKS = 1");
         }
 
-        dtoParaAgregar = new PlanDeActividadesDTO(0, "S21012345", 2, "Plan de actividades nuevo");
-        dtoInvalido = new PlanDeActividadesDTO(0, null, 1, "Error");
+        planDeActividadesValido = new PlanDeActividadesDTO(0, "S21012345", 2, "Plan de actividades nuevo");
+        planDeActividadesInvalidoMatriculaNula = new PlanDeActividadesDTO(0, null, 1, "Error");
+    }
+
+    @AfterEach
+    void restaurarRecursos() {
+        ConexionBD.reset();
+        try {
+            planDeActividadesDAO = new PlanDeActividadesDAO();
+        } catch (Exception e) {
+            System.err.println("Error al restaurar el DAO: " + e.getMessage());
+        }
     }
 
     @Test
     public void pruebaAgregarPlanDeActividadesExitoso() throws Exception {
-        PlanDeActividadesDTO resultado = planDeActividadesDAO.agregarPlanDeActividades(dtoParaAgregar);
+        PlanDeActividadesDTO resultado = planDeActividadesDAO.agregarPlanDeActividades(planDeActividadesValido);
         assertNotNull(resultado);
     }
 
@@ -94,14 +106,12 @@ public class PruebaPlanDeActividadesDAO {
 
     @Test
     public void pruebaAgregarPlanExcepcionMatriculaNula() {
-        assertThrows(DAOExcepcion.class, () -> planDeActividadesDAO.agregarPlanDeActividades(dtoInvalido));
+        assertThrows(DAOExcepcion.class, () -> planDeActividadesDAO.agregarPlanDeActividades(planDeActividadesInvalidoMatriculaNula));
     }
 
     @Test
     public void pruebaActualizarPlanExcepcionConexionCerrada() throws Exception {
         ConexionBD.obtenerInstancia().obtenerConexion().close();
-        assertThrows(DAOExcepcion.class, () -> planDeActividadesDAO.actualizarPlanDeActividades(dtoParaAgregar));
-        ConexionBD.reset();
-        planDeActividadesDAO = new PlanDeActividadesDAO();
+        assertThrows(DAOExcepcion.class, () -> planDeActividadesDAO.actualizarPlanDeActividades(planDeActividadesValido));
     }
 }

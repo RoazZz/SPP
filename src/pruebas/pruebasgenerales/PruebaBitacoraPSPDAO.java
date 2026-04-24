@@ -3,7 +3,9 @@ package pruebasgenerales;
 import accesodatos.ConexionBD;
 import excepciones.DAOExcepcion;
 import logica.dao.BitacoraPSPDAO;
+import logica.dao.ProfesorDAO;
 import logica.dto.BitacoraPSPDTO;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,8 +19,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class PruebaBitacoraPSPDAO {
     private static BitacoraPSPDAO bitacoraPSPDAO;
-    private BitacoraPSPDTO dtoParaAgregar;
-    private BitacoraPSPDTO dtoInvalido;
+    private BitacoraPSPDTO bitacoraPSPValida;
+    private BitacoraPSPDTO bitacoraPSPInvalidaMatriculaNula;
 
     @BeforeAll
     static void prepararEntorno() throws Exception {
@@ -59,13 +61,23 @@ public class PruebaBitacoraPSPDAO {
             statement.execute("SET FOREIGN_KEY_CHECKS = 1");
         }
 
-        dtoParaAgregar = new BitacoraPSPDTO(0, "S21012345", LocalDate.now());
-        dtoInvalido = new BitacoraPSPDTO(0, null, LocalDate.now());
+        bitacoraPSPValida = new BitacoraPSPDTO(0, "S21012345", LocalDate.now());
+        bitacoraPSPInvalidaMatriculaNula = new BitacoraPSPDTO(0, null, LocalDate.now());
+    }
+
+    @AfterEach
+    void restaurarRecursos() {
+        ConexionBD.reset();
+        try {
+            bitacoraPSPDAO = new BitacoraPSPDAO();
+        } catch (Exception e) {
+            System.err.println("Error al restaurar el DAO: " + e.getMessage());
+        }
     }
 
     @Test
     public void pruebaAgregarBitacoraPSPExitoso() throws Exception {
-        BitacoraPSPDTO resultado = bitacoraPSPDAO.agregarBitacoraPSP(dtoParaAgregar);
+        BitacoraPSPDTO resultado = bitacoraPSPDAO.agregarBitacoraPSP(bitacoraPSPValida);
         assertNotNull(resultado);
     }
 
@@ -83,14 +95,12 @@ public class PruebaBitacoraPSPDAO {
 
     @Test
     public void pruebaAgregarBitacoraErrorMatriculaNula() {
-        assertThrows(DAOExcepcion.class, () -> bitacoraPSPDAO.agregarBitacoraPSP(dtoInvalido));
+        assertThrows(DAOExcepcion.class, () -> bitacoraPSPDAO.agregarBitacoraPSP(bitacoraPSPInvalidaMatriculaNula));
     }
 
     @Test
     public void pruebaActualizarBitacoraExcepcionConexionCerrada() throws Exception {
         ConexionBD.obtenerInstancia().obtenerConexion().close();
-        assertThrows(DAOExcepcion.class, () -> bitacoraPSPDAO.actualizarBitacoraPSP(dtoParaAgregar));
-        ConexionBD.reset();
-        bitacoraPSPDAO = new BitacoraPSPDAO();
+        assertThrows(DAOExcepcion.class, () -> bitacoraPSPDAO.actualizarBitacoraPSP(bitacoraPSPValida));
     }
 }

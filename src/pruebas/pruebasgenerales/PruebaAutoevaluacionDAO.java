@@ -2,9 +2,10 @@ package pruebasgenerales;
 
 import accesodatos.ConexionBD;
 import excepciones.DAOExcepcion;
-import excepciones.EntidadNoEncontradaExcepcion;
 import logica.dao.AutoevaluacionDAO;
+import logica.dao.ProfesorDAO;
 import logica.dto.AutoevaluacionDTO;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,8 +18,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class PruebaAutoevaluacionDAO {
     private static AutoevaluacionDAO autoevaluacionDAO;
-    private AutoevaluacionDTO dtoParaAgregar;
-    private AutoevaluacionDTO dtoInvalido;
+    private AutoevaluacionDTO autoevalaucionValida;
+    private AutoevaluacionDTO autoevaluacionInvalidaMatriculaNula;
 
     @BeforeAll
     static void prepararEntorno() throws Exception {
@@ -52,13 +53,23 @@ public class PruebaAutoevaluacionDAO {
             statement.execute("SET FOREIGN_KEY_CHECKS = 1");
         }
 
-        dtoParaAgregar = new AutoevaluacionDTO(0, "S21012345", new BigDecimal("9.00"), "Nuevo");
-        dtoInvalido = new AutoevaluacionDTO(0, null, new BigDecimal("0.00"), "Error");
+        autoevalaucionValida = new AutoevaluacionDTO(0, "S21012345", new BigDecimal("9.00"), "Nuevo");
+        autoevaluacionInvalidaMatriculaNula = new AutoevaluacionDTO(0, null, new BigDecimal("0.00"), "Error");
+    }
+
+    @AfterEach
+    void restaurarRecursos() {
+        ConexionBD.reset();
+        try {
+            autoevaluacionDAO = new AutoevaluacionDAO();
+        } catch (Exception e) {
+            System.err.println("Error al restaurar el DAO: " + e.getMessage());
+        }
     }
 
     @Test
     public void pruebaAgregarAutoevaluacionExitoso() throws Exception {
-        AutoevaluacionDTO resultado = autoevaluacionDAO.agregarAutoevalaucion(dtoParaAgregar);
+        AutoevaluacionDTO resultado = autoevaluacionDAO.agregarAutoevalaucion(autoevalaucionValida);
         assertTrue(resultado.getIdAutoevalaucion() > 0);
     }
 
@@ -69,15 +80,13 @@ public class PruebaAutoevaluacionDAO {
     }
 
     @Test
-    public void pruebaAgregarAutoevaluacionErrorDatosNulos() {
-        assertThrows(DAOExcepcion.class, () -> autoevaluacionDAO.agregarAutoevalaucion(dtoInvalido));
+    public void pruebaAgregarAutoevaluacionErrorMatriculaNula() {
+        assertThrows(DAOExcepcion.class, () -> autoevaluacionDAO.agregarAutoevalaucion(autoevaluacionInvalidaMatriculaNula));
     }
 
     @Test
     public void pruebaObtenerTodasLasAutoevaluacionesExcepcionConexionCerrada() throws Exception {
         ConexionBD.obtenerInstancia().obtenerConexion().close();
         assertThrows(DAOExcepcion.class, () -> autoevaluacionDAO.obtenerTodasLasAutoevaluaciones());
-        ConexionBD.reset();
-        autoevaluacionDAO = new AutoevaluacionDAO();
     }
 }

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+
+<VBox spacing="10" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="gui.controladores.CamposProfesorControlador">
+    <children>
+        <Label text="Datos de Profesor" styleClass="label-seccion" />
+        <TextField fx:id="txtNumeroPersonal" promptText="Número de Personal" />
+        <ComboBox fx:id="cbTurno" promptText="Seleccione Turno" maxWidth="Infinity" />
+    </children>
+</VBox>
