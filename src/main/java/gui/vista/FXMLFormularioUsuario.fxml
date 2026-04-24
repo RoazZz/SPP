@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ScrollPane?>
+
+<BorderPane prefHeight="650.0" prefWidth="850.0"
+            stylesheets="@/estilos.css"
+            xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="gui.controladores.FormularioUsuarioControlador">
+
+    <top>
+        <VBox alignment="CENTER" styleClass="header-container">
+            <Label text="SISTEMA DE GESTIÓN UV" styleClass="titulo-ventana" />
+        </VBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="scroll-pane">
+            <VBox alignment="CENTER" style="-fx-padding: 40 0;">
+                <VBox styleClass="panel-formulario">
+                    <Label text="Información de Usuario" styleClass="label-seccion" />
+
+                    <ComboBox fx:id="cbTipoUsuario" promptText="Seleccione Tipo de Usuario" maxWidth="Infinity" />
+
+                    <TextField fx:id="txtNombre" promptText="Nombre(s)" />
+                    <TextField fx:id="txtApellidoP" promptText="Apellido Paterno" />
+                    <TextField fx:id="txtApellidoM" promptText="Apellido Materno" />
+                    <PasswordField fx:id="txtContrasenia" promptText="Contraseña" />
+
+                    <Separator />
+
+                    <Label text="Detalles Específicos" styleClass="label-seccion" />
+                    <VBox fx:id="contenedorDinamico" spacing="15" />
+
+                    <HBox spacing="20" alignment="CENTER_RIGHT" style="-fx-padding: 10 0 0 0;">
+                        <Button text="SALIR" onAction="#manejarCancelar" styleClass="btn-cancelar" />
+                        <Button text="GUARDAR DATOS" onAction="#manejarGuardar" styleClass="btn-guardar" />
+                    </HBox>
+                </VBox>
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>
