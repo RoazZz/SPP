@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="gui.controladores.OrganizaciónVinculadaControlador"
+      spacing = "10"
+      style="-fx-padding: 20;">
+
+    <Label text="ID Organización Vinculada:"/>
+    <TextField fx:id="txtIdOrganizacionVinculada"/>
+
+    <Label text="Nombre:"/>
+    <TextField fx:id="txtNombreOrganizacionVinculada"/>
+
+    <Label text="Direccion:"/>
+    <TextField fx:id="txtDireccionOrganizacionVinculada"/>
+
+    <Button text="Guardar" onAction="#manejarGuardar"/>
+    <Label fx:id="txtMensajeGuardar"/>
+
+</VBox>
