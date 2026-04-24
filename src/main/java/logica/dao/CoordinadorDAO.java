@@ -42,7 +42,7 @@ public class CoordinadorDAO implements CoordinadorDAOInterfaz{
     }
 
     @Override
-    public void agregarCoordinador(CoordinadorDTO coordinador) throws DAOExcepcion, EntidadNoEncontradaExcepcion {
+    public boolean agregarCoordinador(CoordinadorDTO coordinador) throws DAOExcepcion, EntidadNoEncontradaExcepcion {
         UsuarioDAO usuarioDAO = new UsuarioDAO(this.conexion);
         try {
             conexion.setAutoCommit(false);
@@ -57,6 +57,7 @@ public class CoordinadorDAO implements CoordinadorDAOInterfaz{
                 }
                 conexion.commit();
                 logger.log(Level.INFO, "Coordinador agregado exitosamente: " + coordinador.getNumeroPersonal());
+                return true;
             } else {
                 logger.log(Level.SEVERE, "No se pudo crear usuario base para coordinador");
                 throw new EntidadNoEncontradaExcepcion( "No se pudo crear el usuario base");
@@ -79,12 +80,13 @@ public class CoordinadorDAO implements CoordinadorDAOInterfaz{
     }
 
     @Override
-    public void actualizarCoordinador(CoordinadorDTO coordinador) throws DAOExcepcion {
+    public boolean actualizarCoordinador(CoordinadorDTO coordinador) throws DAOExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_UPDATE)) {
             preparedStatement.setString(1,coordinador.getNumeroPersonal());
             preparedStatement.setInt(2, coordinador.getIdUsuario());
             preparedStatement.executeUpdate();
             logger.log(Level.INFO, "Coordinador actualizado correctamente: " + coordinador.getNumeroPersonal());
+            return true;
         } catch (SQLException e){
             logger.log(Level.SEVERE, "Error al actualizar al Coordinador", e);
             throw new DAOExcepcion("Error al actualizar al Coordinador: ", e);

@@ -1,13 +1,13 @@
 package logica.dto;
 
-import logica.enums.TipoEstado;
+import logica.enums.EstadoAsignacionProyecto;
 
 public class CoordinadorAsignaProyectoDTO {
     private String numeroDePersonal;
     private int idProyecto;
-    private TipoEstado tipoEstado;
+    private EstadoAsignacionProyecto tipoEstado;
 
-    public CoordinadorAsignaProyectoDTO(String numeroDePersonal, int idProyecto, TipoEstado tipoEstado) {
+    public CoordinadorAsignaProyectoDTO(String numeroDePersonal, int idProyecto, EstadoAsignacionProyecto tipoEstado) {
         this.numeroDePersonal = numeroDePersonal;
         this.idProyecto = idProyecto;
         this.tipoEstado = tipoEstado;
@@ -30,11 +30,11 @@ public class CoordinadorAsignaProyectoDTO {
     }
 
 
-    public TipoEstado getTipoEstado() {
+    public EstadoAsignacionProyecto getTipoEstado() {
         return tipoEstado;
     }
 
-    public void setEstado(TipoEstado tipoEstado) {
+    public void setEstado(EstadoAsignacionProyecto tipoEstado) {
         this.tipoEstado = tipoEstado;
     }
 }

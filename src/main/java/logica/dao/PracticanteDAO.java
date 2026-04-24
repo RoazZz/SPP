@@ -51,7 +51,7 @@ public class PracticanteDAO implements PracticanteDAOInterfaz {
     }
 
     @Override
-    public void agregarPracticante(PracticanteDTO practicante) throws DAOExcepcion, EntidadNoEncontradaExcepcion {
+    public boolean agregarPracticante(PracticanteDTO practicante) throws DAOExcepcion, EntidadNoEncontradaExcepcion {
         UsuarioDAO usuarioDAO = new UsuarioDAO(this.conexion);
         try {
             conexion.setAutoCommit(false);
@@ -70,6 +70,7 @@ public class PracticanteDAO implements PracticanteDAOInterfaz {
                 }
                 conexion.commit();
                 logger.log(Level.INFO, "Practicante agregado exitosamente: " + practicante.getMatricula());
+                return true;
             } else {
                 logger.log(Level.SEVERE, "No se pudo crear usuario base para practicante");
                 throw new EntidadNoEncontradaExcepcion( "No se pudo crear el usuario base");
@@ -92,7 +93,7 @@ public class PracticanteDAO implements PracticanteDAOInterfaz {
     }
 
     @Override
-    public void actualizarPracticante(PracticanteDTO practicante) throws DAOExcepcion {
+    public boolean actualizarPracticante(PracticanteDTO practicante) throws DAOExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_UPDATE)) {
             preparedStatement.setInt(1, practicante.getIdSeccion());
             preparedStatement.setString(2, practicante.getSemestre());
@@ -102,6 +103,7 @@ public class PracticanteDAO implements PracticanteDAOInterfaz {
             preparedStatement.setString(6, practicante.getMatricula());
             preparedStatement.executeUpdate();
             logger.log(Level.INFO, "Practicante actualizado correctamente: " + practicante.getMatricula());
+            return true;
         } catch (SQLException e){
             logger.log(Level.SEVERE, "Error al actualizar al practicante", e);
             throw new DAOExcepcion("Error al actualizar al Practicante: ", e);

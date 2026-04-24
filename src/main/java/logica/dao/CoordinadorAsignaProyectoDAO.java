@@ -5,6 +5,7 @@ import excepciones.DAOExcepcion;
 import excepciones.EntidadNoEncontradaExcepcion;
 import interfaces.CoordinadorAsignaProyectoDAOInterfaz;
 import logica.dto.CoordinadorAsignaProyectoDTO;
+import logica.enums.EstadoAsignacionProyecto;
 import logica.enums.TipoEstado;
 
 import java.io.IOException;
@@ -69,18 +70,20 @@ public class CoordinadorAsignaProyectoDAO implements CoordinadorAsignaProyectoDA
     @Override
     public List<CoordinadorAsignaProyectoDTO> obtenerAsignacionDeProyectoPorNumeroDePersonal(String numeroDePersonal) throws DAOExcepcion {
         List<CoordinadorAsignaProyectoDTO> listaAsignacionesProyecto = new ArrayList<>();
-        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_SELECT_BY_NUMERO_DE_PERSONAL);
-             ResultSet resultSet = preparedStatement.executeQuery()) {
-            while (resultSet.next()) {
-                CoordinadorAsignaProyectoDTO asignacionProyecto = new CoordinadorAsignaProyectoDTO(
-                        resultSet.getString("NumeroDePersonal"),
-                        resultSet.getInt("idProyecto"),
-                        TipoEstado.valueOf(resultSet.getString("EstadoProyecto"))
-                );
-                listaAsignacionesProyecto.add(asignacionProyecto);
+        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_SELECT_BY_NUMERO_DE_PERSONAL)) {
+            preparedStatement.setString(1, numeroDePersonal); // ← aquí dentro, no en el try()
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    CoordinadorAsignaProyectoDTO asignacionProyecto = new CoordinadorAsignaProyectoDTO(
+                            resultSet.getString("NumeroDePersonal"),
+                            resultSet.getInt("idProyecto"),
+                            EstadoAsignacionProyecto.valueOf(resultSet.getString("Estado").replace(" ", "_"))
+                    );
+                    listaAsignacionesProyecto.add(asignacionProyecto);
+                }
             }
             return listaAsignacionesProyecto;
-        }catch (Exception e){
+        } catch (Exception e) {
             logger.log(Level.SEVERE, "Error al listar las Asignaciones de Proyecto por numero de personal", e);
             throw new DAOExcepcion("Error al obtener las asignaciones de proyecto por numero de personal: ", e);
         }
@@ -95,7 +98,7 @@ public class CoordinadorAsignaProyectoDAO implements CoordinadorAsignaProyectoDA
                 CoordinadorAsignaProyectoDTO asignacionProyecto = new CoordinadorAsignaProyectoDTO(
                         resultSet.getString("NumeroDePersonal"),
                         resultSet.getInt("idProyecto"),
-                        TipoEstado.valueOf(resultSet.getString("EstadoProyecto"))
+                        EstadoAsignacionProyecto.valueOf(resultSet.getString("Estado").replace(" ","_"))
                 );
                 listaAsignacionesProyecto.add(asignacionProyecto);
             }
@@ -115,7 +118,7 @@ public class CoordinadorAsignaProyectoDAO implements CoordinadorAsignaProyectoDA
                 CoordinadorAsignaProyectoDTO asignacionProyecto = new CoordinadorAsignaProyectoDTO(
                         resultSet.getString("NumeroDePersonal"),
                         resultSet.getInt("idProyecto"),
-                        TipoEstado.valueOf(resultSet.getString("EstadoProyecto"))
+                        EstadoAsignacionProyecto.valueOf(resultSet.getString("Estado").replace(" ","_"))
                 );
                 listaAsignacionesProyecto.add(asignacionProyecto);
             }

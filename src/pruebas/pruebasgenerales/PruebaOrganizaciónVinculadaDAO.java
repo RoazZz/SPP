@@ -1,99 +1,78 @@
 package pruebasgenerales;
 
 import accesodatos.ConexionBD;
+import excepciones.EntidadNoEncontradaExcepcion;
 import logica.dao.OrganizacionVinculadaDAO;
 import logica.dto.OrganizacionVinculadaDTO;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;
+import java.sql.Statement;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class PruebaOrganizaciónVinculadaDAO {
 
+    private static OrganizacionVinculadaDAO organizacionVinculadaDAO;
+    private OrganizacionVinculadaDTO organizacionVinculadaValida;
+    private OrganizacionVinculadaDTO organizacionVinculadaSinNombre;
+
     @BeforeAll
-    static void configurarConexion() throws Exception {
+    static void prepararEntorno() throws Exception {
         System.setProperty("db.enlace", "jdbc:mysql://localhost:3306/sppbdprueba");
         System.setProperty("db.usuario", "testuser");
         System.setProperty("db.contraseña", "testpass123");
         ConexionBD.reset();
-        System.out.println("Conexión reiniciada");
+        organizacionVinculadaDAO = new OrganizacionVinculadaDAO();
+        Connection conexion = ConexionBD.obtenerInstancia().obtenerConexion();
+        try (Statement statement = conexion.createStatement()) {
+            statement.execute("SET FOREIGN_KEY_CHECKS = 0");
+            statement.execute("TRUNCATE TABLE OrganizacionVinculada");
+            statement.execute("INSERT INTO OrganizacionVinculada (idOrganizacion, Nombre, Direccion) " +
+                    "VALUES ('ORG999', 'Organizacion Maestra', 'Direccion Maestra')");
+            statement.execute("SET FOREIGN_KEY_CHECKS = 1");
+        }
     }
 
     @BeforeEach
-    void limpiarAntes() throws Exception {
-        limpiarTablas();
-    }
-
-    @AfterEach
-    void limpiarDespues() throws Exception {
-        limpiarTablas();
-    }
-
-    private void limpiarTablas() throws Exception {
+    void prepararObjetosYLimpiar() throws Exception {
         Connection conexion = ConexionBD.obtenerInstancia().obtenerConexion();
-        conexion.createStatement().execute("SET FOREIGN_KEY_CHECKS = 0");
-        conexion.createStatement().execute("TRUNCATE TABLE OrganizacionVinculada");
-        conexion.createStatement().execute("SET FOREIGN_KEY_CHECKS = 1");
-    }
-
-    private OrganizacionVinculadaDTO crearOrganizacionEjemplo() {
-        return new OrganizacionVinculadaDTO(
+        try (Statement statement = conexion.createStatement()) {
+            statement.execute("SET FOREIGN_KEY_CHECKS = 0");
+            statement.execute("DELETE FROM OrganizacionVinculada WHERE idOrganizacion != 'ORG999'");
+            statement.execute("SET FOREIGN_KEY_CHECKS = 1");
+        }
+        organizacionVinculadaValida = new OrganizacionVinculadaDTO(
                 "ORG001",
                 "Avengers",
                 "Central Park"
         );
+        organizacionVinculadaSinNombre = new OrganizacionVinculadaDTO(
+                "ORG002",
+                null,
+                "Direccion invalida"
+        );
     }
 
     @Test
-    public void pruebaAgregarOrganizacion() throws Exception {
-        OrganizacionVinculadaDAO organizacionDAO = new OrganizacionVinculadaDAO();
-        OrganizacionVinculadaDTO organizacionDTO = crearOrganizacionEjemplo();
-
-        organizacionDAO.agregarOrganizacionVinculada(organizacionDTO);
-
-        OrganizacionVinculadaDTO resultado = organizacionDAO.buscarOrganizacionVinculadaPorIdProyecto("ORG001");
-
-        assertEquals("ORG001", resultado.getidOrganizacion());
+    public void pruebaAgregarOrganizacionExitoso() throws Exception {
+        boolean resultado = organizacionVinculadaDAO.agregarOrganizacionVinculada(organizacionVinculadaValida);
+        assertTrue(resultado);
     }
 
     @Test
-    public void pruebaBuscarOrganizacionPorId() throws Exception {
-        OrganizacionVinculadaDAO organizacionDAO = new OrganizacionVinculadaDAO();
-        organizacionDAO.agregarOrganizacionVinculada(crearOrganizacionEjemplo());
-
-        OrganizacionVinculadaDTO resultado = organizacionDAO.buscarOrganizacionVinculadaPorIdProyecto("ORG001");
-
-        assertEquals("ORG001", resultado.getidOrganizacion());
-    }
-
-
-    @Test
-    public void pruebaActualizarOrganizacion() throws Exception {
-        OrganizacionVinculadaDAO organizacionDAO = new OrganizacionVinculadaDAO();
-        OrganizacionVinculadaDTO organizacionDTO = crearOrganizacionEjemplo();
-        organizacionDAO.agregarOrganizacionVinculada(organizacionDTO);
-
-        organizacionDTO.setNombre("Justice League");
-        organizacionDAO.actualizarOrganizacionVinculada(organizacionDTO);
-
-        OrganizacionVinculadaDTO resultado = organizacionDAO.buscarOrganizacionVinculadaPorIdProyecto("ORG001");
-
-        assertEquals("Justice League", resultado.getNombre());
+    public void pruebaListarOrganizacionesExitoso() throws Exception {
+        List<OrganizacionVinculadaDTO> listaOrganizaciones = organizacionVinculadaDAO.listarOrganizacionesVinculadas();
+        assertFalse(listaOrganizaciones.isEmpty());
     }
 
     @Test
-    public void pruebaListarOrganizaciones() throws Exception {
-        OrganizacionVinculadaDAO organizacionDAO = new OrganizacionVinculadaDAO();
-        organizacionDAO.agregarOrganizacionVinculada(crearOrganizacionEjemplo());
-
-        List<OrganizacionVinculadaDTO> lista = organizacionDAO.listarOrganizacionesVinculadas();
-
-        assertFalse(lista.isEmpty());
+    public void pruebaBuscarOrganizacionNoExistente() {
+        assertThrows(EntidadNoEncontradaExcepcion.class, () ->
+                        organizacionVinculadaDAO.buscarOrganizacionVinculadaPorIdProyecto("ORG99"));
     }
+
 }

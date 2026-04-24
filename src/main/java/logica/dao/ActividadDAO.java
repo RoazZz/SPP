@@ -56,7 +56,7 @@ public class ActividadDAO implements ActividadDAOInterfaz {
             logger.log(Level.SEVERE, "Error al agregar la actividad", e);
             throw new DAOExcepcion("Error al agregar la actividad: ", e);
         }
-        return false;
+        return true;
     }
 
     @Override
