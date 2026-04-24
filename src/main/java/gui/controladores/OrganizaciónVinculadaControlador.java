@@ -29,7 +29,7 @@ public class OrganizaciónVinculadaControlador {
             OrganizacionVinculadaDAO organizacionVinculadaDAO = new OrganizacionVinculadaDAO();
             organizacionVinculadaDAO.agregarOrganizacionVinculada(organizacionVinculadaDTO);
 
-            txtMensajeGuardar.setText("Organización Vinculada guardada con éxito!");
+            txtMensajeGuardar.setText("Organización Vinculada guardada con exito");
 
         }catch (Exception e){
             txtMensajeGuardar.setText("Error: " + e.getMessage());

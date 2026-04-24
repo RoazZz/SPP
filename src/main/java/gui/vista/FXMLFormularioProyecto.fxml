@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="gui.controladores,ProyectoControlador"
+      spacing="10"
+      style="-fx-padding: 20;">
+
+    <Label text="ID Organización Vinculada:"/>
+    <TextField fx:id="txtIdOrganizacionVinculada"/>
+
+    <Label text="Numero de Personal:"/>
+    <TextField fx:id="txtNumeroDePersonal"/>
+
+    <Label text="Nombre:"/>
+    <TextField fx:id="txtNombre"/>
+
+    <Label text="Descripción:"/>
+    <TextField fx:id="txtDescripcion"/>
+
+    <Button text="Guardar Proyecto" onAction="#manejarGuardarProyecto"/>
+    <Label fx:id="txtMensajeGuardar"/>
+
+</VBox>
