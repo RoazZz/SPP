@@ -9,7 +9,7 @@ public class App extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         // cargar primer FXML
-        Parent root = FXMLLoader.load(getClass().getResource("/gui/vista/FMXLFormularioOrganizaciónVinculada.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("/gui/vista/FXMLListaUsuarios.fxml"));
 
         Scene scene = new Scene(root);
         stage.setTitle("Sistema Gestor de Practicas Profesionales");
