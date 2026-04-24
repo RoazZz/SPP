@@ -84,7 +84,7 @@ public class FormularioUsuarioControlador {
     private void cambiarFragmento(TipoDeUsuario tipo) {
         try {
             String nombreTipo = tipo.name().charAt(0) + tipo.name().substring(1).toLowerCase();
-            String ruta = "/gui/vistas/FXMLFragmento" + nombreTipo + ".fxml";
+            String ruta = "/gui/vista/FXMLFragmento" + nombreTipo + ".fxml";
             FXMLLoader loader = new FXMLLoader(getClass().getResource(ruta));
             Node nodo = loader.load();
             contenedorDinamico.getChildren().setAll(nodo);

@@ -10,7 +10,7 @@ public class CamposProfesorControlador implements ControladorEspecialidadInterfa
     @FXML private TextField txtNumeroPersonal;
     @FXML private ComboBox<TipoTurno> cbTurno;
 
-    @FXML public void inicializar() {
+    @FXML public void initialize() {
         cbTurno.getItems().setAll(TipoTurno.values());
     }
 
