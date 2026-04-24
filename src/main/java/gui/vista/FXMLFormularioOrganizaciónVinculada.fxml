@@ -21,4 +21,6 @@
     <Button text="Guardar" onAction="#manejarGuardar"/>
     <Label fx:id="txtMensajeGuardar"/>
 
+    <Label fx:id="txtErrorDeCampos" text="" />
+
 </VBox>

@@ -24,4 +24,6 @@
     <Button text="Guardar Proyecto" onAction="#manejarGuardarProyecto"/>
     <Label fx:id="txtMensajeGuardar"/>
 
+    <Label fx:id="txtErrorDeCampos" text="" />
+
 </VBox>
