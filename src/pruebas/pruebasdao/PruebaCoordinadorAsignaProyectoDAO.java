@@ -1,4 +1,4 @@
-package pruebasgenerales;
+package pruebasdao;
 
 import accesodatos.ConexionBD;
 import excepciones.DAOExcepcion;

@@ -1,26 +1,28 @@
-package pruebasgenerales;
+package pruebasdao;
 
 import accesodatos.ConexionBD;
 import excepciones.DAOExcepcion;
 import excepciones.EntidadNoEncontradaExcepcion;
-import logica.dao.BitacoraDAO;
-import logica.dto.BitacoraDTO;
-import org.junit.jupiter.api.Test;
+import logica.dao.ActividadDAO;
+import logica.dto.ActividadDTO;
+
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;
 import java.sql.Statement;
-import java.time.LocalDateTime;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class PruebaBitacoraDAO {
 
-    private static BitacoraDAO bitacoraDAO;
-    private BitacoraDTO bitacoraValida;
-    private BitacoraDTO bitacoraSinMatricula;
+public class PruebaActividadDAO {
+
+    private static ActividadDAO actividadDAO;
+    private ActividadDTO actividadValida;
+    private ActividadDTO actividadSinMatricula;
 
     @BeforeAll
     static void prepararEntorno() throws Exception {
@@ -28,62 +30,61 @@ public class PruebaBitacoraDAO {
         System.setProperty("db.usuario", "testuser");
         System.setProperty("db.contraseña", "testpass123");
         ConexionBD.reset();
-        bitacoraDAO = new BitacoraDAO();
+        actividadDAO = new ActividadDAO();
         Connection conexion = ConexionBD.obtenerInstancia().obtenerConexion();
         try (Statement statement = conexion.createStatement()) {
             statement.execute("SET FOREIGN_KEY_CHECKS = 0");
-            statement.execute("TRUNCATE TABLE Bitacora");
+            statement.execute("TRUNCATE TABLE Actividad");
             statement.execute("TRUNCATE TABLE practicante");
             statement.execute("TRUNCATE TABLE usuario");
             statement.execute("INSERT INTO usuario (idUsuario, Nombre, ApellidoP, ApellidoM, Contrasenia, Estado, TipoUsuario) " +
                     "VALUES (1, 'Ana', 'Perez', 'Lopez', '123', 'ACTIVO', 'PRACTICANTE')");
             statement.execute("INSERT INTO practicante (idUsuario, Matricula, idSeccion, Semestre, Genero, Edad, LenguaIndigena) " +
                     "VALUES (1, 'S24021', 1, '5', 'FEMENINO', 20, false)");
-            statement.execute("INSERT INTO Bitacora (idRegistro, Matricula, Fecha_Hora, TipoEvento, Descripcion) " +
-                    "VALUES (999, 'S24021', '2026-04-17 10:30:00', 'LOGIN', 'Bitacora maestra')");
+            statement.execute("INSERT INTO Actividad (idActividad, Matricula, Nombre, Descripcion, Fecha) " +
+                    "VALUES (999, 'S24021', 'Actividad Maestra', 'Descripcion maestra', '2026-04-17')");
             statement.execute("SET FOREIGN_KEY_CHECKS = 1");
         }
     }
+
 
     @BeforeEach
     void prepararObjetosYLimpiar() throws Exception {
         Connection conexion = ConexionBD.obtenerInstancia().obtenerConexion();
         try (Statement statement = conexion.createStatement()) {
             statement.execute("SET FOREIGN_KEY_CHECKS = 0");
-            statement.execute("DELETE FROM Bitacora WHERE idRegistro != 999");
+            statement.execute("DELETE FROM Actividad WHERE idActividad != 999");
             statement.execute("SET FOREIGN_KEY_CHECKS = 1");
         }
-        bitacoraValida = new BitacoraDTO(
+        actividadValida = new ActividadDTO(
                 0,
                 "S24021",
-                "LOGIN",
-                LocalDateTime.of(2026, 4, 17, 10, 30, 0),
-                "El practicante inició sesión"
+                "Actividad Nueva",
+                "Descripcion de prueba",
+                java.sql.Date.valueOf("2026-04-17")
         );
-        bitacoraSinMatricula = new BitacoraDTO(
+        actividadSinMatricula = new ActividadDTO(
                 0,
                 null,
-                "LOGIN",
-                LocalDateTime.of(2026, 4, 17, 10, 30, 0),
-                "Bitacora invalida"
+                "Actividad Invalida",
+                "Descripcion invalida",
+                java.sql.Date.valueOf("2026-04-17")
         );
     }
 
     @Test
-    public void pruebaAgregarBitacoraExitoso() throws Exception {
-        boolean resultado = bitacoraDAO.agregarBitacora(bitacoraValida);
+    public void pruebaAgregarActividadExitoso() throws Exception {
+        boolean resultado = actividadDAO.agregarActividad(actividadValida);
         assertTrue(resultado);
     }
 
     @Test
-    public void pruebaAgregarBitacoraExcepcionMatriculaNula() {
-        assertThrows(DAOExcepcion.class, () -> bitacoraDAO.agregarBitacora(bitacoraSinMatricula));
+    public void pruebaAgregarActividadExcepcionMatriculaNula() {
+        assertThrows(DAOExcepcion.class, () -> actividadDAO.agregarActividad(actividadSinMatricula));
     }
 
     @Test
-    public void pruebaBuscarBitacoraMatriculaNoExistente() {
-        assertThrows(EntidadNoEncontradaExcepcion.class, () -> bitacoraDAO.buscarBitacoraPorMatricula("10"));
+    public void pruebaBuscarActividadNoExistente() {
+        assertThrows(EntidadNoEncontradaExcepcion.class, () -> actividadDAO.buscarActividadPorIdActividad(10));
     }
-
-
 }

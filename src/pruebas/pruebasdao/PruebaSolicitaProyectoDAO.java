@@ -1,8 +1,7 @@
-package pruebasgenerales;
+package pruebasdao;
 
 import accesodatos.ConexionBD;
 import excepciones.DAOExcepcion;
-import logica.dao.ProfesorDAO;
 import logica.dao.SolicitaProyectoDAO;
 import logica.dto.SolicitaProyectoDTO;
 import logica.enums.TipoEstadoSolicitud;

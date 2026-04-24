@@ -1,18 +1,16 @@
-package pruebasgenerales;
+package pruebasdao;
 
 import accesodatos.ConexionBD;
 import excepciones.DAOExcepcion;
 import excepciones.EntidadNoEncontradaExcepcion;
 import logica.dao.ProyectoDAO;
 import logica.dto.ProyectoDTO;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;
 import java.sql.Statement;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
