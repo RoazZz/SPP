@@ -1,10 +1,9 @@
-package pruebasgenerales;
+package pruebasdao;
 
 import accesodatos.ConexionBD;
 import excepciones.DAOExcepcion;
 import excepciones.EntidadNoEncontradaExcepcion;
 import logica.dao.AdministradorDAO;
-import logica.dao.ProfesorDAO;
 import logica.dto.AdministradorDTO;
 import logica.enums.TipoDeUsuario;
 import logica.enums.TipoEstado;

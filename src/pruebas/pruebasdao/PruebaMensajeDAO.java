@@ -1,9 +1,8 @@
-package pruebasgenerales;
+package pruebasdao;
 
 import accesodatos.ConexionBD;
 import excepciones.DAOExcepcion;
 import logica.dao.MensajeDAO;
-import logica.dao.ProfesorDAO;
 import logica.dto.MensajeDTO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;

@@ -1,9 +1,10 @@
-package pruebasgenerales;
+package pruebasdao;
 
 import accesodatos.ConexionBD;
 import excepciones.DAOExcepcion;
-import logica.dao.CoordinadorDAO;
-import logica.dto.CoordinadorDTO;
+import excepciones.EntidadNoEncontradaExcepcion;
+import logica.dao.UsuarioDAO;
+import logica.dto.UsuarioDTO;
 import logica.enums.TipoDeUsuario;
 import logica.enums.TipoEstado;
 import org.junit.jupiter.api.BeforeAll;
@@ -12,15 +13,16 @@ import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;
 import java.sql.Statement;
-import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class PruebaCoordinadorDAO {
 
-    private static CoordinadorDAO coordinadorDAO;
-    private CoordinadorDTO coordinadorValido;
-    private CoordinadorDTO coordinadorSinNumeroPersonal;
+public class PruebaUsuarioDAO {
+
+    private static UsuarioDAO usuarioDAO;
+    private UsuarioDTO usuarioValido;
+    private UsuarioDTO usuarioSinNombre;
 
     @BeforeAll
     static void prepararEntorno() throws Exception {
@@ -28,16 +30,13 @@ public class PruebaCoordinadorDAO {
         System.setProperty("db.usuario", "testuser");
         System.setProperty("db.contraseña", "testpass123");
         ConexionBD.reset();
-        coordinadorDAO = new CoordinadorDAO();
+        usuarioDAO = new UsuarioDAO();
         Connection conexion = ConexionBD.obtenerInstancia().obtenerConexion();
         try (Statement statement = conexion.createStatement()) {
             statement.execute("SET FOREIGN_KEY_CHECKS = 0");
-            statement.execute("TRUNCATE TABLE Coordinador");
             statement.execute("TRUNCATE TABLE Usuario");
             statement.execute("INSERT INTO Usuario (idUsuario, Nombre, ApellidoP, ApellidoM, Contrasenia, Estado, TipoUsuario) " +
-                    "VALUES (999, 'Coordinador', 'Maestro', 'Test', '123', 'ACTIVO', 'COORDINADOR')");
-            statement.execute("INSERT INTO Coordinador (NumeroDePersonal, idUsuario) " +
-                    "VALUES ('COORD999', 999)");
+                    "VALUES (999, 'Usuario', 'Maestro', 'Test', '123', 'ACTIVO', 'PRACTICANTE')");
             statement.execute("SET FOREIGN_KEY_CHECKS = 1");
         }
     }
@@ -47,48 +46,43 @@ public class PruebaCoordinadorDAO {
         Connection conexion = ConexionBD.obtenerInstancia().obtenerConexion();
         try (Statement statement = conexion.createStatement()) {
             statement.execute("SET FOREIGN_KEY_CHECKS = 0");
-            statement.execute("DELETE FROM Coordinador WHERE NumeroDePersonal != 'COORD999'");
             statement.execute("DELETE FROM Usuario WHERE idUsuario != 999");
             statement.execute("SET FOREIGN_KEY_CHECKS = 1");
         }
-        coordinadorValido = new CoordinadorDTO(
+        usuarioValido = new UsuarioDTO(
                 0,
                 "Jared",
                 "Morales",
                 "Tirado",
                 "123",
                 TipoEstado.ACTIVO,
-                TipoDeUsuario.COORDINADOR,
-                "25110"
+                TipoDeUsuario.PRACTICANTE
         );
-        coordinadorSinNumeroPersonal = new CoordinadorDTO(
+        usuarioSinNombre = new UsuarioDTO(
                 0,
-                "Jared",
+                null,
                 "Morales",
                 "Tirado",
                 "123",
                 TipoEstado.ACTIVO,
-                TipoDeUsuario.COORDINADOR,
-                null
+                TipoDeUsuario.PRACTICANTE
         );
     }
 
-
     @Test
-    public void pruebaAgregarCoordinadorExitoso() throws Exception {
-        coordinadorDAO.agregarCoordinador(coordinadorValido);
-        assertTrue(coordinadorValido.getIdUsuario() > 0);
+    public void pruebaAgregarUsuarioExitoso() throws Exception {
+        usuarioDAO.agregarUsuario(usuarioValido);
+        assertTrue(usuarioValido.getIdUsuario() > 0);
     }
 
     @Test
-    public void pruebaListarCoordinadoresExitoso() throws Exception {
-        List<CoordinadorDTO> lista = coordinadorDAO.listarCoordinador();
-        assertFalse(lista.isEmpty());
+    public void pruebaBuscarUsuarioNoExistente() {
+        assertThrows(EntidadNoEncontradaExcepcion.class, () -> usuarioDAO.buscarUsuarioPorIdUsuario(10));
     }
 
     @Test
-    public void pruebaAgregarCoordinadorExcepcionNumeroPersonalNulo() {
-        assertThrows(DAOExcepcion.class, () ->
-                        coordinadorDAO.agregarCoordinador(coordinadorSinNumeroPersonal));
+    public void pruebaAgregarUsuarioExcepcionNombreNulo() {
+        assertThrows(DAOExcepcion.class, () -> usuarioDAO.agregarUsuario(usuarioSinNombre));
     }
+
 }
