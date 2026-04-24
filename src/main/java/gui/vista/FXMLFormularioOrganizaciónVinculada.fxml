@@ -4,8 +4,10 @@
 
 <VBox xmlns:fx="http://javafx.com/fxml"
       fx:controller="gui.controladores.OrganizaciónVinculadaControlador"
-      spacing = "10"
-      style="-fx-padding: 20;">
+      spacing = "20"
+      prefWidth="600"
+      prefHeight="400"
+      style="-fx-padding: 50;">
 
     <Label text="ID Organización Vinculada:"/>
     <TextField fx:id="txtIdOrganizacionVinculada"/>

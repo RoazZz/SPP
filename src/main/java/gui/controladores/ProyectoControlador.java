@@ -1,6 +1,7 @@
 package gui.controladores;
 
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import logica.dao.ProyectoDAO;
 import logica.dto.ProyectoDTO;
@@ -20,7 +21,7 @@ public class ProyectoControlador {
     private TextField txtDescripcion;
 
     @FXML
-    private TextField txtMensajeGuardar;
+    private Label txtMensajeGuardar;
 
     @FXML
     public void manejarGuardarProyecto() {
