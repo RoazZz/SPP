@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane prefHeight="650.0" prefWidth="750.0" stylesheets="@/estilos.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.controladores.ReporteGenerarControlador">
+    <top>
+        <VBox spacing="5" styleClass="header-container">
+            <padding>
+                <Insets bottom="15.0" left="25.0" right="25.0" top="15.0" />
+            </padding>
+            <Label styleClass="titulo-ventana" text="Generar Nuevo Reporte" />
+            <Label styleClass="subtitulo-ventana" text="Ingresa las actividades para crear el PDF oficial" />
+        </VBox>
+    </top>
+    <center>
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;">
+            <content>
+                <VBox spacing="20">
+                    <padding>
+                        <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+                    </padding>
+                    <VBox spacing="10" styleClass="panel-formulario">
+                        <Label styleClass="label-seccion" text="Información General" />
+                        <HBox spacing="10">
+                            <TextField fx:id="txtNRC" prefWidth="120" promptText="NRC" />
+                            <ComboBox fx:id="cbTipoReporte" promptText="Tipo de Reporte" HBox.hgrow="ALWAYS" />
+                        </HBox>
+                        <TextField fx:id="txtPeriodo" promptText="Periodo Escolar (Ej: AGOSTO 2025 - ENERO 2026)" />
+                        <Separator />
+                        <Label styleClass="label-seccion" text="Registro de Actividad" />
+                        <TextField fx:id="txtNombreActividad" promptText="Título de la actividad" />
+                        <TextArea fx:id="txtDescActividad" prefHeight="80" promptText="Descripción detallada de la actividad..." wrapText="true" />
+                        <HBox spacing="10">
+                            <TextField fx:id="txtTiempoP" promptText="Tiempo Planeado" />
+                            <TextField fx:id="txtTiempoR" promptText="Tiempo Real" />
+                        </HBox>
+                        <Button maxWidth="Infinity" onAction="#agregarActividad" styleClass="btn-agregar" text="Agregar a la lista" />
+                        <ListView fx:id="lvActividades" prefHeight="150" />
+                    </VBox>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+    <bottom>
+        <HBox alignment="CENTER_RIGHT" spacing="15">
+            <padding>
+                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+            </padding>
+            <Button onAction="#cancelar" styleClass="btn-cancelar" text="Cancelar" />
+            <Button fx:id="btnGenerar" onAction="#procesarGeneracion" styleClass="btn-guardar" text="Generar y Guardar Reporte" />
+        </HBox>
+    </bottom>
+</BorderPane>
