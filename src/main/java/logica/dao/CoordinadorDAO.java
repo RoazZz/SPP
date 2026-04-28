@@ -28,6 +28,7 @@ public class CoordinadorDAO implements CoordinadorDAOInterfaz{
             "usuario.contrasenia, usuario.tipoUsuario, usuario.estado, " +
             "coordinador.NumeroDePersonal " +
             "FROM usuario JOIN coordinador ON usuario.idUsuario = coordinador.idUsuario";
+    private static final String SQL_EXISTE_NUMERO_PERSONAL = "SELECT COUNT(*) FROM Coordinador WHERE NumeroDePersonal = ? AND idUsuario != ?";
 
     public CoordinadorDAO() throws DAOExcepcion {
         try {
@@ -117,6 +118,22 @@ public class CoordinadorDAO implements CoordinadorDAOInterfaz{
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error al listar a los coordinadores", e);
             throw new DAOExcepcion("Error al listar los coordinadores: ", e);
+        }
+    }
+
+    public boolean existeCoordinadorConNumeroPersonal(String numeroPersonal, int idExcluir) throws DAOExcepcion {
+        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_EXISTE_NUMERO_PERSONAL)) {
+            preparedStatement.setString(1, numeroPersonal);
+            preparedStatement.setInt(2, idExcluir);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt(1) > 0;
+                }
+                return false;
+            }
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error al verificar número de personal duplicado en coordinador", e);
+            throw new DAOExcepcion("Error al verificar si existe el número de personal", e);
         }
     }
 }
