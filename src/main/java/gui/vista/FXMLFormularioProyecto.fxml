@@ -1,29 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
 
-<VBox xmlns:fx="http://javafx.com/fxml"
-      fx:controller="gui.controladores.ProyectoControlador"
-      spacing="20"
-      prefWidth="600"
-      prefHeight="400"
-      style="-fx-padding: 50;">
+<?import java.lang.String?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 
-    <Label text="ID Organización Vinculada:"/>
-    <TextField fx:id="txtIdOrganizacionVinculada"/>
-
-    <Label text="Numero de Personal:"/>
-    <TextField fx:id="txtNumeroDePersonal"/>
-
-    <Label text="Nombre:"/>
-    <TextField fx:id="txtNombre"/>
-
-    <Label text="Descripción:"/>
-    <TextField fx:id="txtDescripcion"/>
-
-    <Button text="Guardar Proyecto" onAction="#manejarGuardarProyecto"/>
-    <Label fx:id="txtMensajeGuardar"/>
-
-    <Label fx:id="txtErrorDeCampos" text="" />
-
-</VBox>
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="340.0" prefWidth="706.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1">
+   <top>
+      <VBox alignment="TOP_CENTER" prefHeight="33.0" prefWidth="600.0" styleClass="label-seccion" stylesheets="@../../../recursos/estilos.css" BorderPane.alignment="CENTER">
+         <children>
+            <Label alignment="TOP_CENTER" prefHeight="78.0" prefWidth="718.0" stylesheets="@../../../recursos/estilos.css" text="Agregar Proyecto al Sistema">
+               <styleClass>
+                  <String fx:value="header-container" />
+                  <String fx:value="titulo-ventana" />
+               </styleClass>
+            </Label>
+         </children>
+      </VBox>
+   </top>
+   <center>
+      <VBox prefHeight="277.0" prefWidth="706.0" BorderPane.alignment="CENTER">
+         <children>
+            <VBox prefHeight="227.0" prefWidth="706.0" styleClass="panel-formulario">
+               <children>
+                  <Label styleClass="label-seccion" stylesheets="@../../../recursos/estilos.css" text="Información de Proyecto" />
+                  <AnchorPane layoutX="10.0" layoutY="89.0" prefHeight="24.0" prefWidth="706.0" />
+                  <TextField fx:id="txtIdOrganizacionVinculada" alignment="TOP_LEFT" promptText="Id Organización Vinculada" />
+                  <AnchorPane layoutX="10.0" layoutY="36.0" prefHeight="24.0" prefWidth="706.0" />
+                  <TextField fx:id="txtNumeroDePersonal" prefHeight="28.0" prefWidth="706.0" promptText="Numero de Personal" />
+                  <AnchorPane layoutX="10.0" layoutY="77.0" prefHeight="24.0" prefWidth="706.0" />
+                  <TextField fx:id="txtNombreProyecto" promptText="Nombre" />
+                  <AnchorPane layoutX="10.0" layoutY="136.0" prefHeight="26.0" prefWidth="706.0" />
+                  <TextField fx:id="txtDescripcion" promptText="Descripción" />
+                  <Separator />
+                  <HBox alignment="CENTER_RIGHT" spacing="20" style="-fx-padding: 10 0 0 0;">
+                     <children>
+                        <Button onAction="#manejarCancelar" styleClass="btn-cancelar" stylesheets="@../../../recursos/estilos.css" text="SALIR" />
+                        <Button onAction="#manejarGuardar" styleClass="btn-guardar" stylesheets="@../../../recursos/estilos.css" text="GUARDAR DATOS" />
+                     </children>
+                  </HBox>
+                  <VBox fx:id="contenedorDinamico" spacing="15" />
+               </children>
+            </VBox>
+         </children>
+      </VBox>
+   </center>
+</BorderPane>
