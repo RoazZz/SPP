@@ -77,20 +77,19 @@ public class ListaUsuariosControlador {
                 btnInactivar.getStyleClass().add("btn-cancelar");
                 contenedor.setAlignment(Pos.CENTER);
                 btnInactivar.setOnAction(e -> {
-                    UsuarioDTO usuario = getTableView().getItems().get(getIndex());
-                    manejarInactivar(usuario);
+                    UsuarioDTO usuarioDTO = getTableView().getItems().get(getIndex());
+                    manejarInactivar(usuarioDTO);
                 });
             }
 
             @Override
-            protected void updateItem(Void item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || getIndex() >= getTableView().getItems().size()) {
+            protected void updateItem(Void item, boolean vacio) {
+                super.updateItem(item, vacio);
+                if (vacio || getIndex() >= getTableView().getItems().size()) {
                     setGraphic(null);
                 } else {
-                    UsuarioDTO usuario = getTableView().getItems().get(getIndex());
-                    // Solo mostrar el botón si el usuario está activo
-                    if (usuario.getTipoEstado() == TipoEstado.ACTIVO) {
+                    UsuarioDTO usuarioDTO = getTableView().getItems().get(getIndex());
+                    if (usuarioDTO.getTipoEstado() == TipoEstado.ACTIVO) {
                         btnInactivar.setVisible(false);
                         btnInactivar.setText("INACTIVAR");
                     } else {
@@ -118,7 +117,7 @@ public class ListaUsuariosControlador {
             List<UsuarioDTO> usuarios = dao.listarUsuarios();
 
             listaCompleta = FXCollections.observableArrayList(usuarios);
-            listaFiltrada = new FilteredList<>(listaCompleta, u -> true);
+            listaFiltrada = new FilteredList<>(listaCompleta, usuarioDTO -> true);
 
             SortedList<UsuarioDTO> ordenada = new SortedList<>(listaFiltrada);
             ordenada.comparatorProperty().bind(tablaUsuarios.comparatorProperty());
@@ -141,18 +140,18 @@ public class ListaUsuariosControlador {
         String texto = txtBuscar.getText() == null ? "" : txtBuscar.getText().trim().toLowerCase();
         String tipoSeleccionado = cbFiltroTipo.getValue();
 
-        listaFiltrada.setPredicate(usuario -> {
+        listaFiltrada.setPredicate(usuarioDTO -> {
             if (tipoSeleccionado != null && !TODOS.equals(tipoSeleccionado)) {
-                if (usuario.getTipoDeUsuario() == null
-                        || !usuario.getTipoDeUsuario().name().equals(tipoSeleccionado)) {
+                if (usuarioDTO.getTipoDeUsuario() == null
+                        || !usuarioDTO.getTipoDeUsuario().name().equals(tipoSeleccionado)) {
                     return false;
                 }
             }
 
             if (!texto.isEmpty()) {
-                String nombre = lowerSafe(usuario.getNombre());
-                String apellidoPaterno = lowerSafe(usuario.getApellidoPaterno());
-                String apellidoMaterno = lowerSafe(usuario.getApellidoMaterno());
+                String nombre = lowerSafe(usuarioDTO.getNombre());
+                String apellidoPaterno = lowerSafe(usuarioDTO.getApellidoPaterno());
+                String apellidoMaterno = lowerSafe(usuarioDTO.getApellidoMaterno());
                 return nombre.contains(texto) || apellidoPaterno.contains(texto) || apellidoMaterno.contains(texto);
             }
 
@@ -163,31 +162,39 @@ public class ListaUsuariosControlador {
     }
 
     private void manejarInactivar(UsuarioDTO usuario) {
-        // Confirmación antes de inactivar
-        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmacion.setTitle("Confirmar inactivación");
-        confirmacion.setHeaderText(null);
-        confirmacion.setContentText("¿Está seguro de inactivar al usuario " + usuario.getNombre() + " " + usuario.getApellidoPaterno() + "?");
-        Optional<ButtonType> respuesta = confirmacion.showAndWait();
-        if (respuesta.isEmpty() || respuesta.get() != ButtonType.OK) {
+        if (!mostrarConfirmacion("¿Está seguro de inactivar al usuario " + usuario.getNombre() + "?")) {
             return;
         }
+        if (inactivarUsuario(usuario)) {
+            tablaUsuarios.refresh();
+            mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Usuario inactivado.");
+        } else {
+            tablaUsuarios.refresh();
+            mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudo completar la acción.");
+        }
+    }
 
+    private boolean inactivarUsuario(UsuarioDTO usuario) {
         try {
             usuario.setTipoEstado(TipoEstado.INACTIVO);
-
             UsuarioDAO dao = new UsuarioDAO();
             dao.actualizarUsuario(usuario);
-
-            tablaUsuarios.refresh();
-
-            mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito","El usuario ha sido inactivado correctamente.");
+            return true;
         } catch (DAOExcepcion e) {
             logger.log(Level.SEVERE, "Error al inactivar al usuario", e);
             usuario.setTipoEstado(TipoEstado.ACTIVO);
-            tablaUsuarios.refresh();
-            mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudo inactivar al usuario.");
+            return false;
         }
+    }
+
+    private boolean mostrarConfirmacion(String mensaje) {
+        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmacion.setTitle("Confirmar acción");
+        confirmacion.setHeaderText(null);
+        confirmacion.setContentText(mensaje);
+
+        Optional<ButtonType> respuesta = confirmacion.showAndWait();
+        return respuesta.isPresent() && respuesta.get() == ButtonType.OK;
     }
 
     private String lowerSafe(String s) {

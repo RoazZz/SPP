@@ -3,6 +3,8 @@ package gui.controladores;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
 import logica.dao.ReporteDAO;
@@ -11,6 +13,7 @@ import logica.enums.TipoReporte;
 import logica.enums.EstadoReporte;
 import excepciones.DAOExcepcion;
 
+import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -28,7 +31,6 @@ public class ReporteAnadirControlador implements Initializable {
 
     @FXML private ComboBox<TipoReporte> cbTipoReporte;
 
-    // Componentes restaurados de la vista previa original
     @FXML private Label lblNombreArchivo;
     @FXML private Button btnVistaPrevia;
     @FXML private HBox hboxValidacionArchivo;
@@ -40,7 +42,6 @@ public class ReporteAnadirControlador implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         cbTipoReporte.getItems().setAll(TipoReporte.values());
-        // Listener para validar si se activa el botón guardar al cambiar el combo
         cbTipoReporte.valueProperty().addListener((obs, oldVal, newVal) -> actualizarEstadoBotonGuardar());
     }
 
@@ -58,7 +59,6 @@ public class ReporteAnadirControlador implements Initializable {
         archivoPDF = archivo;
         lblNombreArchivo.setText(archivo.getName());
 
-        // Lógica de visibilidad ORIGINAL restaurada
         hboxValidacionArchivo.setVisible(true);
         hboxValidacionArchivo.setManaged(true);
         btnVistaPrevia.setVisible(true);
@@ -69,11 +69,9 @@ public class ReporteAnadirControlador implements Initializable {
 
     @FXML
     private void mostrarVistaPrevia() {
-        // Lógica de vista previa ORIGINAL restaurada
         if (archivoPDF == null) return;
         try {
-            // Usa el Desktop del sistema operativo para abrir el PDF
-            java.awt.Desktop.getDesktop().open(archivoPDF);
+            Desktop.getDesktop().open(archivoPDF);
         } catch (IOException e) {
             logger.log(Level.WARNING, "No se pudo abrir la vista previa del PDF", e);
             mostrarAlerta(Alert.AlertType.WARNING, "Vista previa no disponible", "No se pudo abrir el visor de PDF predeterminado.");
@@ -93,8 +91,7 @@ public class ReporteAnadirControlador implements Initializable {
 
         if (confirmacion.showAndWait().orElse(ButtonType.NO) == ButtonType.YES) {
             try {
-                // Lógica de carpetas dinámicas REFACTORIZADA
-                String subCarpetaTipo = cbTipoReporte.getValue().name(); // PARCIAL o MENSUAL
+                String subCarpetaTipo = cbTipoReporte.getValue().name();
                 Path carpetaDestino = Paths.get(System.getProperty("user.dir"), "Reportes", subCarpetaTipo, "ANADIDOS");
 
                 if (!Files.exists(carpetaDestino)) {
@@ -104,16 +101,15 @@ public class ReporteAnadirControlador implements Initializable {
                 Path archivoDestino = carpetaDestino.resolve(archivoPDF.getName());
                 Files.copy(archivoPDF.toPath(), archivoDestino, StandardCopyOption.REPLACE_EXISTING);
 
-                // Guardar en BD con Estado ENTREGADO
-                ReporteDAO dao = new ReporteDAO();
-                ReporteDTO dto = new ReporteDTO(
+                ReporteDAO reporteDAO = new ReporteDAO();
+                ReporteDTO reporteDTO = new ReporteDTO(
                         0,
                         cbTipoReporte.getValue(),
                         LocalDate.now(),
                         archivoDestino.toString(),
                         EstadoReporte.ENTREGADO
                 );
-                dao.agregarReporte(dto);
+                reporteDAO.agregarReporte(reporteDTO);
 
                 mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Archivo firmado cargado y registrado exitosamente.");
                 cerrarVentana();
@@ -138,7 +134,6 @@ public class ReporteAnadirControlador implements Initializable {
     }
 
     private void actualizarEstadoBotonGuardar() {
-        // El botón se habilita solo si hay archivo Y tipo seleccionado
         btnGuardar.setDisable(archivoPDF == null || cbTipoReporte.getValue() == null);
     }
 

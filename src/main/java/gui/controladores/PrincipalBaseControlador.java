@@ -37,8 +37,8 @@ public abstract class PrincipalBaseControlador implements Initializable {
 
     protected void abrirVentana(String rutaFXML){
         try{
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(rutaFXML));
-            Parent vista = loader.load();
+            FXMLLoader cargador = new FXMLLoader(getClass().getResource(rutaFXML));
+            Parent vista = cargador.load();
             Stage escenario = (Stage) btnCerrarSesion.getScene().getWindow();
             escenario.setScene(new Scene(vista));
             escenario.show();

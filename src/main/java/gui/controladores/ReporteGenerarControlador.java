@@ -102,7 +102,9 @@ public class ReporteGenerarControlador implements Initializable {
         }
     }
 
-    @FXML private void cancelar() { lvActividades.getScene().getWindow().hide(); }
+    @FXML private void cancelar() {
+        lvActividades.getScene().getWindow().hide();
+    }
 
     private void mostrarAlerta(Alert.AlertType tipo, String titulo, String mensaje) {
         Alert alert = new Alert(tipo);
