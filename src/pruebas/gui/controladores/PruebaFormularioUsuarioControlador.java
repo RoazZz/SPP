@@ -33,8 +33,7 @@ class PruebaFormularioUsuarioControlador extends PruebaBaseGUI {
 
     @Override
     public void start(Stage escenario) throws Exception {
-        FXMLLoader cargador = new FXMLLoader(
-                getClass().getResource("/gui/vista/FXMLFormularioUsuario.fxml"));
+        FXMLLoader cargador = new FXMLLoader(getClass().getResource("/gui/vista/FXMLFormularioUsuario.fxml"));
         Parent raiz = cargador.load();
         escenario.setScene(new Scene(raiz));
         escenario.show();
