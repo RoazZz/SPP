@@ -36,6 +36,7 @@
                     <VBox fx:id="contenedorDinamico" spacing="15" />
                     <HBox spacing="20" alignment="CENTER_RIGHT" style="-fx-padding: 10 0 0 0;">
                         <Button text="SALIR" onAction="#manejarCancelar" styleClass="btn-cancelar" />
+                        <Label fx:id="lblError" styleClass="label-error" wrapText="true" maxWidth="400.0" />
                         <Button text="GUARDAR DATOS" onAction="#manejarGuardar" styleClass="btn-guardar" />
                     </HBox>
                 </VBox>

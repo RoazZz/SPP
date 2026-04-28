@@ -49,7 +49,7 @@
 
                 <HBox fx:id="hboxValidacionArchivo" alignment="CENTER_LEFT" managed="false" spacing="8" visible="false">
                     <children>
-                        <Label fx:id="lblValidacionArchivo" styleClass="label-validacion-ok" text="✔  Archivo PDF seleccionado listo para subir" />
+                        <Label fx:id="lblValidacionArchivo" styleClass="label-validacion-ok" text="Archivo PDF seleccionado listo para subir" />
                     </children>
                 </HBox>
             </children>
