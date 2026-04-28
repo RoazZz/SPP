@@ -1,5 +1,6 @@
 package pruebasdao;
 
+import logica.enums.EstadoReporte;
 import accesodatos.ConexionBD;
 import excepciones.DAOExcepcion;
 import logica.dao.ReporteDAO;
@@ -35,8 +36,8 @@ public class PruebaReporteDAO {
             statement.execute("SET FOREIGN_KEY_CHECKS = 0");
             statement.execute("TRUNCATE TABLE reporte");
 
-            statement.execute("INSERT INTO reporte (idReporte, TipoReporte, Fecha, Ruta) " +
-                    "VALUES (999, 'PARCIAL', '2026-04-20', '/rutas/maestro.pdf')");
+            statement.execute("INSERT INTO reporte (idReporte, TipoReporte, Fecha, Ruta, Estado) " +
+                    "VALUES (999, 'PARCIAL', '2026-04-20', '/rutas/maestro.pdf', 'GENERADO')");
 
             statement.execute("SET FOREIGN_KEY_CHECKS = 1");
         }
@@ -51,8 +52,8 @@ public class PruebaReporteDAO {
             statement.execute("SET FOREIGN_KEY_CHECKS = 1");
         }
 
-        reporteValido = new ReporteDTO(0, TipoReporte.MENSUAL, LocalDate.now(), "/rutas/nuevo.pdf");
-        reporteInvalidoDatosNulos = new ReporteDTO(0, null, LocalDate.now(), null);
+        reporteValido = new ReporteDTO(0, TipoReporte.MENSUAL, LocalDate.now(), "/rutas/nuevo.pdf", EstadoReporte.GENERADO);
+        reporteInvalidoDatosNulos = new ReporteDTO(0, null, LocalDate.now(), null, null);
     }
 
     @AfterEach
