@@ -17,19 +17,6 @@ import java.util.logging.Logger;
 
 public abstract class PrincipalBaseControlador implements Initializable {
     private static final Logger logger = Logger.getLogger(PrincipalBaseControlador.class.getName());
-   /* @FXML private Label lblNombre;
-    @FXML private Button btnProyectos;
-    @FXML private Button btnReportes;
-    @FXML private Button btnFormatoPresentacion;;
-    @FXML private Button btnUsuarios;
-    @FXML private Button btnHorario;
-    @FXML private Button btnActividades;
-    @FXML private Button btnAutoevaluacion;
-    @FXML private Button btnPlanDeActividades;
-    @FXML private Button btnConfiguracion;
-    @FXML private Button btnBuzon;
-    @FXML private Button btnCerrarSesion;
-    @FXML private Button btnBitacoraPSP;*/
 
     @FXML private Label lblNombre;
     @FXML private Button btnConfiguracion;
