@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane prefHeight="640.0" prefWidth="720.0" stylesheets="@../../../recursos/estilos.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.controladores.PlanDeActividadesControlador">
+    <top>
+        <VBox styleClass="header-container">
+            <padding><Insets bottom="15" left="25" right="25" top="15" /></padding>
+            <Label styleClass="titulo-ventana" text="Plan de Actividades" />
+            <Label styleClass="subtitulo-ventana" text="Registra el plan de actividades de tu proyecto asignado" />
+        </VBox>
+    </top>
+    <center>
+        <ScrollPane fitToWidth="true">
+            <VBox alignment="CENTER" style="-fx-padding: 40 0;">
+                <VBox styleClass="panel-formulario">
+                    <Label styleClass="label-seccion" text="Datos del Plan" />
+                    <TextField fx:id="txtMatricula" promptText="Matrícula" />
+                    <TextField fx:id="txtIdProyecto" promptText="ID del Proyecto asignado" />
+                    <TextArea fx:id="txtDescripcion" prefHeight="180.0" promptText="Descripción detallada del plan de actividades..." wrapText="true" />
+                    <Separator />
+                    <HBox alignment="CENTER_RIGHT" spacing="20">
+                        <padding><Insets top="10" /></padding>
+                        <Button onAction="#manejarCancelar" styleClass="btn-cancelar" text="CANCELAR" />
+                        <Label fx:id="lblError" maxWidth="300.0" styleClass="label-error" wrapText="true" />
+                        <Button fx:id="btnGuardar" onAction="#manejarGuardar" styleClass="btn-guardar" text="GUARDAR PLAN" />
+                    </HBox>
+                </VBox>
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>
