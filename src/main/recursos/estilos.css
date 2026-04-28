@@ -77,3 +77,8 @@
     -fx-min-width: 40;        /* Opcional: define un tamaño fijo si quieres */
     -fx-min-height: 40;
 }
+
+.label-error {
+    -fx-text-fill: red;
+    -fx-font-size: 12px;
+}
