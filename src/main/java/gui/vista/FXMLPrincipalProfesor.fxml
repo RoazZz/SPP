@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane prefHeight="395.0" prefWidth="906.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.controladores.PrincipalProfesorControlador">
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="12" styleClass="header-container">
+            <padding>
+                <Insets bottom="18" left="30" right="30" top="18" />
+            </padding>
+            <VBox spacing="2">
+                <Label styleClass="titulo-ventana" text="Sistema Gestor de Prácticas Profesionales" />
+                <HBox>
+                    <Label styleClass="subtitulo-ventana" text="Bienvenido(a): " />
+                    <Label fx:id="lblNombre" styleClass="subtitulo-ventana" text="Nombre" />
+                </HBox>
+            </VBox>
+        </HBox>
+    </top>
+    <center>
+        <GridPane alignment="TOP_CENTER" stylesheets="@/estilos.css" BorderPane.alignment="CENTER">
+            <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="179.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="179.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="179.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="179.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="179.0" />
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints maxHeight="212.20001220703125" minHeight="10.0" prefHeight="169.4000244140625" vgrow="SOMETIMES" />
+                <RowConstraints maxHeight="156.99996032714841" minHeight="10.0" prefHeight="36.5999755859375" vgrow="SOMETIMES" />
+                <RowConstraints maxHeight="187.199951171875" minHeight="10.0" prefHeight="98.79998779296872" vgrow="SOMETIMES" />
+            </rowConstraints>
+            <children>
+                <Button fx:id="btnConfiguracion" mnemonicParsing="false" prefHeight="132.0" prefWidth="167.0" styleClass="btn-icono" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="0" GridPane.valignment="CENTER">
+                    <graphic>
+                        <ImageView fitHeight="116.0" fitWidth="132.0" pickOnBounds="true" preserveRatio="true">
+                            <image><Image url="@/configuracion.jpg" /></image>
+                        </ImageView>
+                    </graphic>
+                </Button>
+                <Button fx:id="btnBuzon" mnemonicParsing="false" prefHeight="131.0" prefWidth="166.0" styleClass="btn-icono" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="0" GridPane.valignment="CENTER">
+                    <graphic>
+                        <ImageView fitHeight="108.0" fitWidth="217.0" pickOnBounds="true" preserveRatio="true">
+                            <image><Image url="@/Buzón.png" /></image>
+                        </ImageView>
+                    </graphic>
+                </Button>
+                <Button fx:id="btnActividades" mnemonicParsing="false" prefHeight="128.0" prefWidth="166.0" styleClass="btn-icono" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="0" GridPane.valignment="CENTER">
+                    <graphic>
+                        <ImageView fitHeight="114.0" fitWidth="253.0" pickOnBounds="true" preserveRatio="true">
+                            <image><Image url="@/Actividad.png" /></image>
+                        </ImageView>
+                    </graphic>
+                </Button>
+                <Button fx:id="btnFormatoPresentacion" mnemonicParsing="false" prefHeight="130.0" prefWidth="166.0" styleClass="btn-icono" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="0" GridPane.valignment="CENTER">
+                    <graphic>
+                        <ImageView fitHeight="144.0" fitWidth="146.0" pickOnBounds="true" preserveRatio="true">
+                            <image><Image url="@/FormatoPresentación.png" /></image>
+                        </ImageView>
+                    </graphic>
+                </Button>
+                <Button fx:id="btnReportes" mnemonicParsing="false" prefHeight="134.0" prefWidth="170.0" styleClass="btn-icono" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="0" GridPane.valignment="CENTER">
+                    <graphic>
+                        <ImageView fitHeight="139.0" fitWidth="148.0" pickOnBounds="true" preserveRatio="true">
+                            <image><Image url="@/Reportes.jpg" /></image>
+                        </ImageView>
+                    </graphic>
+                </Button>
+
+                <Label styleClass="label-seccion" stylesheets="@/estilos.css" text="Configuración" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+                <Label styleClass="label-seccion" stylesheets="@/estilos.css" text="Buzón" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+                <Label styleClass="label-seccion" stylesheets="@/estilos.css" text="Actividades" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+                <Label styleClass="label-seccion" stylesheets="@/estilos.css" text="Formato de Presentación" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+                <Label styleClass="label-seccion" stylesheets="@/estilos.css" text="Reportes" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+
+                <Button fx:id="btnCerrarSesion" mnemonicParsing="false" text="Cerrar Sesión" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
+            </children>
+        </GridPane>
+    </center>
+    <stylesheets>
+        <URL value="@/estilos.css" />
+    </stylesheets>
+</BorderPane>
