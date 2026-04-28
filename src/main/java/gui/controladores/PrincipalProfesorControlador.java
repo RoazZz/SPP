@@ -12,6 +12,6 @@ public class PrincipalProfesorControlador extends PrincipalBaseControlador{
     protected void inicializarBotonesEspecificos() {
         btnActividades.setOnAction(e -> abrirVentana("/gui/vista/FXMLActividades.fxml"));
         btnFormatoPresentacion.setOnAction(e -> abrirVentana("/gui/vista/FXMLFormatoPresentacion.fxml"));
-        btnReportes.setOnAction(e -> abrirVentana("/gui/vista/FXMLReportes.fxml"));
+        btnReportes.setOnAction(e -> abrirVentana("/gui/vista/FXMLReportesGeneral.fxml"));
     }
 }

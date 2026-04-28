@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane prefHeight="563.0" prefWidth="720.0" stylesheets="@../../../recursos/estilos.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.controladores.BitacoraPSPControlador">
+    <top>
+        <VBox styleClass="header-container">
+            <padding><Insets bottom="15" left="25" right="25" top="15" /></padding>
+            <Label styleClass="titulo-ventana" text="Bitácora PSP" />
+            <Label styleClass="subtitulo-ventana" text="Registra tu entrada de bitácora del Personal Software Process" />
+        </VBox>
+    </top>
+    <center>
+        <ScrollPane fitToWidth="true">
+            <VBox alignment="CENTER" style="-fx-padding: 40 0;">
+                <VBox styleClass="panel-formulario">
+                    <Label styleClass="label-seccion" text="Datos de la Bitácora" />
+                    <TextField fx:id="txtMatricula" promptText="Matrícula" />
+                    <DatePicker fx:id="dpFecha" maxWidth="Infinity" promptText="Fecha de la bitácora" />
+                    <TextField fx:id="txtRuta" editable="false" promptText="Ruta del archivo (se llenará automáticamente)" />
+                    <Button onAction="#seleccionarArchivo" styleClass="btn-examinar" text="Seleccionar archivo..." />
+                    <Separator />
+                    <HBox alignment="CENTER_RIGHT" spacing="20">
+                        <padding><Insets top="10" /></padding>
+                        <Button onAction="#manejarCancelar" styleClass="btn-cancelar" text="CANCELAR" />
+                        <Label fx:id="lblError" maxWidth="300.0" styleClass="label-error" wrapText="true" />
+                        <Button fx:id="btnGuardar" onAction="#manejarGuardar" styleClass="btn-guardar" text="GUARDAR BITÁCORA" />
+                    </HBox>
+                </VBox>
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

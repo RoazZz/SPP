@@ -27,7 +27,7 @@ public abstract class PrincipalBaseControlador implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
        // SesionUsuario.getInstance().setLblNombre(lblNombre); //Modifica esta parte Jared si es q cambiaste el nombre del singleton
-        btnConfiguracion.setOnAction(e -> abrirVentana("/gui/vista/FXMLConfiguracion.fxml"));
+        btnConfiguracion.setOnAction(e -> abrirVentana("/gui/vista/FXMLConfiguracionPerfil.fxml"));
         btnBuzon.setOnAction(e -> abrirVentana("/gui/vista/FXMLBuzon.fxml"));
         btnCerrarSesion.setOnAction(e -> cerrarSesion());
         inicializarBotonesEspecificos();

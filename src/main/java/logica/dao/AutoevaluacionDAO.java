@@ -14,10 +14,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class AutoevaluacionDAO implements AutoevaluacionDAOInterfaz {
-    private static String SQL_INSERT = "INSERT INTO autoevaluacion(Matricula, Calificacion, Comentarios) VALUES (?,?,?)";
-    private static String SQL_SELECT_BY_MATRICULA = "SELECT * FROM autoevaluacion WHERE Matricula = ?";
-    private static String SQL_UPDATE = "UPDATE autoevaluacion SET Calificacion = ?, Comentarios = ? WHERE Matricula = ?";
-    private static String SQL_SELECT_ALL = "SELECT * FROM autoevaluacion";
+    private static final String SQL_INSERT = "INSERT INTO autoevaluacion(Matricula, Calificacion, Comentarios) VALUES (?,?,?)";
+    private static final String SQL_SELECT_BY_MATRICULA = "SELECT * FROM autoevaluacion WHERE Matricula = ?";
+    private static final String SQL_UPDATE = "UPDATE autoevaluacion SET Calificacion = ?, Comentarios = ? WHERE Matricula = ?";
+    private static final String SQL_SELECT_ALL = "SELECT * FROM autoevaluacion";
 
     private Connection conexion;
     private static final Logger logger = Logger.getLogger(AutoevaluacionDAO.class.getName());

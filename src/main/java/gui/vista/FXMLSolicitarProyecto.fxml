@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane prefHeight="700.0" prefWidth="950.0" stylesheets="@../../../recursos/estilos.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.controladores.SolicitarProyectoControlador">
+    <top>
+        <VBox styleClass="header-container">
+            <padding><Insets bottom="15" left="25" right="25" top="15" /></padding>
+            <Label styleClass="titulo-ventana" text="Solicitar Proyecto" />
+            <Label styleClass="subtitulo-ventana" text="Selecciona hasta 3 proyectos por prioridad (RN-11)" />
+        </VBox>
+    </top>
+    <center>
+        <VBox alignment="TOP_CENTER" spacing="20" style="-fx-padding: 30 40 30 40;">
+            <VBox spacing="15" styleClass="panel-formulario">
+                <Label styleClass="label-seccion" text="Proyectos Disponibles" />
+                <HBox alignment="CENTER_LEFT" spacing="15">
+                    <TextField fx:id="txtBuscar" promptText="Buscar proyecto..." HBox.hgrow="ALWAYS" />
+                    <Button onAction="#manejarBuscar" styleClass="btn-guardar" text="BUSCAR" />
+                    <Button onAction="#manejarLimpiar" styleClass="btn-cancelar" text="LIMPIAR" />
+                </HBox>
+                <TableView fx:id="tablaProyectos" prefHeight="300.0" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="colNombre" prefWidth="220.0" text="Nombre del Proyecto" />
+                        <TableColumn fx:id="colOrganizacion" prefWidth="200.0" text="Organización Vinculada" />
+                        <TableColumn fx:id="colDescripcion" prefWidth="300.0" text="Descripción" />
+                        <TableColumn fx:id="colSeleccionar" prefWidth="120.0" sortable="false" text="Seleccionar" />
+                    </columns>
+                </TableView>
+            </VBox>
+            <VBox spacing="15" styleClass="panel-formulario">
+                <Label styleClass="label-seccion" text="Mis Selecciones (máximo 3 por prioridad)" />
+                <HBox alignment="CENTER_LEFT" spacing="15">
+                    <Label styleClass="label-seccion" text="1ª Prioridad:" />
+                    <Label fx:id="lblPrioridad1" text="Sin selección" />
+                </HBox>
+                <HBox alignment="CENTER_LEFT" spacing="15">
+                    <Label styleClass="label-seccion" text="2ª Prioridad:" />
+                    <Label fx:id="lblPrioridad2" text="Sin selección" />
+                </HBox>
+                <HBox alignment="CENTER_LEFT" spacing="15">
+                    <Label styleClass="label-seccion" text="3ª Prioridad:" />
+                    <Label fx:id="lblPrioridad3" text="Sin selección" />
+                </HBox>
+                <TextField fx:id="txtPeriodo" promptText="Periodo escolar (Ej: AGOSTO 2025 - ENERO 2026)" />
+                <Separator />
+                <HBox alignment="CENTER_RIGHT" spacing="20">
+                    <Label fx:id="lblError" maxWidth="350.0" styleClass="label-error" wrapText="true" />
+                    <Region HBox.hgrow="ALWAYS" />
+                    <Button onAction="#manejarCancelar" styleClass="btn-cancelar" text="CANCELAR" />
+                    <Button fx:id="btnEnviar" onAction="#manejarEnviarSolicitud" styleClass="btn-guardar" text="ENVIAR SOLICITUDES" />
+                </HBox>
+            </VBox>
+        </VBox>
+    </center>
+</BorderPane>
