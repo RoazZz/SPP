@@ -15,7 +15,7 @@ public class PrincipalPracticanteControlador extends PrincipalBaseControlador{
 
     @Override
     protected void inicializarBotonesEspecificos() {
-        btnProyectos.setOnAction(e -> abrirVentana("/gui/vista/FXMLProyectos.fxml"));
+        btnProyectos.setOnAction(e -> abrirVentana("/gui/vista/FXMLSolicitarProyecto.fxml"));
         btnHorario.setOnAction(e -> abrirVentana("/gui/vista/FXMLHorario.fxml"));
         btnReportes.setOnAction(e -> abrirVentana("/gui/vista/FXMLReporteSeleccion.fxml"));
         btnAutoevaluacion.setOnAction(e -> abrirVentana("/gui/vista/FXMLAutoevaluacion.fxml"));
