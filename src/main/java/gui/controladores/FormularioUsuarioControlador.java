@@ -75,7 +75,7 @@ public class FormularioUsuarioControlador {
                 }
                 cerrarVentana();
             }
-            // Aquí irían los bloques else if para PRACTICANTE o COORDINADORllamando a sus respectivos constructores llenos
+            // Aquí van los bloques else if para PRACTICANTE y COORDINADORllamando a sus respectivos constructores llenos
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Error al procesar el registro", e);
         }
@@ -94,6 +94,38 @@ public class FormularioUsuarioControlador {
         }
     }
 
-    @FXML private void manejarCancelar() { cerrarVentana(); }
-    private void cerrarVentana() { ((Stage)txtNombre.getScene().getWindow()).close(); }
+    /*
+    private boolean validarCamposVacios(){
+        StringBuilder contenedor = new StringBuilder();
+        if(txtNombre.getText().trim().isEmpty()){
+            contenedor.append("El campo nombre no puede estar vacío.\n");
+        }
+        if(txtApellidoP.getText().trim().isEmpty()){
+            contenedor.append("El campo apellido paterno no puede estar vacío.\n");
+        }
+        if(txtApellidoM.getText().trim().isEmpty()){
+            contenedor.append("El campo apellido materno no puede estar vacío.\n");
+        }
+        if(txtContrasenia.getText().trim().isEmpty()){
+            contenedor.append("El campo contraseña no puede estar vacío.\n");
+        }
+        if(cbTipoUsuario.getValue() == TipoDeUsuario.PROFESOR){
+            CamposProfesorControlador hijo = (CamposProfesorControlador) controladorHijo;
+            if(hijo.getNumeroPersonal().trim().isEmpty()){
+                contenedor.append("El campo número de personal no puede estar vacío.\n");
+            }
+            if(hijo.getTurno() == null){
+                contenedor.append("Debe seleccionar un turno.\n");
+            }
+        }
+        txtErrorDeCampos.setText("");
+        return true;
+    } */
+
+    @FXML private void manejarCancelar() {
+        cerrarVentana();
+    }
+    private void cerrarVentana() {
+        ((Stage)txtNombre.getScene().getWindow()).close();
+    }
 }
