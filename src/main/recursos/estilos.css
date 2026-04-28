@@ -69,3 +69,11 @@
     -fx-border-width: 2;
     -fx-background-color: #f0f7ff; /* Fondo azul muy claro al escribir */
 }
+
+/* Clase para botones que son puramente iconos */
+.btn-icono {
+    -fx-padding: 0;           /* Elimina el espacio que empuja la imagen */
+    -fx-background-insets: 0; /* Elimina bordes internos fantasma */
+    -fx-min-width: 40;        /* Opcional: define un tamaño fijo si quieres */
+    -fx-min-height: 40;
+}
