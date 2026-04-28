@@ -2,24 +2,34 @@ package logica.utilidades;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class CifradorContraseña {
+    private static final Logger LOGGER = Logger.getLogger(CifradorContraseña.class.getName());
+
     public static String cifrarContraseña(String contraseña){
+        String hashResultante = "";
         try{
             MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
             byte[] hash = messageDigest.digest(contraseña.getBytes(StandardCharsets.UTF_8));
-            StringBuilder stringBuilder = new StringBuilder(2 * hash.length);
+            StringBuilder constructorHex = new StringBuilder(2 * hash.length);
             for (byte b : hash) {
-                stringBuilder.append(String.format("%02x", b));
+                constructorHex.append(String.format("%02x", b));
             }
-            return stringBuilder.toString();
+            hashResultante = constructorHex.toString();
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("Error al cifrar la contraseña", e);
+            LOGGER.log(Level.SEVERE, "Error al cifrar", e);
         }
+        return hashResultante;
     }
 
-    public static boolean verificarContraseña(String contraseñaSinCifrar, String contraseñaCifrada) {
-        String contraseñaCifradaInput = cifrarContraseña(contraseñaSinCifrar);
-        return contraseñaCifradaInput.equals(contraseñaCifrada);
+    public static boolean verificarContrasenia(String contraseniaSinCifrar, String contraseniaCifrada) {
+        boolean esValida = false;
+        String contraseniaCifradaInput = cifrarContraseña(contraseniaSinCifrar);
+        if (contraseniaCifradaInput.equals(contraseniaCifrada)) {
+            esValida = true;
+        }
+        return esValida;
     }
 }
