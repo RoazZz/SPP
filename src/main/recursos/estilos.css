@@ -16,6 +16,12 @@
     -fx-text-fill: white;
 }
 
+.titulo-seccion {
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+    -fx-text-fill: green;
+}
+
 /* Panel central del formulario con bordes verdes claros */
 .panel-formulario {
     -fx-background-color: white;
