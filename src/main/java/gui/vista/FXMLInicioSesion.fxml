@@ -10,11 +10,11 @@
 <?import javafx.scene.layout.VBox?>
 
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="519.0" prefWidth="721.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="519.0" prefWidth="721.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.controladores.InicioSesionControlador">
     <top>
         <VBox prefHeight="16.0" prefWidth="746.0" BorderPane.alignment="CENTER">
             <children>
-                <Label alignment="TOP_CENTER" prefHeight="78.0" prefWidth="750.0" stylesheets="@../../../recursos/estilos.css" text="Sistema de Practicas Profesionales " textAlignment="CENTER">
+                <Label alignment="TOP_CENTER" prefHeight="78.0" prefWidth="750.0" stylesheets="@/estilos.css" text="Sistema de Practicas Profesionales " textAlignment="CENTER">
                     <styleClass>
                         <String fx:value="titulo-ventana" />
                         <String fx:value="header-container" />
@@ -26,14 +26,15 @@
     <center>
         <ScrollPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
             <content>
-                <VBox alignment="CENTER" prefHeight="430.0" prefWidth="722.0" stylesheets="@../../../recursos/estilos.css">
+                <VBox alignment="CENTER" prefHeight="430.0" prefWidth="722.0" stylesheets="@/estilos.css">
                     <children>
-                        <VBox alignment="TOP_CENTER" maxWidth="582.0" prefHeight="262.0" prefWidth="550.0" styleClass="panel-formulario" stylesheets="@../../../recursos/estilos.css">
+                        <VBox alignment="TOP_CENTER" maxWidth="582.0" prefHeight="262.0" prefWidth="550.0" styleClass="panel-formulario" stylesheets="@/estilos.css">
                             <children>
-                                <Label alignment="TOP_CENTER" contentDisplay="TOP" prefHeight="38.0" prefWidth="210.0" styleClass="titulo-seccion" stylesheets="@../../../recursos/estilos.css" text="Inicio de Sesión" textAlignment="CENTER" />
-                                <TextField alignment="TOP_LEFT" prefHeight="26.0" prefWidth="338.0" promptText="Usuario" />
-                                <PasswordField promptText="Contraseña" />
-                                <Button alignment="BOTTOM_CENTER" contentDisplay="RIGHT" mnemonicParsing="false" styleClass="btn-guardar" stylesheets="@../../../recursos/estilos.css" text="Iniciar Sesión" />
+                                <Label alignment="TOP_CENTER" contentDisplay="TOP" prefHeight="38.0" prefWidth="210.0" styleClass="titulo-seccion" stylesheets="@/estilos.css" text="Inicio de Sesión" textAlignment="CENTER" />
+                                <TextField fx:id="txtUsuario" alignment="TOP_LEFT" prefHeight="26.0" prefWidth="338.0" promptText="Usuario" />
+                                <PasswordField fx:id="pswContrasenia" promptText="Contraseña" />
+                                <Button onAction="#manejarInicioDeSesion" alignment="BOTTOM_CENTER" contentDisplay="RIGHT" mnemonicParsing="false" styleClass="btn-guardar" stylesheets="@/estilos.css" text="Iniciar Sesión" />
+                                <Label fx:id="lblMensaje" alignment="CENTER" prefWidth="338.0" styleClass="label-error"/>
                             </children>
                         </VBox>
                     </children>

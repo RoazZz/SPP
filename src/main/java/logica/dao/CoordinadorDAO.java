@@ -23,9 +23,15 @@ public class CoordinadorDAO implements CoordinadorDAOInterfaz{
     private static final Logger logger = Logger.getLogger(CoordinadorDAO.class.getName());
     private static final String SQL_INSERT  = "INSERT INTO Coordinador (idUsuario, NumeroDePersonal) VALUES (?, ?)";
     private static final String SQL_UPDATE = "UPDATE Coordinador SET NumeroDePersonal = ? WHERE idUsuario = ?";
+    private static final String SQL_BUSCAR_POR_NUM_PERSONAL =
+            "SELECT usuario.idUsuario, usuario.Nombre, usuario.ApellidoP, usuario.ApellidoM, " +
+                    "usuario.Contrasenia, usuario.Estado, usuario.TipoUsuario, " +
+                    "coordinador.NumeroDePersonal " +
+                    "FROM usuario JOIN coordinador ON usuario.idUsuario = coordinador.idUsuario " +
+                    "WHERE coordinador.NumeroDePersonal = ?";
     private static final String SQL_SELECT_ALL =
             "SELECT usuario.idUsuario, usuario.nombre, usuario.apellidoP, usuario.apellidoM, " +
-            "usuario.contrasenia, usuario.tipoUsuario, usuario.estado, " +
+            "usuario.contrasenia, usuario.estado, usuario.tipoUsuario, " +
             "coordinador.NumeroDePersonal " +
             "FROM usuario JOIN coordinador ON usuario.idUsuario = coordinador.idUsuario";
     private static final String SQL_EXISTE_NUMERO_PERSONAL = "SELECT COUNT(*) FROM Coordinador WHERE NumeroDePersonal = ? AND idUsuario != ?";
@@ -91,6 +97,33 @@ public class CoordinadorDAO implements CoordinadorDAOInterfaz{
         } catch (SQLException e){
             logger.log(Level.SEVERE, "Error al actualizar al Coordinador", e);
             throw new DAOExcepcion("Error al actualizar al Coordinador: ", e);
+        }
+    }
+
+    @Override
+    public CoordinadorDTO buscarCoordinadorPorNumeroDePersonal(String numeroPersonal) throws DAOExcepcion, EntidadNoEncontradaExcepcion {
+        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_BUSCAR_POR_NUM_PERSONAL)) {
+            preparedStatement.setString(1, numeroPersonal);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return new CoordinadorDTO(
+                            resultSet.getInt("idUsuario"),
+                            resultSet.getString("nombre"),
+                            resultSet.getString("apellidoP"),
+                            resultSet.getString("apellidoM"),
+                            resultSet.getString("contrasenia"),
+                            TipoEstado.valueOf(resultSet.getString("estado")),
+                            TipoDeUsuario.valueOf(resultSet.getString("TipoUsuario")),
+                            resultSet.getString("NumeroDePersonal")
+                    );
+                }else{
+                    logger.log(Level.WARNING, "No se encontró coordinado con numero de personal: " + numeroPersonal);
+                    throw new EntidadNoEncontradaExcepcion("Coordinador no encontrado con numero de personal: " + numeroPersonal);
+                }
+            }
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error al buscar coordinador por numero personal", e);
+            throw new DAOExcepcion("Error al buscar coordinador", e);
         }
     }
 

@@ -9,9 +9,9 @@ import logica.dto.ProyectoDTO;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ProyectoControlador {
+public class FormularioProyectoControlador {
 
-    private static final Logger logger = Logger.getLogger(ProyectoControlador.class.getName());
+    private static final Logger logger = Logger.getLogger(FormularioProyectoControlador.class.getName());
 
     @FXML
     private TextField txtIdOrganizacionVinculada;

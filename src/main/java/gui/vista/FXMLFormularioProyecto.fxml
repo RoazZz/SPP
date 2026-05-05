@@ -28,7 +28,7 @@
          <children>
             <VBox prefHeight="227.0" prefWidth="706.0" styleClass="panel-formulario">
                <children>
-                  <Label styleClass="label-seccion" stylesheets="@../../../recursos/estilos.css" text="Información de Proyecto" />
+                  <Label styleClass="label-seccion" stylesheets="@/estilos.css" text="Información de Proyecto" />
                   <AnchorPane layoutX="10.0" layoutY="89.0" prefHeight="24.0" prefWidth="706.0" />
                   <TextField fx:id="txtIdOrganizacionVinculada" alignment="TOP_LEFT" promptText="Id Organización Vinculada" />
                   <AnchorPane layoutX="10.0" layoutY="36.0" prefHeight="24.0" prefWidth="706.0" />
@@ -40,8 +40,8 @@
                   <Separator />
                   <HBox alignment="CENTER_RIGHT" spacing="20" style="-fx-padding: 10 0 0 0;">
                      <children>
-                        <Button onAction="#manejarCancelar" styleClass="btn-cancelar" stylesheets="@../../../recursos/estilos.css" text="SALIR" />
-                        <Button onAction="#manejarGuardar" styleClass="btn-guardar" stylesheets="@../../../recursos/estilos.css" text="GUARDAR DATOS" />
+                        <Button onAction="#manejarCancelar" styleClass="btn-cancelar" stylesheets="@/estilos.css" text="SALIR" />
+                        <Button onAction="#manejarGuardar" styleClass="btn-guardar" stylesheets="@/estilos.css" text="GUARDAR DATOS" />
                      </children>
                   </HBox>
                   <VBox fx:id="contenedorDinamico" spacing="15" />
