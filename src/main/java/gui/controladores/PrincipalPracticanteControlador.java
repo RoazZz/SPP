@@ -11,6 +11,7 @@ public class PrincipalPracticanteControlador extends PrincipalBaseControlador{
     @FXML private Button btnActividades;
     @FXML private Button btnBitacoraPSP;
     @FXML private Button btnPlanDeActividades;
+    @FXML private Button btnCerrarSesion;
 
 
     @Override
@@ -22,5 +23,6 @@ public class PrincipalPracticanteControlador extends PrincipalBaseControlador{
         btnActividades.setOnAction(e -> abrirVentana("/gui/vista/FXMLActividades.fxml"));
         btnBitacoraPSP.setOnAction(e -> abrirVentana("/gui/vista/FXMLBitacoraPSP.fxml"));
         btnPlanDeActividades.setOnAction(e -> abrirVentana("/gui/vista/FXMLPlanDeActividades.fxml"));
+        btnCerrarSesion.setOnAction(e -> abrirVentana("/gui/vista/FXMLInicioSesion.fxml"));
     }
 }
