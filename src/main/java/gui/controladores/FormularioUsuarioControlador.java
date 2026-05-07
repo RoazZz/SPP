@@ -1,9 +1,3 @@
-/*
- * FormularioUsuarioControlador.java
- * Versión 1.0
- * Fecha: 28/04/26
- * Copyright (c) 2026
- */
 package gui.controladores;
 
 import excepciones.DAOExcepcion;
@@ -142,8 +136,7 @@ public class FormularioUsuarioControlador {
 
         } catch (DAOExcepcion e) {
             LOGGER.log(Level.SEVERE, "Error al guardar profesor", e);
-            mostrarAlerta(Alert.AlertType.ERROR, "Error al guardar",
-                    "No se pudo guardar el profesor. Intente más tarde.");
+            mostrarAlerta(Alert.AlertType.ERROR, "Error al guardar", "No se pudo guardar el profesor. Intente más tarde.");
         }
     }
 
