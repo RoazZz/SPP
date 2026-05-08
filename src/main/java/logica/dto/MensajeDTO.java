@@ -4,19 +4,33 @@ import java.time.LocalDateTime;
 
 public class MensajeDTO {
     private int idMensaje;
-    private String remitente;
-    private String destinatario;
+    private int idBuzonOrigen;
+    private int idBuzonDestino;
     private String asunto;
     private String contenido;
     private LocalDateTime fecha;
+    private boolean leido;
+    private LocalDateTime fechaLectura;
 
-    public MensajeDTO(int idMensaje, String remitente, String destinatario, String asunto, String contenido, LocalDateTime fecha) {
+    public MensajeDTO(int idMensaje, int idBuzonOrigen, int idBuzonDestino,
+                      String asunto, String contenido, LocalDateTime fecha,
+                      boolean leido, LocalDateTime fechaLectura) {
         this.idMensaje = idMensaje;
-        this.remitente = remitente;
-        this.destinatario = destinatario;
+        this.idBuzonOrigen = idBuzonOrigen;
+        this.idBuzonDestino = idBuzonDestino;
         this.asunto = asunto;
         this.contenido = contenido;
         this.fecha = fecha;
+        this.leido = leido;
+        this.fechaLectura = fechaLectura;
+    }
+
+    public MensajeDTO(int idBuzonOrigen, int idBuzonDestino,
+                      String asunto, String contenido) {
+        this.idBuzonOrigen = idBuzonOrigen;
+        this.idBuzonDestino = idBuzonDestino;
+        this.asunto = asunto;
+        this.contenido = contenido;
     }
 
     public int getIdMensaje() {
@@ -27,20 +41,20 @@ public class MensajeDTO {
         this.idMensaje = idMensaje;
     }
 
-    public String getRemitente() {
-        return remitente;
+    public int getIdBuzonOrigen() {
+        return idBuzonOrigen;
     }
 
-    public void setRemitente(String remitente) {
-        this.remitente = remitente;
+    public void setIdBuzonOrigen(int idBuzonOrigen) {
+        this.idBuzonOrigen = idBuzonOrigen;
     }
 
-    public String getDestinatario() {
-        return destinatario;
+    public int getIdBuzonDestino() {
+        return idBuzonDestino;
     }
 
-    public void setDestinatario(String destinatario) {
-        this.destinatario = destinatario;
+    public void setIdBuzonDestino(int idBuzonDestino) {
+        this.idBuzonDestino = idBuzonDestino;
     }
 
     public String getAsunto() {
@@ -66,4 +80,21 @@ public class MensajeDTO {
     public void setFecha(LocalDateTime fecha) {
         this.fecha = fecha;
     }
+
+    public boolean isLeido() {
+        return leido;
+    }
+
+    public void setLeido(boolean leido) {
+        this.leido = leido;
+    }
+
+    public LocalDateTime getFechaLectura() {
+        return fechaLectura;
+    }
+
+    public void setFechaLectura(LocalDateTime fechaLectura) {
+        this.fechaLectura = fechaLectura;
+    }
+
 }

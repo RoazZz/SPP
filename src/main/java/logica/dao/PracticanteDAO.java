@@ -4,6 +4,7 @@ import excepciones.DAOExcepcion;
 import excepciones.EntidadNoEncontradaExcepcion;
 import interfaces.PracticanteDAOInterfaz;
 import accesodatos.ConexionBD;
+import logica.dto.BuzonDTO;
 import logica.dto.PracticanteDTO;
 import logica.enums.GeneroDelPracticante;
 import logica.enums.TipoDeUsuario;
@@ -37,6 +38,8 @@ public class PracticanteDAO implements PracticanteDAOInterfaz {
             "practicante.matricula, practicante.idSeccion, practicante.semestre, practicante.Genero," +
             "practicante.edad, practicante.lenguaIndigena " +
                     "FROM usuario JOIN practicante ON usuario.idUsuario = practicante.idUsuario ";
+    private static final String SQL_EXISTE_MATRICULA = "SELECT COUNT(*) FROM Practicante WHERE Matricula = ?";
+
 
     public PracticanteDAO() throws DAOExcepcion {
         try{
@@ -53,6 +56,7 @@ public class PracticanteDAO implements PracticanteDAOInterfaz {
     @Override
     public boolean agregarPracticante(PracticanteDTO practicante) throws DAOExcepcion, EntidadNoEncontradaExcepcion {
         UsuarioDAO usuarioDAO = new UsuarioDAO(this.conexion);
+        BuzonDAO buzonDAO = new BuzonDAO(this.conexion);
         try {
             conexion.setAutoCommit(false);
             usuarioDAO.agregarUsuario(practicante);
@@ -68,6 +72,8 @@ public class PracticanteDAO implements PracticanteDAOInterfaz {
                     preparedStatement.setBoolean(7, practicante.isLenguaIndigena());
                     preparedStatement.executeUpdate();
                 }
+                BuzonDTO buzonDTO = new BuzonDTO(idGenerado);
+                buzonDAO.agregarBuzon(buzonDTO);
                 conexion.commit();
                 logger.log(Level.INFO, "Practicante agregado exitosamente: " + practicante.getMatricula());
                 return true;
@@ -168,6 +174,22 @@ public class PracticanteDAO implements PracticanteDAOInterfaz {
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error al listar los practicantes", e);
             throw new DAOExcepcion("Error al listar los Practicantes: ", e);
+        }
+    }
+
+    @Override
+    public boolean existePracticanteConMatricula(String matricula) throws DAOExcepcion {
+        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_EXISTE_MATRICULA)) {
+            preparedStatement.setString(1, matricula);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt(1) > 0;
+                }
+                return false;
+            }
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error al verificar matrícula duplicada", e);
+            throw new DAOExcepcion("Error al verificar si existe la matrícula", e);
         }
     }
 }

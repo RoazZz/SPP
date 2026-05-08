@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+
+<VBox spacing="10" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.controladores.CamposProfesorControlador">
+    <children>
+        <Label text="Datos de Practicante" styleClass="label-seccion" />
+        <TextField fx:id="txtMatricula" promptText="Matricula" />
+        <TextField fx:id="txtIdSeccion" promptText="Seccion" />
+        <TextField fx:id="txtSemestre" promptText="Semestre" />
+        <ComboBox fx:id="cbGenero" promptText="Seleccione Genero" maxWidth="Infinity" />
+        <TextField fx:id="txtEdad" promptText="Edad" />
+        <CheckBox fx:id="chkLenguaIndigena" text="Habla lengua indígena" />
+    </children>
+</VBox>

@@ -9,11 +9,11 @@ public class CamposCoordinadorControlador {
     @FXML
     private TextField txtNumeroDePersonal;
 
-    public String getNumeroPersonal() {
-        return txtNumeroDePersonal.getText();
-    }
-
     public void cargarDatos(CoordinadorDTO coordinadorDTO) {
         txtNumeroDePersonal.setText(coordinadorDTO.getNumeroPersonal());
+    }
+
+    public String getNumeroPersonal() {
+        return txtNumeroDePersonal.getText();
     }
 }

@@ -4,6 +4,7 @@ import excepciones.DAOExcepcion;
 import excepciones.EntidadNoEncontradaExcepcion;
 import interfaces.CoordinadorDAOInterfaz;
 import accesodatos.ConexionBD;
+import logica.dto.BuzonDTO;
 import logica.dto.CoordinadorDTO;
 import logica.enums.TipoDeUsuario;
 import logica.enums.TipoEstado;
@@ -51,6 +52,7 @@ public class CoordinadorDAO implements CoordinadorDAOInterfaz{
     @Override
     public boolean agregarCoordinador(CoordinadorDTO coordinador) throws DAOExcepcion, EntidadNoEncontradaExcepcion {
         UsuarioDAO usuarioDAO = new UsuarioDAO(this.conexion);
+        BuzonDAO buzonDAO = new BuzonDAO(this.conexion);
         try {
             conexion.setAutoCommit(false);
             usuarioDAO.agregarUsuario(coordinador);
@@ -62,6 +64,8 @@ public class CoordinadorDAO implements CoordinadorDAOInterfaz{
                     preparedStatements.setString(2, coordinador.getNumeroPersonal());
                     preparedStatements.executeUpdate();
                 }
+                BuzonDTO buzonDTO = new BuzonDTO(idGenerado); // <- nuevo
+                buzonDAO.agregarBuzon(buzonDTO);
                 conexion.commit();
                 logger.log(Level.INFO, "Coordinador agregado exitosamente: " + coordinador.getNumeroPersonal());
                 return true;

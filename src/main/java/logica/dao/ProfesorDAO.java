@@ -5,6 +5,7 @@ import excepciones.DAOExcepcion;
 import excepciones.EntidadNoCreadaExcepcion;
 import excepciones.EntidadNoEncontradaExcepcion;
 import interfaces.ProfesorDAOInterfaz;
+import logica.dto.BuzonDTO;
 import logica.dto.ProfesorDTO;
 import logica.enums.TipoDeUsuario;
 import logica.enums.TipoEstado;
@@ -54,7 +55,7 @@ public class ProfesorDAO implements ProfesorDAOInterfaz {
     @Override
     public ProfesorDTO agregarProfesor(ProfesorDTO profesor) throws DAOExcepcion {
         UsuarioDAO usuarioDAO = new UsuarioDAO(this.conexion);
-
+        BuzonDAO buzonDAO = new BuzonDAO(this.conexion);
         try {
             conexion.setAutoCommit(false);
             usuarioDAO.agregarUsuario(profesor);
@@ -67,6 +68,8 @@ public class ProfesorDAO implements ProfesorDAOInterfaz {
                     preparedStatement.setString(3, profesor.getTurno().name());
                     preparedStatement.executeUpdate();
                 }
+                BuzonDTO buzonDTO = new BuzonDTO(idGenerado);
+                buzonDAO.agregarBuzon(buzonDTO);
                 conexion.commit();
                 LOGGER.log(Level.INFO, "Profesor agregado exitosamente: " + profesor.getNumeroDePersonal());
                 return profesor;
