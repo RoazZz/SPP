@@ -38,15 +38,15 @@ public class CoordinadorControlador {
 
         int idExcluir = modoEdicion ? coordinadorDTO.getIdUsuario() : 0;
         if (coordinadorDAO.existeCoordinadorConNumeroPersonal(coordinadorDTO.getNumeroPersonal(), idExcluir)) {
-            throw new ReglaDeNegocioExcepcion("Ya existe un coordinador con el número de personal: " + coordinadorDTO.getNumeroPersonal());
+            throw new ReglaDeNegocioExcepcion("Existe un registro de coordinador con el número de personal: " + coordinadorDTO.getNumeroPersonal());
         }
 
         if (modoEdicion) {
-            LOGGER.log(Level.INFO, "Actualizando coordinador con id: {0}", coordinadorDTO.getIdUsuario());
+            LOGGER.log(Level.INFO, "Actualizando coordinador con id:", coordinadorDTO.getIdUsuario());
             usuarioDAO.actualizarUsuario(coordinadorDTO);
             coordinadorDAO.actualizarCoordinador(coordinadorDTO);
         } else {
-            LOGGER.log(Level.INFO, "Guardando coordinador con numero de personal: {0}", coordinadorDTO.getNumeroPersonal());
+            LOGGER.log(Level.INFO, "Guardando coordinador con numero de personal:", coordinadorDTO.getNumeroPersonal());
             coordinadorDAO.agregarCoordinador(coordinadorDTO);
         }
     }

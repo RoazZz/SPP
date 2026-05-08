@@ -44,12 +44,12 @@ public class PracticanteControlador {
 
         if (!modoEdicion) {
             if (practicanteDAO.existePracticanteConMatricula(practicanteDTO.getMatricula())) {
-                throw new ReglaDeNegocioExcepcion("Ya existe un practicante con la matrícula: " + practicanteDTO.getMatricula());
+                throw new ReglaDeNegocioExcepcion("Existe un registre de practicante con la matrícula: " + practicanteDTO.getMatricula());
             }
-            LOGGER.log(Level.INFO, "Guardando practicante con matricula: {0}", practicanteDTO.getMatricula());
+            LOGGER.log(Level.INFO, "Guardando practicante con matricula:", practicanteDTO.getMatricula());
             practicanteDAO.agregarPracticante(practicanteDTO);
         } else {
-            LOGGER.log(Level.INFO, "Actualizando practicante con matricula: {0}", practicanteDTO.getMatricula());
+            LOGGER.log(Level.INFO, "Actualizando practicante con matricula:", practicanteDTO.getMatricula());
             usuarioDAO.actualizarUsuario(practicanteDTO);
             practicanteDAO.actualizarPracticante(practicanteDTO);
         }
