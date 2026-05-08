@@ -1,25 +1,29 @@
 package gui.controladores;
 
 import excepciones.DAOExcepcion;
+import excepciones.ValidacionExcepcion;
+import interfaces.Regresable;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import logica.dao.ProfesorDAO;
-import logica.dao.UsuarioDAO;
+import gui.controladores.ProfesorControlador;
+import gui.controladores.UsuarioControlador;
 import logica.dto.ProfesorDTO;
-import logica.enums.*;
+import logica.enums.TipoDeUsuario;
+import logica.utilidades.PermisosRol;
+import logica.utilidades.SesionUsuarioSingleton;
 
 import java.io.IOException;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class FormularioUsuarioControlador {
+public class FormularioUsuarioControlador implements Regresable {
 
     private static final Logger LOGGER = Logger.getLogger(FormularioUsuarioControlador.class.getName());
-    private static final int LONGITUD_MINIMA_CONTRASENIA = 8;
 
     @FXML private TextField txtNombre;
     @FXML private TextField txtApellidoP;
@@ -28,14 +32,27 @@ public class FormularioUsuarioControlador {
     @FXML private ComboBox<TipoDeUsuario> cbTipoUsuario;
     @FXML private VBox contenedorDinamico;
     @FXML private Label lblError;
+    @FXML private Button btnGuardar;
+    @FXML private Button btnSalir;
 
+    private ProfesorControlador profesorControlador;
     private Object controladorHijo;
     private ProfesorDTO profesorExistente;
     private boolean modoEdicion = false;
+    private Scene escenaAnterior;
 
     @FXML
     public void initialize() {
-        cbTipoUsuario.getItems().setAll(TipoDeUsuario.values());
+        try {
+            profesorControlador = new ProfesorControlador();
+        } catch (DAOExcepcion e) {
+            LOGGER.log(Level.SEVERE, "Error al inicializar ProfesorControlador", e);
+            mostrarAlerta(Alert.AlertType.ERROR, "Error",
+                    "No se pudo inicializar el formulario. Intente más tarde.");
+        }
+
+        cargarTiposPermitidos();
+
         cbTipoUsuario.getSelectionModel().selectedItemProperty().addListener(
                 (obs, viejo, nuevo) -> {
                     if (nuevo != null && !modoEdicion) {
@@ -43,7 +60,10 @@ public class FormularioUsuarioControlador {
                     }
                 }
         );
+
         lblError.setVisible(false);
+        btnGuardar.setOnAction(e -> manejarGuardar());
+        btnSalir.setOnAction(e -> regresar());
     }
 
     public void inicializarEdicion(ProfesorDTO profesorDTO) {
@@ -61,126 +81,87 @@ public class FormularioUsuarioControlador {
         ((CamposProfesorControlador) controladorHijo).cargarDatos(profesorDTO);
     }
 
-    @FXML
+    private void cargarTiposPermitidos() {
+        TipoDeUsuario rol = SesionUsuarioSingleton.obtenerInstancia().obtenerUsuarioActual().getTipoDeUsuario();
+        PermisosRol permisos = new PermisosRol(rol);
+
+        if (permisos.puedeAgregarCoordinador()) {
+            cbTipoUsuario.getItems().add(TipoDeUsuario.COORDINADOR);
+        }
+        if (permisos.puedeAgregarProfesor()) {
+            cbTipoUsuario.getItems().add(TipoDeUsuario.PROFESOR);
+        }
+        if (permisos.puedeAgregarPracticante()) {
+            cbTipoUsuario.getItems().add(TipoDeUsuario.PRACTICANTE);
+        }
+    }
+
     private void manejarGuardar() {
         lblError.setVisible(false);
 
-        String mensajeValidacion = validarCamposComunes();
-        if (mensajeValidacion != null) {
-            mostrarErrorEnLinea(mensajeValidacion);
+        if (!validarCamposFormulario()) {
             return;
         }
 
-        try {
-            if (cbTipoUsuario.getValue() == TipoDeUsuario.PROFESOR) {
-                guardarProfesor();
-            }
-            // else if para PRACTICANTE y COORDINADOR aquí
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error inesperado al procesar el registro", e);
-            mostrarAlerta(Alert.AlertType.ERROR, "Error inesperado",
-                    "Ocurrió un error inesperado. Intente más tarde.");
+        if (cbTipoUsuario.getValue() == TipoDeUsuario.PROFESOR) {
+            guardarProfesor();
         }
+    }
+
+    private boolean validarCamposFormulario() {
+        if (cbTipoUsuario.getValue() == null) {
+            mostrarErrorEnLinea("Debe seleccionar un tipo de usuario.");
+            return false;
+        }
+        if (controladorHijo == null) {
+            mostrarErrorEnLinea("Error al cargar el formulario. Intente seleccionar el tipo de usuario nuevamente.");
+            return false;
+        }
+
+        try {
+            UsuarioControlador.validarCamposComunes(
+                    txtNombre.getText(),
+                    txtApellidoP.getText(),
+                    txtApellidoM.getText(),
+                    txtContrasenia.getText()
+            );
+        } catch (ValidacionExcepcion e) {
+            LOGGER.log(Level.WARNING, "Validacion fallida en campos comunes", e);
+            mostrarErrorEnLinea(e.getMessage());
+            return false;
+        }
+
+        return true;
     }
 
     private void guardarProfesor() {
         CamposProfesorControlador hijo = (CamposProfesorControlador) controladorHijo;
 
-        String mensajeEspecifico = validarCamposProfesor(hijo);
-        if (mensajeEspecifico != null) {
-            mostrarErrorEnLinea(mensajeEspecifico);
-            return;
-        }
-
         try {
-            int idExcluir;
-            if (modoEdicion) {
-                idExcluir = profesorExistente.getIdUsuario();
-            } else {
-                idExcluir = 0;
-            }
-
-            boolean existe = new ProfesorDAO().existeProfesorConNumeroPersonal(
-                    hijo.getNumeroPersonal(),
-                    idExcluir
-            );
-
-            if (existe) {
-                mostrarErrorEnLinea("Ya existe un profesor con ese número de personal.");
-                return;
-            }
-
-            ProfesorDTO profesorDTO = new ProfesorDTO(
+            ProfesorDTO dto = profesorControlador.construirProfesorDTO(
                     modoEdicion ? profesorExistente.getIdUsuario() : 0,
                     txtNombre.getText().trim(),
                     txtApellidoP.getText().trim(),
                     txtApellidoM.getText().trim(),
                     txtContrasenia.getText(),
-                    TipoEstado.ACTIVO,
-                    TipoDeUsuario.PROFESOR,
                     hijo.getNumeroPersonal(),
                     hijo.getTurno()
             );
 
-            ProfesorDAO profesorDAO = new ProfesorDAO();
-            if (modoEdicion) {
-                new UsuarioDAO().actualizarUsuario(profesorDTO);
-                profesorDAO.actualizarProfesor(profesorDTO);
-            } else {
-                profesorDAO.agregarProfesor(profesorDTO);
-            }
+            profesorControlador.procesarGuardadoProfesor(dto, modoEdicion);
 
             mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito",
                     modoEdicion ? "Profesor actualizado correctamente." : "Profesor registrado correctamente.");
             cerrarVentana();
 
+        } catch (ValidacionExcepcion e) {
+            LOGGER.log(Level.WARNING, "Validacion fallida al guardar profesor", e);
+            mostrarErrorEnLinea(e.getMessage());
         } catch (DAOExcepcion e) {
-            LOGGER.log(Level.SEVERE, "Error al guardar profesor", e);
-            mostrarAlerta(Alert.AlertType.ERROR, "Error al guardar", "No se pudo guardar el profesor. Intente más tarde.");
+            LOGGER.log(Level.SEVERE, "Error de BD al guardar profesor", e);
+            mostrarAlerta(Alert.AlertType.ERROR, "Error al guardar",
+                    "No se pudo guardar el profesor. Intente más tarde.");
         }
-    }
-
-    private String validarCamposComunes() {
-        StringBuilder errores = new StringBuilder();
-
-        if (txtNombre.getText().trim().isEmpty()) {
-            errores.append("El campo nombre no puede estar vacío.\n");
-        }
-        if (txtApellidoP.getText().trim().isEmpty()) {
-            errores.append("El campo apellido paterno no puede estar vacío.\n");
-        }
-        if (txtApellidoM.getText().trim().isEmpty()) {
-            errores.append("El campo apellido materno no puede estar vacío.\n");
-        }
-        if (txtContrasenia.getText().trim().isEmpty()) {
-            errores.append("El campo contraseña no puede estar vacío.\n");
-        }
-        if (txtContrasenia.getText().length() < LONGITUD_MINIMA_CONTRASENIA) {
-            errores.append("La contraseña debe tener al menos " + LONGITUD_MINIMA_CONTRASENIA + " caracteres.\n");
-        }
-        if (cbTipoUsuario.getValue() == null) {
-            errores.append("Debe seleccionar un tipo de usuario.\n");
-        }
-        if (controladorHijo == null) {
-            errores.append("Error al cargar el formulario. Intente seleccionar el tipo de usuario nuevamente.\n");
-        }
-
-        boolean hayErrores = errores.length() > 0;
-        return hayErrores ? errores.toString() : null;
-    }
-
-    private String validarCamposProfesor(CamposProfesorControlador hijo) {
-        StringBuilder errores = new StringBuilder();
-
-        if (hijo.getNumeroPersonal() == null || hijo.getNumeroPersonal().trim().isEmpty()) {
-            errores.append("El número de personal no puede estar vacío.\n");
-        }
-        if (hijo.getTurno() == null) {
-            errores.append("Debe seleccionar un turno.\n");
-        }
-
-        boolean hayErrores = errores.length() > 0;
-        return hayErrores ? errores.toString() : null;
     }
 
     private void cambiarFragmento(TipoDeUsuario tipo) {
@@ -192,7 +173,7 @@ public class FormularioUsuarioControlador {
             contenedorDinamico.getChildren().setAll(nodo);
             controladorHijo = loader.getController();
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Error al cargar fragmento de tipo: " + tipo.name(), e);
+            LOGGER.log(Level.SEVERE, "Error al cargar fragmento para tipo: " + tipo.name(), e);
             mostrarAlerta(Alert.AlertType.ERROR, "Error de carga",
                     "No se pudo cargar el formulario para el tipo de usuario seleccionado.");
         }
@@ -211,12 +192,20 @@ public class FormularioUsuarioControlador {
         alerta.showAndWait();
     }
 
-    @FXML
-    private void manejarCancelar() {
-        cerrarVentana();
-    }
-
     private void cerrarVentana() {
         ((Stage) txtNombre.getScene().getWindow()).close();
+    }
+
+    @Override
+    public void setEscenaAnterior(Scene escena) {
+        this.escenaAnterior = escena;
+    }
+
+    private void regresar() {
+        if (escenaAnterior != null) {
+            Stage escenario = (Stage) txtNombre.getScene().getWindow();
+            escenario.setScene(escenaAnterior);
+            escenario.show();
+        }
     }
 }
