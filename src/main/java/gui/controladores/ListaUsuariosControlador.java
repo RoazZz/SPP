@@ -1,13 +1,17 @@
 package gui.controladores;
 
 import excepciones.DAOExcepcion;
+import interfaces.Regresable;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
@@ -16,13 +20,16 @@ import logica.dto.UsuarioDTO;
 import logica.enums.TipoDeUsuario;
 import logica.enums.TipoEstado;
 import javafx.scene.layout.HBox;
+import logica.utilidades.PermisosRol;
+import logica.utilidades.SesionUsuarioSingleton;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ListaUsuariosControlador {
+public class ListaUsuariosControlador implements Regresable{
     private static final Logger logger = Logger.getLogger(ListaUsuariosControlador.class.getName());
     private static final String TODOS = "TODOS";
 
@@ -37,6 +44,9 @@ public class ListaUsuariosControlador {
     @FXML private TableColumn<UsuarioDTO, String> colEstado;
     @FXML private TableColumn<UsuarioDTO, Void> colAcciones;
     @FXML private Label lblContador;
+    @FXML private Button btnAñadirUsuario;
+    @FXML private Button btnCerrar;
+    private Scene escenaAnterior;
 
     private ObservableList<UsuarioDTO> listaCompleta;
     private FilteredList<UsuarioDTO> listaFiltrada;
@@ -48,7 +58,19 @@ public class ListaUsuariosControlador {
         configurarFiltroTipo();
         cargarUsuarios();
         configurarBusquedaReactiva();
+        cargarTiposPermitidos();
+        btnCerrar.setOnAction(e -> regresar());
+        btnAñadirUsuario.setOnAction(e -> NavegacionControlador.abrirVentana("/gui/vista/FXMLFormularioUsuario.fxml", btnAñadirUsuario));
     }
+
+    private void cargarTiposPermitidos() {
+        TipoDeUsuario rol = SesionUsuarioSingleton.obtenerInstancia().obtenerUsuarioActual().getTipoDeUsuario();
+        PermisosRol permisos = new PermisosRol(rol);
+        btnAñadirUsuario.setVisible(permisos.puedeAgregarUsuario());
+        btnAñadirUsuario.setManaged(permisos.puedeAgregarUsuario());
+    }
+
+
 
     private void configurarColumnas(){
         colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
@@ -90,10 +112,10 @@ public class ListaUsuariosControlador {
                 } else {
                     UsuarioDTO usuarioDTO = getTableView().getItems().get(getIndex());
                     if (usuarioDTO.getTipoEstado() == TipoEstado.ACTIVO) {
-                        btnInactivar.setVisible(false);
+                        btnInactivar.setVisible(true);
                         btnInactivar.setText("INACTIVAR");
                     } else {
-                        btnInactivar.setVisible(true);
+                        btnInactivar.setVisible(false);
                         btnInactivar.setText("INACTIVO");
                     }
                     setGraphic(contenedor);
@@ -103,8 +125,12 @@ public class ListaUsuariosControlador {
     }
 
     private void configurarFiltroTipo() {
+        TipoDeUsuario rol = SesionUsuarioSingleton.obtenerInstancia().obtenerUsuarioActual().getTipoDeUsuario();
+        PermisosRol permisos = new PermisosRol(rol);
+        List<TipoDeUsuario> tiposPermitidos = permisos.tiposVisibles();
+
         cbFiltroTipo.getItems().add(TODOS);
-        for (TipoDeUsuario tipo : TipoDeUsuario.values()) {
+        for (TipoDeUsuario tipo : tiposPermitidos) {
             cbFiltroTipo.getItems().add(tipo.name());
         }
         cbFiltroTipo.setValue(TODOS);
@@ -165,26 +191,21 @@ public class ListaUsuariosControlador {
         if (!mostrarConfirmacion("¿Está seguro de inactivar al usuario " + usuario.getNombre() + "?")) {
             return;
         }
-        if (inactivarUsuario(usuario)) {
+        try {
+            inactivarUsuario(usuario);
             tablaUsuarios.refresh();
             mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Usuario inactivado.");
-        } else {
+        } catch (DAOExcepcion e) {
+            logger.log(Level.SEVERE, "Error al inactivar usuario", e);
+            usuario.setTipoEstado(TipoEstado.ACTIVO);
             tablaUsuarios.refresh();
             mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudo completar la acción.");
         }
     }
 
-    private boolean inactivarUsuario(UsuarioDTO usuario) {
-        try {
-            usuario.setTipoEstado(TipoEstado.INACTIVO);
-            UsuarioDAO dao = new UsuarioDAO();
-            dao.actualizarUsuario(usuario);
-            return true;
-        } catch (DAOExcepcion e) {
-            logger.log(Level.SEVERE, "Error al inactivar al usuario", e);
-            usuario.setTipoEstado(TipoEstado.ACTIVO);
-            return false;
-        }
+    private void inactivarUsuario(UsuarioDTO usuario) throws DAOExcepcion {
+        usuario.setTipoEstado(TipoEstado.INACTIVO);
+        new UsuarioDAO().actualizarUsuario(usuario);
     }
 
     private boolean mostrarConfirmacion(String mensaje) {
@@ -227,5 +248,18 @@ public class ListaUsuariosControlador {
 
     public void recargar() {
         cargarUsuarios();
+    }
+
+    @Override
+    public void setEscenaAnterior(Scene escena) {
+        this.escenaAnterior = escena;
+    }
+
+    private void regresar() {
+        if (escenaAnterior != null) {
+            Stage escenario = (Stage) tablaUsuarios.getScene().getWindow();
+            escenario.setScene(escenaAnterior);
+            escenario.show();
+        }
     }
 }
