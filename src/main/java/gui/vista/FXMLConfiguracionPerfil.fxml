@@ -30,8 +30,8 @@
                 <PasswordField fx:id="txtContraseniaNueva" promptText="Nueva Contraseña" />
 
                 <HBox alignment="CENTER_RIGHT" spacing="15">
-                    <Button fx:id="btnCancelar" onAction="#manejarCancelar" styleClass="btn-cancelar" text="CANCELAR" />
-                    <Button fx:id="btnGuardar" onAction="#manejarGuardarCambios" styleClass="btn-guardar" text="ACTUALIZAR PERFIL" />
+                    <Button fx:id="btnCancelar"  styleClass="btn-cancelar" text="CANCELAR" />
+                    <Button fx:id="btnGuardar"  styleClass="btn-guardar" text="ACTUALIZAR PERFIL" />
                 </HBox>
             </VBox>
         </VBox>

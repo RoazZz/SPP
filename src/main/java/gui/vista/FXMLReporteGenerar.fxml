@@ -13,7 +13,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="650.0" prefWidth="750.0" stylesheets="@/estilos.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.controladores.ReporteGenerarControlador">
+<BorderPane prefHeight="650.0" prefWidth="750.0" stylesheets="@/estilos.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.controladores.ReporteGenerarControlador">
     <top>
         <VBox spacing="5" styleClass="header-container">
             <padding>
@@ -57,8 +57,8 @@
             <padding>
                 <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
             </padding>
-            <Button onAction="#cancelar" styleClass="btn-cancelar" text="Cancelar" />
-            <Button fx:id="btnGenerar" onAction="#procesarGeneracion" styleClass="btn-guardar" text="Generar y Guardar Reporte" />
+            <Button fx:id="btnCancelar" styleClass="btn-cancelar" text="Cancelar" />
+            <Button fx:id="btnGenerar"  styleClass="btn-guardar" text="Generar y Guardar Reporte" />
         </HBox>
     </bottom>
 </BorderPane>
