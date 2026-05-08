@@ -34,16 +34,17 @@
                   <AnchorPane layoutX="10.0" layoutY="36.0" prefHeight="24.0" prefWidth="706.0" />
                   <TextField fx:id="txtNumeroDePersonal" prefHeight="28.0" prefWidth="706.0" promptText="Numero de Personal" />
                   <AnchorPane layoutX="10.0" layoutY="77.0" prefHeight="24.0" prefWidth="706.0" />
-                  <TextField fx:id="txtNombreProyecto" promptText="Nombre" />
+                  <TextField fx:id="txtNombre" promptText="Nombre" />
                   <AnchorPane layoutX="10.0" layoutY="136.0" prefHeight="26.0" prefWidth="706.0" />
                   <TextField fx:id="txtDescripcion" promptText="Descripción" />
                   <Separator />
                   <HBox alignment="CENTER_RIGHT" spacing="20" style="-fx-padding: 10 0 0 0;">
                      <children>
                         <Button onAction="#manejarCancelar" styleClass="btn-cancelar" stylesheets="@/estilos.css" text="SALIR" />
-                        <Button onAction="#manejarGuardar" styleClass="btn-guardar" stylesheets="@/estilos.css" text="GUARDAR DATOS" />
+                        <Button onAction="#manejarGuardarProyecto" styleClass="btn-guardar" stylesheets="@/estilos.css" text="GUARDAR DATOS" />
                      </children>
                   </HBox>
+                  <Label fx:id="lblMensaje" />
                   <VBox fx:id="contenedorDinamico" spacing="15" />
                </children>
             </VBox>

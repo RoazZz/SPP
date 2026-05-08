@@ -1,9 +1,10 @@
 package gui.controladores;
 
+import excepciones.DAOExcepcion;
+import excepciones.ReglaDeNegocioExcepcion;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import logica.dao.ProyectoDAO;
 import logica.dto.ProyectoDTO;
 
 import java.util.logging.Level;
@@ -11,80 +12,85 @@ import java.util.logging.Logger;
 
 public class FormularioProyectoControlador {
 
-    private static final Logger logger = Logger.getLogger(FormularioProyectoControlador.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(FormularioProyectoControlador.class.getName());
+
+    @FXML private TextField txtIdOrganizacionVinculada;
+    @FXML private TextField txtNumeroDePersonal;
+    @FXML private TextField txtNombre;
+    @FXML private TextField txtDescripcion;
+    @FXML private Label lblMensaje;
+
+    private ProyectoControlador proyectoControlador;
 
     @FXML
-    private TextField txtIdOrganizacionVinculada;
-
-    @FXML
-    private TextField txtNumeroDePersonal;
-
-    @FXML
-    private TextField txtNombre;
-
-    @FXML
-    private TextField txtDescripcion;
-
-    @FXML
-    private Label txtMensajeGuardar;
-
-    @FXML
-    private Label txtErrorDeCampos;
-
+    public void initialize() {
+        try {
+            proyectoControlador = new ProyectoControlador();
+        } catch (DAOExcepcion e) {
+            LOGGER.log(Level.SEVERE, "Error al inicializar Proyecto Controlador", e);
+            lblMensaje.setText("Error al conectar con la base de datos.");
+        }
+    }
 
     @FXML
     public void manejarGuardarProyecto() {
-
-        if (!validarCamposVacios()){
+        if (!validarCamposVacios()) {
             return;
         }
-
-        try{
-            String idOrganizacion = txtIdOrganizacionVinculada.getText();
-            String numeroDePersonal = txtNumeroDePersonal.getText();
-            String nombre = txtNombre.getText();
-            String descripcion = txtDescripcion.getText();
-
-            ProyectoDTO proyectoDTO = new ProyectoDTO(0, idOrganizacion,
-                    numeroDePersonal, nombre, descripcion);
-
-            ProyectoDAO proyectoDAO = new ProyectoDAO();
-            proyectoDAO.agregarProyecto(proyectoDTO);
-
-            txtMensajeGuardar.setText("Proyecto guardado con exito");
-
-        }catch(Exception e) {
-            logger.log(Level.SEVERE, "Error al guardar Proyecto.");
+        try {
+            ProyectoDTO proyectoDTO = new ProyectoDTO(
+                    0,
+                    txtIdOrganizacionVinculada.getText(),
+                    txtNumeroDePersonal.getText(),
+                    txtNombre.getText(),
+                    txtDescripcion.getText()
+            );
+            proyectoControlador.procesarGuardadoProyecto(proyectoDTO, false);
+            lblMensaje.setText("Proyecto guardado con éxito.");
+            limpiarCampos();
+        } catch (ReglaDeNegocioExcepcion e) {
+            LOGGER.log(Level.WARNING, "Regla de negocio violada al guardar proyecto", e);
+            lblMensaje.setText(e.getMessage());
+        } catch (DAOExcepcion e) {
+            LOGGER.log(Level.SEVERE, "Error de base de datos al guardar proyecto", e);
+            lblMensaje.setText("Error al guardar el proyecto. Intente de nuevo.");
         }
-
     }
 
-    private boolean validarCamposVacios () {
+    @FXML
+    public void manejarCancelar() {
+        limpiarCampos();
+        lblMensaje.setText("");
+    }
+
+    private boolean validarCamposVacios() {
         StringBuilder camposVacios = new StringBuilder();
 
-        if (txtIdOrganizacionVinculada.getText().trim().isEmpty()){
-            camposVacios.append("Id Organización Vinculada es obligatorio. \n");
+        if (txtIdOrganizacionVinculada.getText().trim().isEmpty()) {
+            camposVacios.append("Id Organización Vinculada es obligatorio.\n");
         }
-
-        if (txtNumeroDePersonal.getText().trim().isEmpty()){
-            camposVacios.append("Numero de Personal es obligatorio. \n");
+        if (txtNumeroDePersonal.getText().trim().isEmpty()) {
+            camposVacios.append("Número de Personal es obligatorio.\n");
         }
-
-        if (txtNombre.getText().trim().isEmpty()){
-            camposVacios.append("Nombre es obligatorio. \n");
+        if (txtNombre.getText().trim().isEmpty()) {
+            camposVacios.append("Nombre es obligatorio.\n");
         }
-
-        if (txtDescripcion.getText().trim().isEmpty()){
-            camposVacios.append("Descripción es obligatorio. \n");
+        if (txtDescripcion.getText().trim().isEmpty()) {
+            camposVacios.append("Descripción es obligatoria.\n");
         }
-
-        if (camposVacios.length() > 0 ){
-            txtErrorDeCampos.setText(camposVacios.toString());
+        if (camposVacios.length() > 0) {
+            lblMensaje.setStyle("-fx-text-fill: red;");
+            lblMensaje.setText(camposVacios.toString());
             return false;
         }
-
-        txtErrorDeCampos.setText("");
+        lblMensaje.setText("");
         return true;
+    }
 
+    private void limpiarCampos() {
+        txtIdOrganizacionVinculada.clear();
+        txtNumeroDePersonal.clear();
+        txtNombre.clear();
+        txtDescripcion.clear();
     }
 }
