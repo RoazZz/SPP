@@ -6,4 +6,5 @@ import logica.dto.AdministradorDTO;
 public interface AdministradorDAOInterfaz {
         public AdministradorDTO agregarAdministrador(AdministradorDTO admin) throws DAOExcepcion;
         public AdministradorDTO buscarAdministradorPorId(int idAdmin) throws DAOExcepcion, EntidadNoEncontradaExcepcion;
+        public AdministradorDTO buscarAdministradorPorNombre(String nombre) throws DAOExcepcion, EntidadNoEncontradaExcepcion;
 }
