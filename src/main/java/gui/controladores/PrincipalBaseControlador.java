@@ -1,5 +1,6 @@
 package gui.controladores;
 
+import interfaces.Regresable;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -9,6 +10,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
+import logica.dto.UsuarioDTO;
+import logica.utilidades.SesionUsuarioSingleton;
 
 import java.io.IOException;
 import java.net.URL;
@@ -23,10 +26,12 @@ public abstract class PrincipalBaseControlador implements Initializable {
     @FXML private Button btnBuzon;
     @FXML private Button btnCerrarSesion;
 
-
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-       // SesionUsuario.getInstance().setLblNombre(lblNombre); //Modifica esta parte Jared si es q cambiaste el nombre del singleton
+        UsuarioDTO usuario = SesionUsuarioSingleton.obtenerInstancia().obtenerUsuarioActual();
+        if (usuario != null) {
+            lblNombre.setText(usuario.getNombre());
+        }
         btnConfiguracion.setOnAction(e -> abrirVentana("/gui/vista/FXMLConfiguracionPerfil.fxml"));
         btnBuzon.setOnAction(e -> abrirVentana("/gui/vista/FXMLBuzon.fxml"));
         btnCerrarSesion.setOnAction(e -> cerrarSesion());
@@ -35,22 +40,26 @@ public abstract class PrincipalBaseControlador implements Initializable {
 
     protected abstract void inicializarBotonesEspecificos();
 
-    protected void abrirVentana(String rutaFXML){
-        try{
+    protected void abrirVentana(String rutaFXML) {
+        try {
             FXMLLoader cargador = new FXMLLoader(getClass().getResource(rutaFXML));
             Parent vista = cargador.load();
             Stage escenario = (Stage) btnCerrarSesion.getScene().getWindow();
+
+            Object controlador = cargador.getController();
+            if(controlador instanceof Regresable regresable){
+                regresable.setEscenaAnterior(escenario.getScene());
+            }
+
             escenario.setScene(new Scene(vista));
             escenario.show();
-        }catch(IOException e){
+        } catch (IOException e) {
             logger.severe("Error al abrir la ventana: " + e.getMessage());
         }
     }
 
     private void cerrarSesion() {
-        //SesionUsuario.getInstancia().cerrar(); //Igual aqui, jajaja
-        abrirVentana("/vistas/Login.fxml");
+        SesionUsuarioSingleton.obtenerInstancia().cerrarSesion();
+        abrirVentana("/vistas/FXMLInicioSesion.fxml");
     }
-
-
 }
