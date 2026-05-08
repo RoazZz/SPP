@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-reafa<BorderPane prefHeight="700.0" prefWidth="950.0" stylesheets="@/estilos.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.controladores.SolicitarProyectoControlador">
+<BorderPane prefHeight="700.0" prefWidth="950.0" stylesheets="@/estilos.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.controladores.SolicitarProyectoControlador">
     <top>
         <VBox styleClass="header-container">
             <padding><Insets bottom="15" left="25" right="25" top="15" /></padding>

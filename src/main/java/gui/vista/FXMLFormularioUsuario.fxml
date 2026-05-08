@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="650.0" prefWidth="850.0" stylesheets="@/estilos.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.controladores.FormularioUsuarioControlador">
+<BorderPane prefHeight="650.0" prefWidth="850.0" stylesheets="@/estilos.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.controladores.FormularioUsuarioControlador">
     <top>
         <VBox alignment="CENTER" styleClass="header-container">
             <Label styleClass="titulo-ventana" text="Agregar Usuario Al Sistema" />

@@ -36,7 +36,7 @@
             </rowConstraints>
             <children>
                 <VBox alignment="CENTER" spacing="20" GridPane.columnIndex="0">
-                    <Button onAction="#irAGenerar" prefHeight="180.0" prefWidth="240.0" styleClass="btn-icono">
+                    <Button fx:id="btnGenerar" prefHeight="180.0" prefWidth="240.0" styleClass="btn-icono">
                         <graphic>
                             <ImageView fitHeight="140.0" fitWidth="140.0" pickOnBounds="true" preserveRatio="true">
                                 <image><Image url="@/Reportes.jpg" /></image>
@@ -46,7 +46,7 @@
                     <Label styleClass="label-seccion" text="Generar Reporte (Llenar datos)" />
                 </VBox>
                 <VBox alignment="CENTER" spacing="20" GridPane.columnIndex="1">
-                    <Button onAction="#irAAnadir" prefHeight="180.0" prefWidth="240.0" styleClass="btn-icono">
+                    <Button fx:id="btnAñadir"  prefHeight="180.0" prefWidth="240.0" styleClass="btn-icono">
                         <graphic>
                             <ImageView fitHeight="140.0" fitWidth="140.0" pickOnBounds="true" preserveRatio="true">
                                 <image><Image url="@/Actividad.png" /></image>
@@ -63,7 +63,7 @@
             <padding>
                 <Insets bottom="20" left="20" right="20" top="20" />
             </padding>
-            <Button fx:id="btnRegresar" onAction="#regresar" styleClass="btn-cancelar" text="Regresar al Menú Principal" />
+            <Button fx:id="btnRegresar"  styleClass="btn-cancelar" text="Regresar al Menú Principal" />
         </HBox>
     </bottom>
 </BorderPane>
