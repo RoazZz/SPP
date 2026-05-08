@@ -6,6 +6,10 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import logica.dto.UsuarioDTO;
+import logica.enums.TipoDeUsuario;
+import logica.enums.TipoEstado;
+import logica.utilidades.SesionUsuarioSingleton;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,7 +21,6 @@ import java.sql.ResultSet;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
 
 class PruebaFormularioUsuarioControlador extends PruebaBaseGUI {
 
@@ -34,6 +37,18 @@ class PruebaFormularioUsuarioControlador extends PruebaBaseGUI {
 
     @Override
     public void start(Stage escenario) throws Exception {
+        UsuarioDTO usuarioAdmin = new UsuarioDTO(
+                1,
+                "AdminPrueba",
+                "AdminApellidoP",
+                "AdminApellidoM",
+                "adminprueba123",
+                TipoEstado.ACTIVO,
+                TipoDeUsuario.ADMIN
+        );
+
+        SesionUsuarioSingleton.obtenerInstancia().iniciarSesion(usuarioAdmin);
+
         FXMLLoader cargador = new FXMLLoader(getClass().getResource("/gui/vista/FXMLFormularioUsuario.fxml"));
         Parent raiz = cargador.load();
         escenario.setScene(new Scene(raiz));
@@ -48,7 +63,10 @@ class PruebaFormularioUsuarioControlador extends PruebaBaseGUI {
     @AfterEach
     void limpiarDatosPrueba() throws Exception {
         eliminarProfesorPruebaPorNumeroDePersonal(PRUEBA_NUMERO_DE_PERSONAL);
-        pruebaUtilDatos.limpiarTodosLosDatosPrueba();
+        if (pruebaUtilDatos != null) {
+            pruebaUtilDatos.limpiarTodosLosDatosPrueba();
+        }
+        SesionUsuarioSingleton.obtenerInstancia().cerrarSesion();
     }
 
     @Test
@@ -429,6 +447,14 @@ class PruebaFormularioUsuarioControlador extends PruebaBaseGUI {
                 "DELETE FROM Usuario WHERE idUsuario = ?")) {
             sentencia.setInt(1, idUsuario);
             sentencia.executeUpdate();
+        }
+    }
+
+    protected void pausarMilisegundos(long milis) {
+        try {
+            Thread.sleep(milis);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 }

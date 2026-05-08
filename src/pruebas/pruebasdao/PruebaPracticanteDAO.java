@@ -52,7 +52,7 @@ public class PruebaPracticanteDAO {
             statement.execute("SET FOREIGN_KEY_CHECKS = 0");
             statement.execute("DELETE FROM Practicante WHERE Matricula != 'S99999'");
             statement.execute("DELETE FROM Usuario WHERE idUsuario != 999");
-            statement.execute("SET FOREIGN_KEY_CHECKS = 1");
+            statement.execute("SET FOREIGN_KEY_ CHECKS = 1");
         }
         practicanteValido = new PracticanteDTO(
                 0,
