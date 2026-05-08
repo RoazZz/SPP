@@ -1,7 +1,9 @@
 package gui.controladores;
 
 import excepciones.AutenticacionDeUsuarioExcepcion;
+import interfaces.Regresable;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -20,11 +22,31 @@ public class NavegacionControlador {
         cargarPantalla(ruta, stage);
     }
 
+    public static void abrirVentana(String rutaFXML, Node nodoActual) {
+        try {
+            FXMLLoader cargador = new FXMLLoader(NavegacionControlador.class.getResource(rutaFXML));
+            Parent vista = cargador.load();
+            Stage escenario = (Stage) nodoActual.getScene().getWindow();
+            Scene escenaAnterior = escenario.getScene();
+
+            Object controlador = cargador.getController();
+            if (controlador instanceof Regresable regresable) {
+                regresable.setEscenaAnterior(escenaAnterior);
+            }
+
+            escenario.setScene(new Scene(vista));
+            escenario.show();
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "Error al abrir ventana: " + rutaFXML, e);
+        }
+    }
+
     private String obtenerRutaSegunRol(TipoDeUsuario tipoDeUsuario) throws AutenticacionDeUsuarioExcepcion {
         return switch (tipoDeUsuario) {
             case PRACTICANTE -> "/gui/vista/FXMLPrincipalPracticante.fxml";
             case PROFESOR    -> "/gui/vista/FXMLPrincipalProfesor.fxml";
             case COORDINADOR -> "/gui/vista/FXMLPrincipalCoordinador.fxml";
+            case ADMIN -> "/gui/vista/FXMLPrincipalAdministrador.fxml";
             default -> throw new AutenticacionDeUsuarioExcepcion("Tipo de usuario no reconocido");
         };
     }
