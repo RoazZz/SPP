@@ -7,6 +7,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import logica.dao.BitacoraPSPDAO;
@@ -91,8 +93,12 @@ public class BitacoraPSPControlador implements Initializable {
             lblError.setVisible(true);
         } catch (DAOExcepcion e) {
             LOGGER.log(Level.SEVERE, "Error al guardar bitácora PSP en BD", e);
-            lblError.setText("No se pudo registrar la bitácora. Intente más tarde.");
-            lblError.setVisible(true);
+            Alert alerta = new Alert(Alert.AlertType.ERROR);
+            alerta.setTitle("Error del sistema");
+            alerta.setHeaderText(null);
+            alerta.setContentText("No se pudo registrar la bitácora. Intente más tarde.");
+            alerta.getButtonTypes().setAll(ButtonType.OK);
+            alerta.showAndWait();
         }
     }
 
