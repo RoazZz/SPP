@@ -1,22 +1,23 @@
 package gui.controladores;
 
 import excepciones.DAOExcepcion;
+import interfaces.Regresable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import logica.dao.ProyectoDAO;
 import logica.dao.SolicitaProyectoDAO;
+import logica.dto.PracticanteDTO;
 import logica.dto.ProyectoDTO;
 import logica.dto.SolicitaProyectoDTO;
+import logica.dto.UsuarioDTO;
 import logica.enums.TipoEstadoSolicitud;
+import logica.utilidades.SesionUsuarioSingleton;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -25,13 +26,13 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class SolicitarProyectoControlador implements Initializable {
+public class SolicitarProyectoControlador implements Initializable, Regresable {
 
     private static final Logger LOGGER = Logger.getLogger(SolicitarProyectoControlador.class.getName());
     private static final int MAXIMO_SELECCIONES = 3;
 
     @FXML private TextField txtBuscar;
-    @FXML private TableView<ProyectoDTO> tablaProyectos;
+    @FXML private TableView<ProyectoDTO> tvProyectos;
     @FXML private TableColumn<ProyectoDTO, String> colNombre;
     @FXML private TableColumn<ProyectoDTO, String> colOrganizacion;
     @FXML private TableColumn<ProyectoDTO, String> colDescripcion;
@@ -42,130 +43,123 @@ public class SolicitarProyectoControlador implements Initializable {
     @FXML private TextField txtPeriodo;
     @FXML private Label lblError;
     @FXML private Button btnEnviar;
+    @FXML private Button btnCancelar;
 
-    private final ObservableList<ProyectoDTO> todosLosProyectos = FXCollections.observableArrayList();
-    private final List<ProyectoDTO> seleccionados = new ArrayList<>();
+    private Scene escenaAnterior;
+    private final ObservableList<ProyectoDTO> listaProyectosDisponibles = FXCollections.observableArrayList();
+    private final List<ProyectoDTO> proyectosSeleccionados = new ArrayList<>();
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        configurarTabla();
+        cargarProyectosDesdeBD();
+
+        btnCancelar.setOnAction(accion -> regresar());
+        btnEnviar.setOnAction(accion -> manejarEnviarSolicitud());
         lblError.setVisible(false);
+    }
+
+    private void configurarTabla() {
         colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
         colOrganizacion.setCellValueFactory(new PropertyValueFactory<>("idOrganizacion"));
         colDescripcion.setCellValueFactory(new PropertyValueFactory<>("descripcion"));
-        cargarProyectos();
+
+        colSeleccionar.setCellFactory(parametro -> new TableCell<>() {
+            private final Button btnAñadir = new Button("Añadir");
+            {
+                btnAñadir.getStyleClass().add("btn-guardar");
+                btnAñadir.setOnAction(event -> {
+                    ProyectoDTO proyecto = getTableView().getItems().get(getIndex());
+                    agregarASeleccionados(proyecto);
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean vacio) {
+                super.updateItem(item, vacio);
+                setGraphic(vacio ? null : btnAñadir);
+            }
+        });
     }
 
-    private void cargarProyectos() {
+    private void cargarProyectosDesdeBD() {
         try {
             ProyectoDAO proyectoDAO = new ProyectoDAO();
             List<ProyectoDTO> proyectos = proyectoDAO.listarProyectos();
-            todosLosProyectos.setAll(proyectos);
-            tablaProyectos.setItems(todosLosProyectos);
+            listaProyectosDisponibles.setAll(proyectos);
+            tvProyectos.setItems(listaProyectosDisponibles);
         } catch (DAOExcepcion e) {
             LOGGER.log(Level.SEVERE, "Error al cargar proyectos", e);
-            lblError.setText("No se pudieron cargar los proyectos disponibles.");
-            lblError.setVisible(true);
+            mostrarError("No se pudo conectar con la base de datos de proyectos.");
         }
-    }
-
-    @FXML
-    private void manejarBuscar() {
-        String termino = txtBuscar.getText().trim().toLowerCase();
-        if (termino.isEmpty()) {
-            tablaProyectos.setItems(todosLosProyectos);
-            return;
-        }
-        ObservableList<ProyectoDTO> filtrados = FXCollections.observableArrayList();
-        for (ProyectoDTO proyecto : todosLosProyectos) {
-            boolean coincideNombre = proyecto.getNombre().toLowerCase().contains(termino);
-            boolean coincideDescripcion = proyecto.getDescripcion().toLowerCase().contains(termino);
-            if (coincideNombre || coincideDescripcion) {
-                filtrados.add(proyecto);
-            }
-        }
-        tablaProyectos.setItems(filtrados);
-    }
-
-    @FXML
-    private void manejarLimpiar() {
-        txtBuscar.clear();
-        tablaProyectos.setItems(todosLosProyectos);
     }
 
     @FXML
     private void manejarEnviarSolicitud() {
         lblError.setVisible(false);
 
-        String mensajeValidacion = validarCampos();
-        if (mensajeValidacion != null) {
-            lblError.setText(mensajeValidacion);
-            lblError.setVisible(true);
+        if (proyectosSeleccionados.isEmpty() || txtPeriodo.getText().trim().isEmpty()) {
+            mostrarError("Debes seleccionar proyectos y especificar el periodo.");
             return;
         }
 
         try {
-            SolicitaProyectoDAO solicitaProyectoDAO = new SolicitaProyectoDAO();
-            String matricula = ""; // obtener del SesionUsuario - Cambiale Jared
+            UsuarioDTO usuarioActual = SesionUsuarioSingleton.obtenerInstancia().obtenerUsuarioActual();
+            if (!(usuarioActual instanceof PracticanteDTO)) {
+                mostrarError("Solo los practicantes pueden realizar esta acción.");
+                return;
+            }
 
-            for (ProyectoDTO proyecto : seleccionados) {
+            String matricula = ((PracticanteDTO) usuarioActual).getMatricula();
+            SolicitaProyectoDAO solicitaDAO = new SolicitaProyectoDAO();
+
+            for (ProyectoDTO proyecto : proyectosSeleccionados) {
                 SolicitaProyectoDTO solicitud = new SolicitaProyectoDTO(
                         matricula,
                         proyecto.getIdProyecto(),
                         TipoEstadoSolicitud.PENDIENTE,
                         txtPeriodo.getText().trim()
                 );
-                solicitaProyectoDAO.insertarSolicitudProyecto(solicitud);
+                solicitaDAO.insertarSolicitudProyecto(solicitud);
             }
 
-            cerrarVentana();
-
+            regresar();
         } catch (DAOExcepcion e) {
-            LOGGER.log(Level.SEVERE, "Error al enviar solicitudes de proyecto", e);
-            lblError.setText("No se pudieron enviar las solicitudes. Intente más tarde.");
-            lblError.setVisible(true);
+            LOGGER.log(Level.SEVERE, "Error al procesar solicitud", e);
+            mostrarError("Hubo un error al guardar tu solicitud. Intenta de nuevo.");
         }
     }
 
-    public void agregarSeleccion(ProyectoDTO proyecto) {
-        boolean yaSeleccionado = false;
-        for (ProyectoDTO seleccionado : seleccionados) {
-            if (seleccionado.getIdProyecto() == proyecto.getIdProyecto()) {
-                yaSeleccionado = true;
-                break;
-            }
-        }
-        if (!yaSeleccionado && seleccionados.size() < MAXIMO_SELECCIONES) {
-            seleccionados.add(proyecto);
-            actualizarLabelsSeleccion();
+    private void agregarASeleccionados(ProyectoDTO proyecto) {
+        boolean yaExiste = proyectosSeleccionados.stream()
+                .anyMatch(proyectoDTO -> proyectoDTO.getIdProyecto() == proyecto.getIdProyecto());
+
+        if (!yaExiste && proyectosSeleccionados.size() < MAXIMO_SELECCIONES) {
+            proyectosSeleccionados.add(proyecto);
+            actualizarInterfazSeleccion();
         }
     }
 
-    @FXML
-    private void manejarCancelar() {
-        cerrarVentana();
+    private void actualizarInterfazSeleccion() {
+        lblPrioridad1.setText(proyectosSeleccionados.size() > 0 ? proyectosSeleccionados.get(0).getNombre() : "Sin selección");
+        lblPrioridad2.setText(proyectosSeleccionados.size() > 1 ? proyectosSeleccionados.get(1).getNombre() : "Sin selección");
+        lblPrioridad3.setText(proyectosSeleccionados.size() > 2 ? proyectosSeleccionados.get(2).getNombre() : "Sin selección");
     }
 
-    private String validarCampos() {
-        StringBuilder errores = new StringBuilder();
+    private void mostrarError(String mensaje) {
+        lblError.setText(mensaje);
+        lblError.setVisible(true);
+    }
 
-        if (seleccionados.isEmpty()) {
-            errores.append("Debe seleccionar al menos un proyecto.\n");
+    @Override
+    public void setEscenaAnterior(Scene escena) {
+        this.escenaAnterior = escena;
+    }
+
+    private void regresar() {
+        if (escenaAnterior != null) {
+            Stage escenario = (Stage) btnCancelar.getScene().getWindow();
+            escenario.setScene(escenaAnterior);
         }
-        if (txtPeriodo.getText().trim().isEmpty()) {
-            errores.append("El periodo no puede estar vacío.\n");
-        }
-
-        boolean hayErrores = errores.length() > 0;
-        return hayErrores ? errores.toString() : null;
-    }
-
-    private void actualizarLabelsSeleccion() {
-        lblPrioridad1.setText(seleccionados.size() > 0 ? seleccionados.get(0).getNombre() : "Sin selección");
-        lblPrioridad2.setText(seleccionados.size() > 1 ? seleccionados.get(1).getNombre() : "Sin selección");
-        lblPrioridad3.setText(seleccionados.size() > 2 ? seleccionados.get(2).getNombre() : "Sin selección");
-    }
-
-    private void cerrarVentana() {
-        ((Stage) btnEnviar.getScene().getWindow()).close();
     }
 }
