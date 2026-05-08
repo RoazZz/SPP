@@ -16,10 +16,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ReporteDAO implements ReporteDAOInterfaz {
-    public static final String SQL_INSERT = "INSERT INTO reporte(TipoReporte, Fecha, Ruta, Estado) VALUES (?, ?, ?, ?)";
-    public static final String SQL_UPDATE = "UPDATE reporte SET TipoReporte = ?, Fecha = ?, Ruta = ?, Estado = ? WHERE idReporte = ?";
+    public static final String SQL_INSERT = "INSERT INTO reporte(idUsuario, TipoReporte, Fecha, Ruta, Estado) VALUES (?, ?, ?, ?, ?)";
+    public static final String SQL_UPDATE = "UPDATE reporte SET idUsuario = ?, TipoReporte = ?, Fecha = ?, Ruta = ?, Estado = ? WHERE idReporte = ?";
     public static final String SQL_SELECT_BY_ID = "SELECT * FROM reporte WHERE idReporte = ?";
     public static final String SQL_SELECT_ALL = "SELECT * FROM reporte";
+    public static final String SQL_SELECT_BY_USUARIO = "SELECT * FROM reporte WHERE idUsuario = ?";
 
     private Connection conexion;
     private static final Logger logger = Logger.getLogger(ReporteDAO.class.getName());
@@ -36,10 +37,11 @@ public class ReporteDAO implements ReporteDAOInterfaz {
     @Override
     public ReporteDTO agregarReporte(ReporteDTO reporte) throws DAOExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
-            preparedStatement.setString(1, reporte.getTipoReporte().name());
-            preparedStatement.setDate(2, Date.valueOf(reporte.getFecha()));
-            preparedStatement.setString(3, reporte.getRuta());
-            preparedStatement.setString(4, reporte.getEstado().name());
+            preparedStatement.setInt(1, reporte.getIdUsuario());
+            preparedStatement.setString(2, reporte.getTipoReporte().name());
+            preparedStatement.setDate(3, Date.valueOf(reporte.getFecha()));
+            preparedStatement.setString(4, reporte.getRuta());
+            preparedStatement.setString(5, reporte.getEstado().name());
             preparedStatement.executeUpdate();
 
             try (ResultSet resultSet = preparedStatement.getGeneratedKeys()) {
@@ -57,11 +59,12 @@ public class ReporteDAO implements ReporteDAOInterfaz {
     @Override
     public boolean actualizarReporte(ReporteDTO reporte) throws DAOExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_UPDATE)) {
-            preparedStatement.setString(1, reporte.getTipoReporte().name());
-            preparedStatement.setDate(2, Date.valueOf(reporte.getFecha()));
-            preparedStatement.setString(3, reporte.getRuta());
-            preparedStatement.setString(4, reporte.getEstado().name());
-            preparedStatement.setInt(5, reporte.getIdReporte());
+            preparedStatement.setInt(1, reporte.getIdUsuario());
+            preparedStatement.setString(2, reporte.getTipoReporte().name());
+            preparedStatement.setDate(3, Date.valueOf(reporte.getFecha()));
+            preparedStatement.setString(4, reporte.getRuta());
+            preparedStatement.setString(5, reporte.getEstado().name());
+            preparedStatement.setInt(6, reporte.getIdReporte());
 
             if (preparedStatement.executeUpdate() == 0) {
                 throw new EntidadNoEncontradaExcepcion("Reporte no encontrado para actualizar");
@@ -80,7 +83,7 @@ public class ReporteDAO implements ReporteDAOInterfaz {
                 if (rs.next()) {
                     return crearDTO(rs);
                 }
-                throw new EntidadNoEncontradaExcepcion("Reporte no encontrado");
+                throw new EntidadNoEncontradaExcepcion("Reporte no encontrado con id: " + idReporte);
             }
         } catch (SQLException e) {
             throw new DAOExcepcion("Error al buscar reporte", e);
@@ -90,7 +93,8 @@ public class ReporteDAO implements ReporteDAOInterfaz {
     @Override
     public List<ReporteDTO> listarTodosReporte() throws DAOExcepcion {
         List<ReporteDTO> lista = new ArrayList<>();
-        try (PreparedStatement ps = conexion.prepareStatement(SQL_SELECT_ALL); ResultSet rs = ps.executeQuery()) {
+        try (PreparedStatement ps = conexion.prepareStatement(SQL_SELECT_ALL);
+             ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 lista.add(crearDTO(rs));
             }
@@ -100,9 +104,26 @@ public class ReporteDAO implements ReporteDAOInterfaz {
         }
     }
 
+    public List<ReporteDTO> listarReportesPorUsuario(int idUsuario) throws DAOExcepcion {
+        List<ReporteDTO> lista = new ArrayList<>();
+        try (PreparedStatement ps = conexion.prepareStatement(SQL_SELECT_BY_USUARIO)) {
+            ps.setInt(1, idUsuario);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    lista.add(crearDTO(rs));
+                }
+            }
+            return lista;
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error al listar reportes por usuario", e);
+            throw new DAOExcepcion("Error al listar reportes por usuario", e);
+        }
+    }
+
     private ReporteDTO crearDTO(ResultSet rs) throws SQLException {
         return new ReporteDTO(
                 rs.getInt("idReporte"),
+                rs.getInt("idUsuario"),
                 TipoReporte.valueOf(rs.getString("TipoReporte")),
                 rs.getDate("Fecha").toLocalDate(),
                 rs.getString("Ruta"),
