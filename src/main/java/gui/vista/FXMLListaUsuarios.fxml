@@ -1,45 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
-<BorderPane prefHeight="650.0" prefWidth="1000.0" stylesheets="@/estilos.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.controladores.ListaUsuariosControlador">
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane prefHeight="650.0" prefWidth="1000.0" stylesheets="@/estilos.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.controladores.ListaUsuariosControlador">
     <top>
         <VBox alignment="CENTER" styleClass="header-container">
-            <Label text="LISTA DE USUARIOS" styleClass="titulo-ventana" />
+            <Label styleClass="titulo-ventana" text="LISTA DE USUARIOS" />
         </VBox>
     </top>
     <center>
-        <VBox alignment="TOP_CENTER" style="-fx-padding: 30 40 30 40;" spacing="20">
-            <VBox styleClass="panel-formulario" spacing="15">
-                <Label text="Usuarios Registrados" styleClass="label-seccion" />
-                <HBox spacing="15" alignment="CENTER_LEFT">
+        <VBox alignment="TOP_CENTER" spacing="20" style="-fx-padding: 30 40 30 40;">
+            <VBox maxWidth="876.0" prefHeight="512.0" prefWidth="876.0" spacing="15" styleClass="panel-formulario">
+                <Label styleClass="label-seccion" text="Usuarios Registrados" />
+                <HBox alignment="CENTER_LEFT" spacing="15">
                     <TextField fx:id="txtBuscar" promptText="Buscar por nombre o apellido..." HBox.hgrow="ALWAYS" />
-                    <ComboBox fx:id="cbFiltroTipo" promptText="Filtrar por tipo" prefWidth="200" />
-                    <Button text="LIMPIAR FILTROS" onAction="#manejarLimpiarFiltros" styleClass="btn-cancelar" />
+                    <ComboBox fx:id="cbFiltroTipo" prefWidth="200" promptText="Filtrar por tipo" />
+                    <Button onAction="#manejarLimpiarFiltros" styleClass="btn-cancelar" text="LIMPIAR FILTROS" />
+               <Button fx:id="btnAñadirUsuario" mnemonicParsing="false" styleClass="btn-guardar" text="AÑADIR USUARIO" />
                 </HBox>
                 <TableView fx:id="tablaUsuarios" VBox.vgrow="ALWAYS">
                     <columns>
-                        <TableColumn fx:id="colNombre" text="Nombre(s)" prefWidth="150" />
-                        <TableColumn fx:id="colApellidoP" text="Apellido Paterno" prefWidth="140" />
-                        <TableColumn fx:id="colApellidoM" text="Apellido Materno" prefWidth="140" />
-                        <TableColumn fx:id="colTipo" text="Tipo" prefWidth="120" />
-                        <TableColumn fx:id="colEstado" text="Estado" prefWidth="100" />
-                        <TableColumn fx:id="colAcciones" text="Acciones" prefWidth="140" sortable="false" />
+                        <TableColumn fx:id="colNombre" prefWidth="150" text="Nombre(s)" />
+                        <TableColumn fx:id="colApellidoP" prefWidth="140" text="Apellido Paterno" />
+                        <TableColumn fx:id="colApellidoM" prefWidth="140" text="Apellido Materno" />
+                        <TableColumn fx:id="colTipo" prefWidth="120" text="Tipo" />
+                        <TableColumn fx:id="colEstado" prefWidth="100" text="Estado" />
+                        <TableColumn fx:id="colAcciones" prefWidth="140" sortable="false" text="Acciones" />
                     </columns>
                 </TableView>
-                <HBox spacing="15" alignment="CENTER_RIGHT">
-                    <Label fx:id="lblContador" text="0 usuarios" styleClass="label-seccion" />
+                <HBox alignment="CENTER_RIGHT" spacing="15">
+                    <Label fx:id="lblContador" styleClass="label-seccion" text="0 usuarios" />
                     <Region HBox.hgrow="ALWAYS" />
-                    <Button text="CERRAR" onAction="#manejarCerrar" styleClass="btn-cancelar" />
+                    <Button fx:id="btnCerrar" onAction="#manejarCerrar" styleClass="btn-cancelar" text="CERRAR" />
                 </HBox>
             </VBox>
         </VBox>
