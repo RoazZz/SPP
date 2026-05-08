@@ -2,15 +2,19 @@ package gui.controladores;
 
 import excepciones.DAOExcepcion;
 import excepciones.ReglaDeNegocioExcepcion;
+import interfaces.Regresable;
 import javafx.fxml.FXML;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
 import logica.dto.ProyectoDTO;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class FormularioProyectoControlador {
+public class FormularioProyectoControlador implements Regresable{
 
     private static final Logger LOGGER = Logger.getLogger(FormularioProyectoControlador.class.getName());
 
@@ -19,7 +23,10 @@ public class FormularioProyectoControlador {
     @FXML private TextField txtNombre;
     @FXML private TextField txtDescripcion;
     @FXML private Label lblMensaje;
+    @FXML private Button btnSalir;
+    @FXML private Button btnGuardar;
 
+    private Scene escenaAnterior;
     private ProyectoControlador proyectoControlador;
 
     @FXML
@@ -30,6 +37,9 @@ public class FormularioProyectoControlador {
             LOGGER.log(Level.SEVERE, "Error al inicializar Proyecto Controlador", e);
             lblMensaje.setText("Error al conectar con la base de datos.");
         }
+
+        btnSalir.setOnAction(event -> regresar());
+        btnGuardar.setOnAction(event -> manejarGuardarProyecto());
     }
 
     @FXML
@@ -55,12 +65,6 @@ public class FormularioProyectoControlador {
             LOGGER.log(Level.SEVERE, "Error de base de datos al guardar proyecto", e);
             lblMensaje.setText("Error al guardar el proyecto. Intente de nuevo.");
         }
-    }
-
-    @FXML
-    public void manejarCancelar() {
-        limpiarCampos();
-        lblMensaje.setText("");
     }
 
     private boolean validarCamposVacios() {
@@ -92,5 +96,18 @@ public class FormularioProyectoControlador {
         txtNumeroDePersonal.clear();
         txtNombre.clear();
         txtDescripcion.clear();
+    }
+
+    @Override
+    public void setEscenaAnterior(Scene escena) {
+        this.escenaAnterior = escena;
+    }
+
+    private void regresar() {
+        if (escenaAnterior != null) {
+            Stage escenario = (Stage) txtNombre.getScene().getWindow();
+            escenario.setScene(escenaAnterior);
+            escenario.show();
+        }
     }
 }

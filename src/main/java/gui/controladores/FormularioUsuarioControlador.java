@@ -150,7 +150,7 @@ public class FormularioUsuarioControlador implements Regresable {
 
             mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito",
                     modoEdicion ? "Profesor actualizado correctamente." : "Profesor registrado correctamente.");
-            cerrarVentana();
+            regresar();
 
         } catch (ReglaDeNegocioExcepcion e) {
             LOGGER.log(Level.WARNING, "Validacion fallida al guardar profesor", e);
@@ -188,10 +188,6 @@ public class FormularioUsuarioControlador implements Regresable {
         alerta.setHeaderText(null);
         alerta.setContentText(mensaje);
         alerta.showAndWait();
-    }
-
-    private void cerrarVentana() {
-        ((Stage) txtNombre.getScene().getWindow()).close();
     }
 
     @Override

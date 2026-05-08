@@ -40,8 +40,8 @@
                   <Separator />
                   <HBox alignment="CENTER_RIGHT" spacing="20" style="-fx-padding: 10 0 0 0;">
                      <children>
-                        <Button onAction="#manejarCancelar" styleClass="btn-cancelar" stylesheets="@/estilos.css" text="SALIR" />
-                        <Button onAction="#manejarGuardarProyecto" styleClass="btn-guardar" stylesheets="@/estilos.css" text="GUARDAR DATOS" />
+                        <Button fx:id="btnSalir" styleClass="btn-cancelar" stylesheets="@/estilos.css" text="SALIR" />
+                        <Button fx:id="btnGuardar" styleClass="btn-guardar" stylesheets="@/estilos.css" text="GUARDAR DATOS" />
                      </children>
                   </HBox>
                   <Label fx:id="lblMensaje" />
