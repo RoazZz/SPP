@@ -15,10 +15,10 @@ public class CamposProfesorControlador implements ControladorEspecialidadInterfa
     }
 
     @Override
-    public void cargarDatos(ProfesorDTO p) {
-        txtNumeroPersonal.setText(p.getNumeroDePersonal());
+    public void cargarDatos(ProfesorDTO profesorDTO) {
+        txtNumeroPersonal.setText(profesorDTO.getNumeroDePersonal());
         txtNumeroPersonal.setEditable(false);
-        cbTurno.setValue(p.getTurno());
+        cbTurno.setValue(profesorDTO.getTurno());
     }
 
     public String getNumeroPersonal() {
