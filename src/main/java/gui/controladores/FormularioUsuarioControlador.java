@@ -7,9 +7,11 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.*; // corregir
+import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import logica.dto.CoordinadorDTO;
+import logica.dto.PracticanteDTO;
 import logica.dto.ProfesorDTO;
 import logica.enums.TipoDeUsuario;
 import logica.utilidades.PermisosRol;
@@ -34,6 +36,8 @@ public class FormularioUsuarioControlador implements Regresable {
     @FXML private Button btnSalir;
 
     private ProfesorControlador profesorControlador;
+    private PracticanteControlador practicanteControlador;
+    private CoordinadorControlador coordinadorControlador;
     private Object controladorHijo;
     private ProfesorDTO profesorExistente;
     private boolean modoEdicion = false;
@@ -44,9 +48,25 @@ public class FormularioUsuarioControlador implements Regresable {
         try {
             profesorControlador = new ProfesorControlador();
         } catch (DAOExcepcion e) {
-            LOGGER.log(Level.SEVERE, "Error al inicializar ProfesorControlador", e);
+            LOGGER.log(Level.SEVERE, "Error al inicializar Profesor Controlador", e);
             mostrarAlerta(Alert.AlertType.ERROR, "Error",
-                    "No se pudo inicializar el formulario. Intente más tarde.");
+                    "No se pudo inicializar el formulario de profesor. Intente más tarde.");
+        }
+
+        try {
+            practicanteControlador = new PracticanteControlador();
+        } catch (DAOExcepcion e) {
+            LOGGER.log(Level.SEVERE, "Error al inicializar Practicante Controlador", e);
+            mostrarAlerta(Alert.AlertType.ERROR, "Error",
+                    "No se pudo inicializar el formulario de practicante. Intente más tarde.");
+        }
+
+        try {
+            coordinadorControlador = new CoordinadorControlador();
+        } catch (DAOExcepcion e) {
+            LOGGER.log(Level.SEVERE, "Error al inicializar al Coordinador controlador", e);
+            mostrarAlerta(Alert.AlertType.ERROR, "Error",
+                    "No se pudo inicializar el formulario de coordinador. Intente más tarde.");
         }
 
         cargarTiposPermitidos();
@@ -101,8 +121,13 @@ public class FormularioUsuarioControlador implements Regresable {
             return;
         }
 
-        if (cbTipoUsuario.getValue() == TipoDeUsuario.PROFESOR) {
+        TipoDeUsuario tipo = cbTipoUsuario.getValue();
+        if (tipo == TipoDeUsuario.PROFESOR) {
             guardarProfesor();
+        } else if (tipo == TipoDeUsuario.PRACTICANTE) {
+            guardarPracticante();
+        } else if (tipo == TipoDeUsuario.COORDINADOR) {
+            guardarCoordinador();
         }
     }
 
@@ -115,7 +140,6 @@ public class FormularioUsuarioControlador implements Regresable {
             mostrarErrorEnLinea("Error al cargar el formulario. Intente seleccionar el tipo de usuario nuevamente.");
             return false;
         }
-
         try {
             UsuarioControlador.validarCamposComunes(
                     txtNombre.getText(),
@@ -128,15 +152,13 @@ public class FormularioUsuarioControlador implements Regresable {
             mostrarErrorEnLinea(e.getMessage());
             return false;
         }
-
         return true;
     }
 
     private void guardarProfesor() {
         CamposProfesorControlador hijo = (CamposProfesorControlador) controladorHijo;
-
         try {
-            ProfesorDTO dto = profesorControlador.construirProfesorDTO(
+            ProfesorDTO ProfesorDTO = profesorControlador.construirProfesorDTO(
                     modoEdicion ? profesorExistente.getIdUsuario() : 0,
                     txtNombre.getText().trim(),
                     txtApellidoP.getText().trim(),
@@ -145,13 +167,10 @@ public class FormularioUsuarioControlador implements Regresable {
                     hijo.getNumeroPersonal(),
                     hijo.getTurno()
             );
-
-            profesorControlador.procesarGuardadoProfesor(dto, modoEdicion);
-
+            profesorControlador.procesarGuardadoProfesor(ProfesorDTO, modoEdicion);
             mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito",
                     modoEdicion ? "Profesor actualizado correctamente." : "Profesor registrado correctamente.");
-            regresar();
-
+            cerrarVentana();
         } catch (ReglaDeNegocioExcepcion e) {
             LOGGER.log(Level.WARNING, "Validacion fallida al guardar profesor", e);
             mostrarErrorEnLinea(e.getMessage());
@@ -159,6 +178,62 @@ public class FormularioUsuarioControlador implements Regresable {
             LOGGER.log(Level.SEVERE, "Error de BD al guardar profesor", e);
             mostrarAlerta(Alert.AlertType.ERROR, "Error al guardar",
                     "No se pudo guardar el profesor. Intente más tarde.");
+        }
+    }
+
+    private void guardarPracticante() {
+        CamposPracticanteControlador hijo = (CamposPracticanteControlador) controladorHijo;
+        try {
+            PracticanteDTO PracticanteDTO = practicanteControlador.construirPracticanteDTO(
+                    0,
+                    txtNombre.getText().trim(),
+                    txtApellidoP.getText().trim(),
+                    txtApellidoM.getText().trim(),
+                    txtContrasenia.getText(),
+                    hijo.getMatricula(),
+                    hijo.getIdSeccion(),
+                    hijo.getSemestre(),
+                    hijo.getGenero(),
+                    hijo.getEdad(),
+                    hijo.isLenguaIndigena()
+            );
+            practicanteControlador.procesarGuardadoPracticante(PracticanteDTO, false);
+            mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Practicante registrado correctamente.");
+            cerrarVentana();
+        } catch (ReglaDeNegocioExcepcion e) {
+            LOGGER.log(Level.WARNING, "Validacion fallida al guardar practicante", e);
+            mostrarErrorEnLinea(e.getMessage());
+        } catch (DAOExcepcion e) {
+            LOGGER.log(Level.SEVERE, "Error de BD al guardar practicante", e);
+            mostrarAlerta(Alert.AlertType.ERROR, "Error al guardar",
+                    "No se pudo guardar el practicante. Intente más tarde.");
+        } catch (NumberFormatException e) {
+            LOGGER.log(Level.WARNING, "Error de formato en campos numéricos del practicante", e);
+            mostrarErrorEnLinea("La sección y la edad deben ser números válidos.");
+        }
+    }
+
+    private void guardarCoordinador() {
+        CamposCoordinadorControlador hijo = (CamposCoordinadorControlador) controladorHijo;
+        try {
+            CoordinadorDTO coordinadorDTO = coordinadorControlador.construirCoordinadorDTO(
+                    0,
+                    txtNombre.getText().trim(),
+                    txtApellidoP.getText().trim(),
+                    txtApellidoM.getText().trim(),
+                    txtContrasenia.getText(),
+                    hijo.getNumeroPersonal()
+            );
+            coordinadorControlador.procesarGuardadoCoordinador(coordinadorDTO, false);
+            mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Coordinador registrado correctamente.");
+            cerrarVentana();
+        } catch (ReglaDeNegocioExcepcion e) {
+            LOGGER.log(Level.WARNING, "Validacion fallida al guardar coordinador", e);
+            mostrarErrorEnLinea(e.getMessage());
+        } catch (DAOExcepcion e) {
+            LOGGER.log(Level.SEVERE, "Error de BD al guardar coordinador", e);
+            mostrarAlerta(Alert.AlertType.ERROR, "Error al guardar",
+                    "No se pudo guardar el coordinador. Intente más tarde.");
         }
     }
 
@@ -188,6 +263,10 @@ public class FormularioUsuarioControlador implements Regresable {
         alerta.setHeaderText(null);
         alerta.setContentText(mensaje);
         alerta.showAndWait();
+    }
+
+    private void cerrarVentana() {
+        ((Stage) txtNombre.getScene().getWindow()).close();
     }
 
     @Override
