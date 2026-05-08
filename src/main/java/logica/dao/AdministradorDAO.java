@@ -22,7 +22,12 @@ public class AdministradorDAO implements AdministradorDAOInterfaz {
                     "administrador.idAdministrador" +
                     " FROM usuario JOIN administrador ON usuario.idUsuario = administrador.idUsuario " +
                     "WHERE administrador.idAdministrador = ?";
-
+    private static final String SQL_BUSCAR_POR_NOMBRE =
+            "SELECT usuario.idUsuario, usuario.nombre, usuario.apellidoP, usuario.apellidoM, " +
+                    "usuario.contrasenia, usuario.TipoUsuario, usuario.estado, " +
+                    "administrador.idAdministrador" +
+                    " FROM usuario JOIN administrador ON usuario.idUsuario = administrador.idUsuario " +
+                    "WHERE usuario.nombre = ?";
     private Connection conexion;
     private static final Logger logger = Logger.getLogger(AdministradorDAO.class.getName());
 
@@ -121,4 +126,32 @@ public class AdministradorDAO implements AdministradorDAOInterfaz {
             throw new DAOExcepcion("Error al buscar administrador por ID", e);
         }
     }
+
+    @Override
+    public AdministradorDTO buscarAdministradorPorNombre(String nombre) throws DAOExcepcion, EntidadNoEncontradaExcepcion {
+        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_BUSCAR_POR_NOMBRE)) {
+            preparedStatement.setString(1, nombre);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return new AdministradorDTO(
+                            resultSet.getInt("idUsuario"),
+                            resultSet.getString("nombre"),
+                            resultSet.getString("apellidoP"),
+                            resultSet.getString("apellidoM"),
+                            resultSet.getString("contrasenia"), TipoEstado.valueOf(resultSet.getString("estado")),
+                            TipoDeUsuario.valueOf(resultSet.getString("TipoUsuario")),
+                            resultSet.getInt("idAdministrador")
+                    );
+                } else {
+                    logger.log(Level.INFO, "Administrador no encontrado con nombre: " + nombre);
+                    throw new EntidadNoEncontradaExcepcion("Administrador no encontrado con nombre: " + nombre);
+                }
+            }
+        }catch (SQLException e){
+            logger.log(Level.SEVERE, "Error SQL al buscar administrador por nombre", e);
+            throw new DAOExcepcion("Error al buscar administrador por nombre", e);
+        }
+    }
+
+
 }
