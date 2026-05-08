@@ -38,7 +38,7 @@ public class AsignacionProyectoControlador {
 
         solicitudDTO.setEstadoProyecto(TipoEstadoSolicitud.ACEPTADO);
         solicitaProyectoDAO.actualizarSolicitudProyecto(solicitudDTO);
-        LOGGER.log(Level.INFO, "Solicitud aprobada para matricula: {0}", solicitudDTO.getMatricula());
+        LOGGER.log(Level.INFO, "Solicitud aprobada para matricula:", solicitudDTO.getMatricula());
 
         CoordinadorAsignaProyectoDTO asignacionDTO = new CoordinadorAsignaProyectoDTO(
                 numeroDePersonalCoordinador,
@@ -46,7 +46,7 @@ public class AsignacionProyectoControlador {
                 EstadoAsignacionProyecto.EN_REVISION
         );
         coordinadorAsignaProyectoDAO.insertarAsignacionDeProyecto(asignacionDTO);
-        LOGGER.log(Level.INFO, "Proyecto {0} asignado por coordinador {1}",
+        LOGGER.log(Level.INFO, "Proyecto asignado por coordinador",
                 new Object[]{solicitudDTO.getIdProyecto(), numeroDePersonalCoordinador});
     }
 

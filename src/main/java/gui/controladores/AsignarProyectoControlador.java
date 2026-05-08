@@ -108,7 +108,7 @@ public class AsignarProyectoControlador implements Regresable {
         lblMensaje.setVisible(false);
     }
 
-    private void manejarAsignar(SolicitaProyectoDTO solicitud) {
+    private void manejarAsignar(SolicitaProyectoDTO solicitudProyectoDTO) {
         try {
             UsuarioDTO usuarioActual = SesionUsuarioSingleton.obtenerInstancia().obtenerUsuarioActual();
             if (!(usuarioActual instanceof CoordinadorDTO)) {
@@ -116,8 +116,8 @@ public class AsignarProyectoControlador implements Regresable {
                 return;
             }
             String numeroPersonal = ((CoordinadorDTO) usuarioActual).getNumeroPersonal();
-            asignacionProyectoControlador.procesarAsignacionProyecto(solicitud, numeroPersonal);
-            listaSolicitudes.remove(solicitud);
+            asignacionProyectoControlador.procesarAsignacionProyecto(solicitudProyectoDTO, numeroPersonal);
+            listaSolicitudes.remove(solicitudProyectoDTO);
             mostrarMensaje("Proyecto asignado correctamente.", true);
         } catch (ReglaDeNegocioExcepcion e) {
             LOGGER.log(Level.WARNING, "Regla de negocio violada al asignar proyecto", e);
@@ -135,7 +135,6 @@ public class AsignarProyectoControlador implements Regresable {
 
     private void mostrarMensaje(String mensaje, boolean exito) {
         lblMensaje.setText(mensaje);
-        lblMensaje.setStyle(exito ? "-fx-text-fill: green;" : "-fx-text-fill: red;");
         lblMensaje.setVisible(true);
     }
 
