@@ -199,7 +199,7 @@ public class FormularioUsuarioControlador implements Regresable {
             );
             practicanteControlador.procesarGuardadoPracticante(PracticanteDTO, false);
             mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Practicante registrado correctamente.");
-            cerrarVentana();
+            regresar();
         } catch (ReglaDeNegocioExcepcion e) {
             LOGGER.log(Level.WARNING, "Validacion fallida al guardar practicante", e);
             mostrarErrorEnLinea(e.getMessage());
@@ -226,7 +226,7 @@ public class FormularioUsuarioControlador implements Regresable {
             );
             coordinadorControlador.procesarGuardadoCoordinador(coordinadorDTO, false);
             mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Coordinador registrado correctamente.");
-            cerrarVentana();
+            regresar();
         } catch (ReglaDeNegocioExcepcion e) {
             LOGGER.log(Level.WARNING, "Validacion fallida al guardar coordinador", e);
             mostrarErrorEnLinea(e.getMessage());
