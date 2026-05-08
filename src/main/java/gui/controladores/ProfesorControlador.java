@@ -53,7 +53,7 @@ public class ProfesorControlador {
         }
     }
 
-    private void validarCamposProfesor(String numeroPersonal, TipoTurno turno) throws ReglaDeNegocioExcepcion {
+    public static void validarCamposProfesor(String numeroPersonal, TipoTurno turno) throws ReglaDeNegocioExcepcion {
         if (numeroPersonal == null || numeroPersonal.trim().isEmpty()) {
             throw new ReglaDeNegocioExcepcion("El número de personal no puede estar vacío.");
         }
