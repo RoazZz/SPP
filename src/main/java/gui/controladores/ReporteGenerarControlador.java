@@ -5,16 +5,26 @@ import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.List;
+import interfaces.Regresable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.*;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.control.Alert;
+import javafx.stage.Stage;
 import logica.dao.ReporteDAO;
 import logica.dto.ReporteDTO;
 import logica.enums.EstadoReporte;
 import logica.enums.TipoReporte;
 import excepciones.DAOExcepcion;
+import logica.utilidades.SesionUsuarioSingleton;
+
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -25,13 +35,16 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ReporteGenerarControlador implements Initializable {
+public class ReporteGenerarControlador implements Initializable, Regresable {
     private static final Logger logger = Logger.getLogger(ReporteGenerarControlador.class.getName());
 
     @FXML private TextField txtNRC, txtPeriodo, txtNombreActividad, txtTiempoP, txtTiempoR;
     @FXML private TextArea txtDescActividad;
     @FXML private ComboBox<TipoReporte> cbTipoReporte;
     @FXML private ListView<String> lvActividades;
+    @FXML private Button btnGenerar;
+    @FXML private Button btnCancelar;
+    private Scene escenaAnterior;
 
     private ObservableList<String> listaActividades = FXCollections.observableArrayList();
 
@@ -39,6 +52,8 @@ public class ReporteGenerarControlador implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         cbTipoReporte.getItems().setAll(TipoReporte.values());
         lvActividades.setItems(listaActividades);
+        btnGenerar.setOnAction(e -> procesarGeneracion());
+        btnCancelar.setOnAction(e -> regresar());
     }
 
     @FXML
@@ -90,11 +105,11 @@ public class ReporteGenerarControlador implements Initializable {
             documento.close();
 
             ReporteDAO reporteDAO = new ReporteDAO();
-            ReporteDTO reporteDTO = new ReporteDTO(0, cbTipoReporte.getValue(), LocalDate.now(), rutaArchivo.toString(), EstadoReporte.GENERADO);
+            ReporteDTO reporteDTO = new ReporteDTO(0, SesionUsuarioSingleton.obtenerInstancia().obtenerUsuarioActual().getIdUsuario(), cbTipoReporte.getValue(), LocalDate.now(), rutaArchivo.toString(), EstadoReporte.GENERADO);
             reporteDAO.agregarReporte(reporteDTO);
 
             mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Reporte generado en: " + subCarpetaTipo + "/GENERADOS");
-            cancelar();
+            regresar();
 
         } catch (IOException | DAOExcepcion e) {
             logger.log(Level.SEVERE, "Error en generación", e);
@@ -102,9 +117,6 @@ public class ReporteGenerarControlador implements Initializable {
         }
     }
 
-    @FXML private void cancelar() {
-        lvActividades.getScene().getWindow().hide();
-    }
 
     private void mostrarAlerta(Alert.AlertType tipo, String titulo, String mensaje) {
         Alert alert = new Alert(tipo);
@@ -112,5 +124,18 @@ public class ReporteGenerarControlador implements Initializable {
         alert.setHeaderText(null);
         alert.setContentText(mensaje);
         alert.showAndWait();
+    }
+
+    @Override
+    public void setEscenaAnterior(Scene escena) {
+        this.escenaAnterior = escena;
+    }
+
+    private void regresar() {
+        if (escenaAnterior != null) {
+            Stage escenario = (Stage) btnCancelar.getScene().getWindow();
+            escenario.setScene(escenaAnterior);
+            escenario.show();
+        }
     }
 }

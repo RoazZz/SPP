@@ -60,6 +60,6 @@ public abstract class PrincipalBaseControlador implements Initializable {
 
     private void cerrarSesion() {
         SesionUsuarioSingleton.obtenerInstancia().cerrarSesion();
-        abrirVentana("/vistas/FXMLInicioSesion.fxml");
+        abrirVentana("/gui/vista/FXMLInicioSesion.fxml");
     }
 }

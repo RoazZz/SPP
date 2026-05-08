@@ -59,8 +59,8 @@ public class ListaUsuariosControlador implements Regresable{
         cargarUsuarios();
         configurarBusquedaReactiva();
         cargarTiposPermitidos();
-        btnCerrar.setOnAction(e -> regresar());
-        btnAñadirUsuario.setOnAction(e -> NavegacionControlador.abrirVentana("/gui/vista/FXMLFormularioUsuario.fxml", btnAñadirUsuario));
+        btnCerrar.setOnAction(accion -> regresar());
+        btnAñadirUsuario.setOnAction(accion -> NavegacionControlador.abrirVentana("/gui/vista/FXMLFormularioUsuario.fxml", btnAñadirUsuario));
     }
 
     private void cargarTiposPermitidos() {
@@ -77,28 +77,28 @@ public class ListaUsuariosControlador implements Regresable{
         colApellidoP.setCellValueFactory(new PropertyValueFactory<>("apellidoPaterno"));
         colApellidoM.setCellValueFactory(new PropertyValueFactory<>("apellidoMaterno"));
         colTipo.setCellValueFactory(
-                cell->new SimpleStringProperty(
-                        cell.getValue().getTipoDeUsuario() != null ? cell.getValue().getTipoDeUsuario().name() : ""
+                celda->new SimpleStringProperty(
+                        celda.getValue().getTipoDeUsuario() != null ? celda.getValue().getTipoDeUsuario().name() : ""
                 )
         );
 
         colEstado.setCellValueFactory(
-                cell -> new SimpleStringProperty(
-                        cell.getValue().getTipoEstado() != null
-                                ? cell.getValue().getTipoEstado().name() : ""
+                celda -> new SimpleStringProperty(
+                        celda.getValue().getTipoEstado() != null
+                                ? celda.getValue().getTipoEstado().name() : ""
                 )
         );
     }
 
     private void configurarColumnaAcciones() {
-        colAcciones.setCellFactory(col -> new TableCell<>() {
+        colAcciones.setCellFactory(columna -> new TableCell<>() {
             private final Button btnInactivar = new Button("INACTIVAR");
             private final HBox contenedor = new HBox(btnInactivar);
 
             {
                 btnInactivar.getStyleClass().add("btn-cancelar");
                 contenedor.setAlignment(Pos.CENTER);
-                btnInactivar.setOnAction(e -> {
+                btnInactivar.setOnAction(accion -> {
                     UsuarioDTO usuarioDTO = getTableView().getItems().get(getIndex());
                     manejarInactivar(usuarioDTO);
                 });
@@ -134,21 +134,21 @@ public class ListaUsuariosControlador implements Regresable{
             cbFiltroTipo.getItems().add(tipo.name());
         }
         cbFiltroTipo.setValue(TODOS);
-        cbFiltroTipo.valueProperty().addListener((obs, viejo, nuevo) -> aplicarFiltros());
+        cbFiltroTipo.valueProperty().addListener((observable, viejo, nuevo) -> aplicarFiltros());
     }
 
     private void cargarUsuarios() {
         try {
-            UsuarioDAO dao = new UsuarioDAO();
-            List<UsuarioDTO> usuarios = dao.listarUsuarios();
+            UsuarioDAO usuario = new UsuarioDAO();
+            List<UsuarioDTO> usuarios = usuario.listarUsuarios();
 
             listaCompleta = FXCollections.observableArrayList(usuarios);
             listaFiltrada = new FilteredList<>(listaCompleta, usuarioDTO -> true);
 
-            SortedList<UsuarioDTO> ordenada = new SortedList<>(listaFiltrada);
-            ordenada.comparatorProperty().bind(tablaUsuarios.comparatorProperty());
+            SortedList<UsuarioDTO> listaOrdenada = new SortedList<>(listaFiltrada);
+            listaOrdenada.comparatorProperty().bind(tablaUsuarios.comparatorProperty());
 
-            tablaUsuarios.setItems(ordenada);
+            tablaUsuarios.setItems(listaOrdenada);
             actualizarContador();
         } catch (DAOExcepcion e) {
             logger.log(Level.SEVERE, "Error al cargar la lista de usuarios", e);
@@ -218,8 +218,8 @@ public class ListaUsuariosControlador implements Regresable{
         return respuesta.isPresent() && respuesta.get() == ButtonType.OK;
     }
 
-    private String lowerSafe(String s) {
-        return s == null ? "" : s.toLowerCase();
+    private String lowerSafe(String texto) {
+        return texto == null ? "" : texto.toLowerCase();
     }
 
     private void actualizarContador() {

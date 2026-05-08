@@ -18,7 +18,12 @@ public class AutenticacionUsuario {
 
     public UsuarioDTO autenticar(String Usuario, String contrasenia) throws DAOExcepcion, EntidadNoEncontradaExcepcion, AutenticacionDeUsuarioExcepcion {
         UsuarioDTO usuario = buscarUsuario(Usuario);
-        verificarContrasenia(contrasenia, usuario.getContrasenia());
+        if (!verificarContrasenia(contrasenia, usuario.getContrasenia())) {
+            logger.log(Level.WARNING, "Intento de inicio de sesión fallido para el usuario: ", Usuario);
+            throw new AutenticacionDeUsuarioExcepcion("La contraseña ingresada es incorrecta.");
+        }
+
+        logger.log(Level.INFO, "Usuario autenticado exitosamente: {0}", Usuario);
         return usuario;
     }
 

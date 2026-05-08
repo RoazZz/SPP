@@ -44,7 +44,7 @@ public class UsuarioDAO implements UsuarioDAOInterfaz {
     }
 
     @Override
-    public void agregarUsuario(UsuarioDTO usuario) throws DAOExcepcion {
+    public UsuarioDTO agregarUsuario(UsuarioDTO usuario) throws DAOExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setString(1, usuario.getNombre());
             preparedStatement.setString(2, usuario.getApellidoPaterno());
@@ -60,10 +60,13 @@ public class UsuarioDAO implements UsuarioDAOInterfaz {
                     usuario.setIdUsuario(resultSet.getInt(1));
                 }
             }
-            logger.log(Level.INFO, "Usuario base creado exitosamente: " + usuario.getIdUsuario());
+
+            logger.log(Level.INFO, "Usuario base creado exitosamente: {0}", usuario.getIdUsuario());
+            return usuario;
+
         } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error al agregar usuario", e);
-            throw new DAOExcepcion("Error al agregar usuario: ", e);
+            logger.log(Level.SEVERE, "Error al agregar usuario en la base de datos", e);
+            throw new DAOExcepcion("No se pudo registrar el usuario en el sistema.", e);
         }
     }
 

@@ -1,17 +1,23 @@
 package gui.controladores;
 
+import interfaces.Regresable;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.*;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import logica.dao.ReporteDAO;
 import logica.dto.ReporteDTO;
 import logica.enums.TipoReporte;
 import logica.enums.EstadoReporte;
 import excepciones.DAOExcepcion;
+import logica.utilidades.SesionUsuarioSingleton;
 
 import java.awt.Desktop;
 import java.io.File;
@@ -26,7 +32,7 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ReporteAnadirControlador implements Initializable {
+public class ReporteAnadirControlador implements Initializable, Regresable {
     private static final Logger logger = Logger.getLogger(ReporteAnadirControlador.class.getName());
 
     @FXML private ComboBox<TipoReporte> cbTipoReporte;
@@ -36,6 +42,8 @@ public class ReporteAnadirControlador implements Initializable {
     @FXML private HBox hboxValidacionArchivo;
 
     @FXML private Button btnGuardar;
+    @FXML private Button btnCancelar;
+    private Scene escenaAnterior;
 
     private File archivoPDF = null;
 
@@ -43,6 +51,9 @@ public class ReporteAnadirControlador implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         cbTipoReporte.getItems().setAll(TipoReporte.values());
         cbTipoReporte.valueProperty().addListener((obs, oldVal, newVal) -> actualizarEstadoBotonGuardar());
+        btnGuardar.setOnAction(e -> guardarReporte());
+        btnCancelar.setOnAction(e -> regresar());
+        btnVistaPrevia.setOnAction(e -> mostrarVistaPrevia());
     }
 
     @FXML
@@ -104,6 +115,7 @@ public class ReporteAnadirControlador implements Initializable {
                 ReporteDAO reporteDAO = new ReporteDAO();
                 ReporteDTO reporteDTO = new ReporteDTO(
                         0,
+                        SesionUsuarioSingleton.obtenerInstancia().obtenerUsuarioActual().getIdUsuario(),
                         cbTipoReporte.getValue(),
                         LocalDate.now(),
                         archivoDestino.toString(),
@@ -112,7 +124,7 @@ public class ReporteAnadirControlador implements Initializable {
                 reporteDAO.agregarReporte(reporteDTO);
 
                 mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Archivo firmado cargado y registrado exitosamente.");
-                cerrarVentana();
+                regresar();
 
             } catch (IOException e) {
                 logger.log(Level.SEVERE, "Error al copiar el archivo físico", e);
@@ -124,21 +136,8 @@ public class ReporteAnadirControlador implements Initializable {
         }
     }
 
-    @FXML
-    private void cancelar() {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "¿Seguro que deseas cancelar? Se perderá la selección del archivo.", ButtonType.YES, ButtonType.NO);
-        alert.setHeaderText(null);
-        if (alert.showAndWait().orElse(ButtonType.NO) == ButtonType.YES) {
-            cerrarVentana();
-        }
-    }
-
     private void actualizarEstadoBotonGuardar() {
         btnGuardar.setDisable(archivoPDF == null || cbTipoReporte.getValue() == null);
-    }
-
-    private void cerrarVentana() {
-        lblNombreArchivo.getScene().getWindow().hide();
     }
 
     private void mostrarAlerta(Alert.AlertType tipo, String titulo, String mensaje) {
@@ -147,5 +146,18 @@ public class ReporteAnadirControlador implements Initializable {
         alert.setHeaderText(null);
         alert.setContentText(mensaje);
         alert.showAndWait();
+    }
+
+    @Override
+    public void setEscenaAnterior(Scene escena) {
+        this.escenaAnterior = escena;
+    }
+
+    private void regresar() {
+        if (escenaAnterior != null) {
+            Stage escenario = (Stage) btnCancelar.getScene().getWindow();
+            escenario.setScene(escenaAnterior);
+            escenario.show();
+        }
     }
 }
