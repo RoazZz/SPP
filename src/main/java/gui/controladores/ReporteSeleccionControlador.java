@@ -1,44 +1,46 @@
 package gui.controladores;
 
+import interfaces.Regresable;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.scene.control.Button;
-import java.io.IOException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ReporteSeleccionControlador {
+public class ReporteSeleccionControlador implements Regresable {
+    private Scene escenaAnterior;
     private static final Logger logger = Logger.getLogger(ReporteSeleccionControlador.class.getName());
 
     @FXML private Button btnRegresar;
+    @FXML private Button btnGenerar;
+    @FXML private Button btnAñadir;
+
+    public void initialize() {
+        btnGenerar.setOnAction(e -> irAGenerar());
+        btnAñadir.setOnAction(e -> irAAnadir());
+        btnRegresar.setOnAction(e -> regresar());
+    }
 
     @FXML
     private void irAGenerar() {
-        cambiarEscena("/gui/vista/FXMLReporteGenerar.fxml", "Generar Nuevo Reporte");
+        NavegacionControlador.abrirVentana("/gui/vista/FXMLReporteGenerar.fxml", btnGenerar);
     }
 
     @FXML
     private void irAAnadir() {
-        cambiarEscena("/gui/vista/FXMLReporteAnadir.fxml", "Añadir Reporte Firmado");
+        NavegacionControlador.abrirVentana("/gui/vista/FXMLReporteAnadir.fxml", btnAñadir);
     }
 
-    @FXML
+    @Override
+    public void setEscenaAnterior(Scene escena) {
+        this.escenaAnterior = escena;
+    }
+
     private void regresar() {
-        Stage stage = (Stage) btnRegresar.getScene().getWindow();
-        stage.close();
-    }
-
-    private void cambiarEscena(String rutaFXML, String titulo) {
-        try {
-            Stage stageActual = (Stage) btnRegresar.getScene().getWindow();
-            Parent root = FXMLLoader.load(getClass().getResource(rutaFXML));
-            stageActual.setScene(new Scene(root));
-            stageActual.setTitle(titulo);
-        } catch (IOException e) {
-            logger.log(Level.SEVERE, "Error al cargar la vista: " + rutaFXML, e);
+        if (escenaAnterior != null) {
+            Stage escenario = (Stage) btnRegresar.getScene().getWindow();
+            escenario.setScene(escenaAnterior);
+            escenario.show();
         }
     }
 }
