@@ -10,11 +10,11 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="340.0" prefWidth="706.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="340.0" prefWidth="706.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.controladores.FormularioProyectoControlador">
    <top>
-      <VBox alignment="TOP_CENTER" prefHeight="33.0" prefWidth="600.0" styleClass="label-seccion" stylesheets="@../../../recursos/estilos.css" BorderPane.alignment="CENTER">
+      <VBox alignment="TOP_CENTER" prefHeight="33.0" prefWidth="600.0" styleClass="label-seccion" stylesheets="@/estilos.css" BorderPane.alignment="CENTER">
          <children>
-            <Label alignment="TOP_CENTER" prefHeight="78.0" prefWidth="718.0" stylesheets="@../../../recursos/estilos.css" text="Agregar Proyecto al Sistema">
+            <Label alignment="TOP_CENTER" prefHeight="78.0" prefWidth="718.0" stylesheets="@/estilos.css" text="Agregar Proyecto al Sistema">
                <styleClass>
                   <String fx:value="header-container" />
                   <String fx:value="titulo-ventana" />
