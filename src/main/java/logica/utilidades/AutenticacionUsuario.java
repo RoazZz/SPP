@@ -3,9 +3,11 @@ package logica.utilidades;
 import excepciones.AutenticacionDeUsuarioExcepcion;
 import excepciones.DAOExcepcion;
 import excepciones.EntidadNoEncontradaExcepcion;
+import logica.dao.AdministradorDAO;
 import logica.dao.CoordinadorDAO;
 import logica.dao.PracticanteDAO;
 import logica.dao.ProfesorDAO;
+import logica.dto.AdministradorDTO;
 import logica.dto.UsuarioDTO;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -43,6 +45,14 @@ public class AutenticacionUsuario {
         try {
             return new CoordinadorDAO().buscarCoordinadorPorNumeroDePersonal(usuario);
         } catch (EntidadNoEncontradaExcepcion e) {
+            logger.log(Level.INFO, "No es coordinador");
+        } catch (DAOExcepcion e) {
+            logger.log(Level.SEVERE, "Error al buscar coordinador", e);
+            throw new EntidadNoEncontradaExcepcion("Error al buscar el coordinador." + e);
+        }
+        try{
+            return new AdministradorDAO().buscarAdministradorPorNombre(usuario);
+        }catch (EntidadNoEncontradaExcepcion e) {
             logger.log(Level.INFO, "No es coordinador");
         } catch (DAOExcepcion e) {
             logger.log(Level.SEVERE, "Error al buscar coordinador", e);
