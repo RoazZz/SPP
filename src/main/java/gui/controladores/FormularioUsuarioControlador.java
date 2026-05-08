@@ -1,7 +1,7 @@
 package gui.controladores;
 
 import excepciones.DAOExcepcion;
-import excepciones.ValidacionExcepcion;
+import excepciones.ReglaDeNegocioExcepcion;
 import interfaces.Regresable;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -10,8 +10,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import gui.controladores.ProfesorControlador;
-import gui.controladores.UsuarioControlador;
 import logica.dto.ProfesorDTO;
 import logica.enums.TipoDeUsuario;
 import logica.utilidades.PermisosRol;
@@ -125,7 +123,7 @@ public class FormularioUsuarioControlador implements Regresable {
                     txtApellidoM.getText(),
                     txtContrasenia.getText()
             );
-        } catch (ValidacionExcepcion e) {
+        } catch (ReglaDeNegocioExcepcion e) {
             LOGGER.log(Level.WARNING, "Validacion fallida en campos comunes", e);
             mostrarErrorEnLinea(e.getMessage());
             return false;
@@ -154,7 +152,7 @@ public class FormularioUsuarioControlador implements Regresable {
                     modoEdicion ? "Profesor actualizado correctamente." : "Profesor registrado correctamente.");
             cerrarVentana();
 
-        } catch (ValidacionExcepcion e) {
+        } catch (ReglaDeNegocioExcepcion e) {
             LOGGER.log(Level.WARNING, "Validacion fallida al guardar profesor", e);
             mostrarErrorEnLinea(e.getMessage());
         } catch (DAOExcepcion e) {

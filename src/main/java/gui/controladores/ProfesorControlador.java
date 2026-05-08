@@ -1,7 +1,7 @@
 package gui.controladores;
 
 import excepciones.DAOExcepcion;
-import excepciones.ValidacionExcepcion;
+import excepciones.ReglaDeNegocioExcepcion;
 import logica.dao.ProfesorDAO;
 import logica.dao.UsuarioDAO;
 import logica.dto.ProfesorDTO;
@@ -34,12 +34,12 @@ public class ProfesorControlador {
     }
 
     public void procesarGuardadoProfesor(ProfesorDTO profesorDTO, boolean modoEdicion)
-            throws DAOExcepcion, ValidacionExcepcion {
+            throws DAOExcepcion, ReglaDeNegocioExcepcion {
         validarCamposProfesor(profesorDTO.getNumeroDePersonal(), profesorDTO.getTurno());
 
         int idExcluir = modoEdicion ? profesorDTO.getIdUsuario() : 0;
         if (profesorDAO.existeProfesorConNumeroPersonal(profesorDTO.getNumeroDePersonal(), idExcluir)) {
-            throw new ValidacionExcepcion("Ya existe un profesor con el número de personal: " + profesorDTO.getNumeroDePersonal()
+            throw new ReglaDeNegocioExcepcion("Ya existe un profesor con el número de personal: " + profesorDTO.getNumeroDePersonal()
             );
         }
 
@@ -53,12 +53,12 @@ public class ProfesorControlador {
         }
     }
 
-    private void validarCamposProfesor(String numeroPersonal, TipoTurno turno) throws ValidacionExcepcion {
+    private void validarCamposProfesor(String numeroPersonal, TipoTurno turno) throws ReglaDeNegocioExcepcion {
         if (numeroPersonal == null || numeroPersonal.trim().isEmpty()) {
-            throw new ValidacionExcepcion("El número de personal no puede estar vacío.");
+            throw new ReglaDeNegocioExcepcion("El número de personal no puede estar vacío.");
         }
         if (turno == null) {
-            throw new ValidacionExcepcion("Debe seleccionar un turno.");
+            throw new ReglaDeNegocioExcepcion("Debe seleccionar un turno.");
         }
     }
 }

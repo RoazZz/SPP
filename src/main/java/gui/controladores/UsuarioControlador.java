@@ -1,13 +1,12 @@
 package gui.controladores;
 
-import excepciones.DAOExcepcion;
-import excepciones.ValidacionExcepcion;
+import excepciones.ReglaDeNegocioExcepcion;
 
 public class UsuarioControlador {
 
     private static final int LONGITUD_MINIMA_CONTRASENIA = 8;
 
-    public static void validarCamposComunes(String nombre, String apellidoP, String apellidoM, String contrasenia) throws ValidacionExcepcion {
+    public static void validarCamposComunes(String nombre, String apellidoP, String apellidoM, String contrasenia) throws ReglaDeNegocioExcepcion {
         StringBuilder errores = new StringBuilder();
 
         if (nombre.trim().isEmpty()) {
@@ -27,7 +26,7 @@ public class UsuarioControlador {
         }
 
         if (errores.length() > 0) {
-            throw new ValidacionExcepcion(errores.toString());
+            throw new ReglaDeNegocioExcepcion(errores.toString());
         }
     }
 }
