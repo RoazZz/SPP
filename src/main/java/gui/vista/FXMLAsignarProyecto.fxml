@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane prefHeight="700.0" prefWidth="950.0" stylesheets="@/estilos.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.controladores.AsignarProyectoControlador">
+    <top>
+        <VBox styleClass="header-container">
+            <padding><Insets bottom="15" left="25" right="25" top="15" /></padding>
+            <Label styleClass="titulo-ventana" text="Asignar Proyecto" />
+            <Label styleClass="subtitulo-ventana" text="Gestiona las solicitudes de proyecto de los practicantes" />
+        </VBox>
+    </top>
+    <center>
+        <VBox alignment="TOP_CENTER" spacing="20" style="-fx-padding: 30 40 30 40;">
+            <VBox spacing="15" styleClass="panel-formulario">
+                <Label styleClass="label-seccion" text="Solicitudes Pendientes" />
+                <HBox alignment="CENTER_LEFT" spacing="15">
+                    <TextField fx:id="txtPeriodo" promptText="Periodo escolar (Ej: AGOSTO 2025 - ENERO 2026)" HBox.hgrow="ALWAYS" />
+                    <Button onAction="#manejarBuscar" styleClass="btn-guardar" text="BUSCAR" />
+                    <Button onAction="#manejarLimpiar" styleClass="btn-cancelar" text="LIMPIAR" />
+                </HBox>
+                <TableView fx:id="tablaSolicitudes" prefHeight="400.0" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="colMatricula" prefWidth="150.0" text="Matrícula" />
+                        <TableColumn fx:id="colIdProyecto" prefWidth="100.0" text="ID Proyecto" />
+                        <TableColumn fx:id="colPeriodo" prefWidth="200.0" text="Periodo" />
+                        <TableColumn fx:id="colEstado" prefWidth="150.0" text="Estado" />
+                        <TableColumn fx:id="colAsignar" prefWidth="150.0" sortable="false" text="Acción" />
+                    </columns>
+                </TableView>
+            </VBox>
+            <Separator />
+            <HBox alignment="CENTER_RIGHT" spacing="20">
+                <Label fx:id="lblMensaje" maxWidth="400.0" styleClass="label-error" wrapText="true" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Button fx:id="btnSalir" onAction="#manejarSalir" styleClass="btn-cancelar" text="SALIR" />
+            </HBox>
+        </VBox>
+    </center>
+</BorderPane>
