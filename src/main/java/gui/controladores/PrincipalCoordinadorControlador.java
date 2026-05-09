@@ -11,7 +11,7 @@ public class PrincipalCoordinadorControlador extends PrincipalBaseControlador{
 
     @Override
     protected void inicializarBotonesEspecificos() {
-        btnProyectos.setOnAction(e -> abrirVentana("/gui/vista/FXMLProyectos.fxml"));
+        btnProyectos.setOnAction(e -> abrirVentana("/gui/vista/FXMLAsignarProyecto.fxml"));
         btnReportes.setOnAction(e -> abrirVentana("/gui/vista/FXMLReportesGeneral.fxml"));
         btnPracticantes.setOnAction(e -> abrirVentana("/gui/vista/FXMLListaUsuarios.fxml"));
     }
