@@ -10,6 +10,6 @@
         <TextField fx:id="txtSemestre" promptText="Semestre" />
         <ComboBox fx:id="cbGenero" promptText="Seleccione Genero" maxWidth="Infinity" />
         <TextField fx:id="txtEdad" promptText="Edad" />
-        <CheckBox fx:id="chkLenguaIndigena" text="Habla lengua indígena" />
+        <CheckBox fx:id="chbLenguaIndigena" text="Habla lengua indígena" />
     </children>
 </VBox>
