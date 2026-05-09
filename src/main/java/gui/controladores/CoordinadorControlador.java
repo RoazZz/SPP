@@ -7,6 +7,7 @@ import logica.dao.UsuarioDAO;
 import logica.dto.CoordinadorDTO;
 import logica.enums.TipoDeUsuario;
 import logica.enums.TipoEstado;
+import logica.utilidades.CifradorContraseña;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -25,8 +26,9 @@ public class CoordinadorControlador {
     }
 
     public CoordinadorDTO construirCoordinadorDTO(int id, String nombre, String apellidoP, String apellidoM, String contrasenia, String numeroPersonal) {
+        String contraseniaProtegida = CifradorContraseña.cifrarContraseña(contrasenia);
         return new CoordinadorDTO(
-                id, nombre, apellidoP, apellidoM, contrasenia,
+                id, nombre, apellidoP, apellidoM, contraseniaProtegida,
                 TipoEstado.ACTIVO, TipoDeUsuario.COORDINADOR,
                 numeroPersonal
         );

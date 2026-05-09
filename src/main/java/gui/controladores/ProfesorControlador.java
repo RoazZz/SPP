@@ -8,6 +8,7 @@ import logica.dto.ProfesorDTO;
 import logica.enums.TipoDeUsuario;
 import logica.enums.TipoEstado;
 import logica.enums.TipoTurno;
+import logica.utilidades.CifradorContraseña;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -26,8 +27,9 @@ public class ProfesorControlador {
     }
 
     public ProfesorDTO construirProfesorDTO(int id, String nombre, String apellidoP, String apellidoM, String contrasenia, String numeroPersonal, TipoTurno turno) {
+        String contraseniaProtegida = CifradorContraseña.cifrarContraseña(contrasenia);
         return new ProfesorDTO(
-                id, nombre, apellidoP, apellidoM, contrasenia,
+                id, nombre, apellidoP, apellidoM, contraseniaProtegida,
                 TipoEstado.ACTIVO, TipoDeUsuario.PROFESOR,
                 numeroPersonal, turno
         );
