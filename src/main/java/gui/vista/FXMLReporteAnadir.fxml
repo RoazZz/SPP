@@ -31,6 +31,7 @@
                     <children>
                         <Label styleClass="label-seccion" text="Tipo de Reporte a subir:" />
                         <ComboBox fx:id="cbTipoReporte" maxWidth="Infinity" promptText="Selecciona el tipo de reporte…" />
+                        <ComboBox fx:id="cbMes" promptText="Mes del reporte" maxWidth="Infinity" visible="false" managed="false" />
                     </children>
                 </VBox>
 

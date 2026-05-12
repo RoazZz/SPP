@@ -37,6 +37,7 @@
                             <ComboBox fx:id="cbTipoReporte" promptText="Tipo de Reporte" HBox.hgrow="ALWAYS" />
                         </HBox>
                         <TextField fx:id="txtPeriodo" promptText="Periodo Escolar (Ej: AGOSTO 2025 - ENERO 2026)" />
+                        <ComboBox fx:id="cbMes" promptText="Mes del reporte" maxWidth="Infinity" visible="false" managed="false" />
                         <Separator />
                         <Label styleClass="label-seccion" text="Registro de Actividad" />
                         <TextField fx:id="txtNombreActividad" promptText="Título de la actividad" />
