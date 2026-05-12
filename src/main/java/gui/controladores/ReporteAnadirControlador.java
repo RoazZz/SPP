@@ -17,6 +17,7 @@ import logica.dto.ReporteDTO;
 import logica.enums.TipoReporte;
 import logica.enums.EstadoReporte;
 import excepciones.DAOExcepcion;
+import logica.utilidades.CifradorArchivo;
 import logica.utilidades.SesionUsuarioSingleton;
 
 import java.awt.Desktop;
@@ -44,16 +45,34 @@ public class ReporteAnadirControlador implements Initializable, Regresable {
     @FXML private Button btnGuardar;
     @FXML private Button btnCancelar;
     private Scene escenaAnterior;
+    @FXML private ComboBox<String> cbMes;
 
     private File archivoPDF = null;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         cbTipoReporte.getItems().setAll(TipoReporte.values());
-        cbTipoReporte.valueProperty().addListener((obs, oldVal, newVal) -> actualizarEstadoBotonGuardar());
+        cbTipoReporte.valueProperty().addListener((observable, viejoValor, nuevoValor) -> actualizarEstadoBotonGuardar());
+        cbMes.getItems().setAll(
+                "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+                "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+        );
+
+        cbTipoReporte.valueProperty().addListener((observable, viejoValor, nuevoValor) -> {
+            boolean esMensual = nuevoValor == TipoReporte.MENSUAL;
+            cbMes.setVisible(esMensual);
+            cbMes.setManaged(esMensual);
+            if (!esMensual) {
+                cbMes.setValue(null);
+            }
+            actualizarEstadoBotonGuardar();
+        });
+
+        cbMes.valueProperty().addListener((observable, viejoValor, nuevoValor) -> actualizarEstadoBotonGuardar());
         btnGuardar.setOnAction(e -> guardarReporte());
         btnCancelar.setOnAction(e -> regresar());
         btnVistaPrevia.setOnAction(e -> mostrarVistaPrevia());
+
     }
 
     @FXML
@@ -102,6 +121,9 @@ public class ReporteAnadirControlador implements Initializable, Regresable {
 
         if (confirmacion.showAndWait().orElse(ButtonType.NO) == ButtonType.YES) {
             try {
+                if (esDuplicado()) {
+                    return;
+                }
                 String subCarpetaTipo = cbTipoReporte.getValue().name();
                 Path carpetaDestino = Paths.get(System.getProperty("user.dir"), "Reportes", subCarpetaTipo, "ANADIDOS");
 
@@ -111,6 +133,9 @@ public class ReporteAnadirControlador implements Initializable, Regresable {
 
                 Path archivoDestino = carpetaDestino.resolve(archivoPDF.getName());
                 Files.copy(archivoPDF.toPath(), archivoDestino, StandardCopyOption.REPLACE_EXISTING);
+                String hashArchivo = CifradorArchivo.generarHashArchivo(archivoPDF.toPath());
+                String hashContenido = CifradorArchivo.generarHashContenido(archivoPDF.toPath());
+
 
                 ReporteDAO reporteDAO = new ReporteDAO();
                 ReporteDTO reporteDTO = new ReporteDTO(
@@ -119,7 +144,10 @@ public class ReporteAnadirControlador implements Initializable, Regresable {
                         cbTipoReporte.getValue(),
                         LocalDate.now(),
                         archivoDestino.toString(),
-                        EstadoReporte.ENTREGADO
+                        EstadoReporte.ENTREGADO,
+                        cbTipoReporte.getValue() == TipoReporte.MENSUAL ? cbMes.getValue() : null,
+                        hashArchivo,
+                        hashContenido
                 );
                 reporteDAO.agregarReporte(reporteDTO);
 
@@ -136,8 +164,50 @@ public class ReporteAnadirControlador implements Initializable, Regresable {
         }
     }
 
+    private boolean esDuplicado() throws DAOExcepcion, IOException {
+        ReporteDAO reporteDAO = new ReporteDAO();
+        int idUsuario = SesionUsuarioSingleton.obtenerInstancia().obtenerUsuarioActual().getIdUsuario();
+        String mesSeleccionado = cbTipoReporte.getValue() == TipoReporte.MENSUAL ? cbMes.getValue() : null;
+
+        if (reporteDAO.existeDuplicado(idUsuario, cbTipoReporte.getValue(), mesSeleccionado, EstadoReporte.ENTREGADO)) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Reporte duplicado",
+                    cbTipoReporte.getValue() == TipoReporte.MENSUAL
+                            ? "Ya subiste el reporte de " + mesSeleccionado + "."
+                            : "Ya subiste tu reporte parcial.");
+            return true;
+        }
+
+        String tipoEnPdf = CifradorArchivo.extraerTipoReporte(archivoPDF.toPath());
+        if (tipoEnPdf != null && !tipoEnPdf.equalsIgnoreCase(cbTipoReporte.getValue().name())) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Tipo incorrecto",
+                    "El PDF es de tipo " + tipoEnPdf + " pero seleccionaste " + cbTipoReporte.getValue().name() + ".");
+            return true;
+        }
+
+        if (cbTipoReporte.getValue() == TipoReporte.MENSUAL) {
+            String mesEnPdf = CifradorArchivo.extraerMes(archivoPDF.toPath());
+            if (mesEnPdf != null && !mesEnPdf.equalsIgnoreCase(cbMes.getValue())) {
+                mostrarAlerta(Alert.AlertType.WARNING, "Mes incorrecto",
+                        "El PDF corresponde a " + mesEnPdf + " pero seleccionaste " + cbMes.getValue() + ".");
+                return true;
+            }
+        }
+
+        String hashArchivo = CifradorArchivo.generarHashArchivo(archivoPDF.toPath());
+        String hashContenido = CifradorArchivo.generarHashContenido(archivoPDF.toPath());
+
+        if (reporteDAO.existeHashDuplicado(hashArchivo, hashContenido)) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Archivo duplicado", "Este archivo ya existe en el sistema.");
+            return true;
+        }
+
+        return false;
+    }
+
     private void actualizarEstadoBotonGuardar() {
-        btnGuardar.setDisable(archivoPDF == null || cbTipoReporte.getValue() == null);
+        boolean faltaMes = cbTipoReporte.getValue() == TipoReporte.MENSUAL
+                && cbMes.getValue() == null;
+        btnGuardar.setDisable(archivoPDF == null || cbTipoReporte.getValue() == null || faltaMes);
     }
 
     private void mostrarAlerta(Alert.AlertType tipo, String titulo, String mensaje) {

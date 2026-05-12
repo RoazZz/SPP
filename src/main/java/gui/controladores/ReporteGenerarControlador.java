@@ -44,6 +44,7 @@ public class ReporteGenerarControlador implements Initializable, Regresable {
     @FXML private ListView<String> lvActividades;
     @FXML private Button btnGenerar;
     @FXML private Button btnCancelar;
+    @FXML private ComboBox<String> cbMes;
     private Scene escenaAnterior;
 
     private ObservableList<String> listaActividades = FXCollections.observableArrayList();
@@ -54,6 +55,19 @@ public class ReporteGenerarControlador implements Initializable, Regresable {
         lvActividades.setItems(listaActividades);
         btnGenerar.setOnAction(e -> procesarGeneracion());
         btnCancelar.setOnAction(e -> regresar());
+        cbMes.getItems().setAll(
+                "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+                "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+        );
+
+        cbTipoReporte.valueProperty().addListener((observable, anterior, nuevo) -> {
+            boolean esMensual = nuevo == TipoReporte.MENSUAL;
+            cbMes.setVisible(esMensual);
+            cbMes.setManaged(esMensual);
+            if (!esMensual) {
+                cbMes.setValue(null);
+            }
+        });
     }
 
     @FXML
@@ -75,11 +89,22 @@ public class ReporteGenerarControlador implements Initializable, Regresable {
             return;
         }
 
+        if (cbTipoReporte.getValue() == TipoReporte.MENSUAL && cbMes.getValue() == null) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Falta el mes", "Selecciona el mes al que corresponde este reporte.");
+            return;
+        }
+
         String subCarpetaTipo = cbTipoReporte.getValue().name();
-        String nombreArchivo = "Generado_" + subCarpetaTipo + "_" + System.currentTimeMillis() + ".pdf";
+        String nombreArchivo = cbTipoReporte.getValue() == TipoReporte.MENSUAL
+                ? "Generado_" + subCarpetaTipo + "_" + cbMes.getValue() + "_" + System.currentTimeMillis() + ".pdf"
+                : "Generado_" + subCarpetaTipo + "_" + System.currentTimeMillis() + ".pdf";
         Path carpetaDestino = Paths.get(System.getProperty("user.dir"), "Reportes", subCarpetaTipo, "GENERADOS");
 
         try {
+            if (esDuplicado()) {
+                return;
+            }
+
             if (!Files.exists(carpetaDestino)) {
                 Files.createDirectories(carpetaDestino);
             }
@@ -92,6 +117,9 @@ public class ReporteGenerarControlador implements Initializable, Regresable {
 
             documento.add(new Paragraph("REPORTE OFICIAL DE PRÁCTICAS").setBold().setFontSize(16));
             documento.add(new Paragraph("Tipo: " + subCarpetaTipo));
+            if (cbTipoReporte.getValue() == TipoReporte.MENSUAL) {
+                documento.add(new Paragraph("Mes: " + cbMes.getValue()));
+            }
             documento.add(new Paragraph("NRC: " + txtNRC.getText()));
             documento.add(new Paragraph("Periodo: " + txtPeriodo.getText()));
             documento.add(new Paragraph("Fecha: " + LocalDate.now()));
@@ -104,8 +132,20 @@ public class ReporteGenerarControlador implements Initializable, Regresable {
             documento.add(listaPdf);
             documento.close();
 
+            String mesSeleccionado = cbTipoReporte.getValue() == TipoReporte.MENSUAL
+                    ? cbMes.getValue()
+                    : null;
+
             ReporteDAO reporteDAO = new ReporteDAO();
-            ReporteDTO reporteDTO = new ReporteDTO(0, SesionUsuarioSingleton.obtenerInstancia().obtenerUsuarioActual().getIdUsuario(), cbTipoReporte.getValue(), LocalDate.now(), rutaArchivo.toString(), EstadoReporte.GENERADO);
+            ReporteDTO reporteDTO = new ReporteDTO(0,
+                    SesionUsuarioSingleton.obtenerInstancia().obtenerUsuarioActual().getIdUsuario(),
+                    cbTipoReporte.getValue(),
+                    LocalDate.now(),
+                    rutaArchivo.toString(),
+                    EstadoReporte.GENERADO,
+                    mesSeleccionado,
+                    null,
+                    null);
             reporteDAO.agregarReporte(reporteDTO);
 
             mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Reporte generado en: " + subCarpetaTipo + "/GENERADOS");
@@ -117,6 +157,20 @@ public class ReporteGenerarControlador implements Initializable, Regresable {
         }
     }
 
+    private boolean esDuplicado() throws DAOExcepcion {
+        ReporteDAO reporteDAO = new ReporteDAO();
+        int idUsuario = SesionUsuarioSingleton.obtenerInstancia().obtenerUsuarioActual().getIdUsuario();
+        String mesSeleccionado = cbTipoReporte.getValue() == TipoReporte.MENSUAL ? cbMes.getValue() : null;
+
+        if (reporteDAO.existeDuplicado(idUsuario, cbTipoReporte.getValue(), mesSeleccionado, EstadoReporte.GENERADO)) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Reporte duplicado",
+                    cbTipoReporte.getValue() == TipoReporte.MENSUAL
+                            ? "Ya generaste el reporte de " + mesSeleccionado + "."
+                            : "Ya generaste tu reporte parcial.");
+            return true;
+        }
+        return false;
+    }
 
     private void mostrarAlerta(Alert.AlertType tipo, String titulo, String mensaje) {
         Alert alert = new Alert(tipo);
