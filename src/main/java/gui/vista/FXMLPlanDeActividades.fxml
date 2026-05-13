@@ -1,41 +1,65 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.net.URL?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.Separator?>
-<?import javafx.scene.control.TextArea?>
-<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="640.0" prefWidth="720.0" stylesheets="@/estilos.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.controladores.PlanDeActividadesControlador">
+<BorderPane prefHeight="550.0" prefWidth="720.0" styleClass="@/estilos.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.controladores.PlanDeActividadesControlador">
     <top>
-        <VBox styleClass="header-container">
-            <padding><Insets bottom="15" left="25" right="25" top="15" /></padding>
-            <Label styleClass="titulo-ventana" text="Plan de Actividades" />
-            <Label styleClass="subtitulo-ventana" text="Registra el plan de actividades de tu proyecto asignado" />
+        <VBox spacing="5" styleClass="header-container">
+            <padding>
+                <Insets bottom="15" left="25" right="25" top="15" />
+            </padding>
+            <children>
+                <Label styleClass="titulo-ventana" text="Añadir Plan de Actividades" />
+                <Label styleClass="subtitulo-ventana" text="Sube el archivo PDF de tu Plan de Actividades" />
+            </children>
         </VBox>
     </top>
     <center>
-        <ScrollPane fitToWidth="true">
-            <VBox alignment="CENTER" style="-fx-padding: 40 0;">
-                <VBox styleClass="panel-formulario">
-                    <Label styleClass="label-seccion" text="Datos del Plan" />
-                    <TextField fx:id="txtMatricula" promptText="Matrícula" />
-                    <TextField fx:id="txtIdProyecto" promptText="ID del Proyecto asignado" />
-                    <TextArea fx:id="txtDescripcion" prefHeight="180.0" promptText="Descripción detallada del plan de actividades..." wrapText="true" />
-                    <Separator />
-                    <HBox alignment="CENTER_RIGHT" spacing="20">
-                        <padding><Insets top="10" /></padding>
-                        <Button onAction="#manejarCancelar" styleClass="btn-cancelar" text="CANCELAR" />
-                        <Label fx:id="lblError" maxWidth="300.0" styleClass="label-error" wrapText="true" />
-                        <Button fx:id="btnGuardar" onAction="#manejarGuardar" styleClass="btn-guardar" text="GUARDAR PLAN" />
-                    </HBox>
+        <VBox alignment="CENTER" spacing="25">
+            <padding>
+                <Insets bottom="30.0" left="40.0" right="40.0" top="30.0" />
+            </padding>
+            <children>
+                <VBox alignment="CENTER" spacing="15" style="-fx-border-color: #ccc; -fx-border-style: dashed; -fx-padding: 25;" styleClass="subpanel-archivo">
+                    <children>
+                        <Label fx:id="lblNombreArchivo" maxWidth="400" styleClass="label-archivo" text="Ningún archivo seleccionado" wrapText="true" />
+
+                        <HBox alignment="CENTER" spacing="15">
+                            <children>
+                                <Button fx:id="btnExaminarArchivos" styleClass="btn-examinar" text="Examinar archivo…" />
+                                <Button fx:id="btnVistaPrevia" managed="false"  styleClass="btn-preview" text="Vista previa" visible="false" />
+                            </children>
+                        </HBox>
+                    </children>
                 </VBox>
-            </VBox>
-        </ScrollPane>
+
+                <HBox fx:id="hboxValidacionArchivo" alignment="CENTER_LEFT" managed="false" spacing="8" visible="false">
+                    <children>
+                        <Label fx:id="lblValidacionArchivo" styleClass="label-validacion-ok" text="Archivo PDF seleccionado listo para subir" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
     </center>
+    <bottom>
+        <HBox alignment="CENTER_RIGHT" spacing="15">
+            <padding>
+                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+            </padding>
+            <children>
+                <Button fx:id="btnCancelar" styleClass="btn-cancelar" text="Cancelar" />
+                <Button fx:id="btnGuardar" disable="true" styleClass="btn-guardar" text="Subir Documento" />
+            </children>
+        </HBox>
+    </bottom>
+    <stylesheets>
+        <URL value="@/estilos.css" />
+    </stylesheets>
 </BorderPane>
