@@ -41,7 +41,7 @@ public class PlanDeActividadesControlador implements Initializable, Regresable {
     private Scene escenaAnterior;
     private File archivoSeleccionado;
     private PracticanteDTO practicanteLogueado;
-    private static final String RUTA_BASE_PLANES = "D:/Escritorio/Java/SPP-Project";
+    private static final String RUTA_BASE_PLANES = "/Java/SPP-Project";
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
