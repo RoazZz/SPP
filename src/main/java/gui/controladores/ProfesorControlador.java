@@ -26,12 +26,19 @@ public class ProfesorControlador {
         this.usuarioDAO = new UsuarioDAO();
     }
 
-    public ProfesorDTO construirProfesorDTO(int id, String nombre, String apellidoP, String apellidoM, String contrasenia, String numeroPersonal, TipoTurno turno) {
+    public ProfesorDTO construirProfesorDTO(int id, String nombre, String apellidoP, String apellidoM, String contrasenia, String numeroPersonal, TipoTurno turno, int idSeccion) {
         String contraseniaProtegida = CifradorContraseña.cifrarContraseña(contrasenia);
         return new ProfesorDTO(
-                id, nombre, apellidoP, apellidoM, contraseniaProtegida,
-                TipoEstado.ACTIVO, TipoDeUsuario.PROFESOR,
-                numeroPersonal, turno
+                id,
+                nombre,
+                apellidoP,
+                apellidoM,
+                contraseniaProtegida,
+                TipoEstado.ACTIVO,
+                TipoDeUsuario.PROFESOR,
+                numeroPersonal,
+                turno,
+                idSeccion
         );
     }
 
