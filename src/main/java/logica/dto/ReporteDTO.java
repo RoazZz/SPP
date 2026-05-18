@@ -11,14 +11,33 @@ public class ReporteDTO {
     private LocalDate fecha;
     private String ruta;
     private EstadoReporte estado;
+    private String mes;
+    private String hashArchivo;
+    private String hashContenido;
 
-    public ReporteDTO(int idReporte, int idUsuario, TipoReporte tipoReporte, LocalDate fecha, String ruta, EstadoReporte estado) {
+    public ReporteDTO(int idReporte, int idUsuario, TipoReporte tipoReporte, LocalDate fecha, String ruta, EstadoReporte estado, String mes, String hashArchivo, String hashContenido) {
         this.idReporte = idReporte;
         this.idUsuario = idUsuario;
         this.tipoReporte = tipoReporte;
         this.fecha = fecha;
         this.ruta = ruta;
         this.estado = estado;
+        this.mes = mes;
+        this.hashArchivo = hashArchivo;
+        this.hashContenido = hashContenido;
+    }
+
+    public String getHashArchivo() {
+        return hashArchivo;
+    }
+    public void setHashArchivo(String hashArchivo) {
+        this.hashArchivo = hashArchivo;
+    }
+    public String getHashContenido() {
+        return hashContenido;
+    }
+    public void setHashContenido(String hashContenido) {
+        this.hashContenido = hashContenido;
     }
 
     public int getIdReporte() {
@@ -67,5 +86,13 @@ public class ReporteDTO {
 
     public void setEstado(EstadoReporte estado) {
         this.estado = estado;
+    }
+
+    public String getMes() {
+        return mes;
+    }
+
+    public void setMes(String mes) {
+        this.mes = mes;
     }
 }

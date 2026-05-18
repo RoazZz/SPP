@@ -1,101 +1,92 @@
 package gui.controladores;
 
 import excepciones.DAOExcepcion;
+import interfaces.Regresable;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import logica.dao.PlanDeActividadesDAO;
 import logica.dto.PlanDeActividadesDTO;
-
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class PlanDeActividadesControlador implements Initializable {
+public class PlanDeActividadesControlador implements Initializable, Regresable {
 
     private static final Logger LOGGER = Logger.getLogger(PlanDeActividadesControlador.class.getName());
 
-    @FXML private TextField txtMatricula;
-    @FXML private TextField txtIdProyecto;
-    @FXML private TextArea txtDescripcion;
-    @FXML private Label lblError;
+    @FXML private Label lblNombreArchivo;
+    @FXML private Label lblValidacionArchivo;
+    @FXML private HBox hboxValidacionArchivo;
+    @FXML private Button btnExaminarArchivos;
+    @FXML private Button btnVistaPrevia;
     @FXML private Button btnGuardar;
+    @FXML private Button btnCancelar;
+
+    private Scene escenaAnterior;
+    private File archivoSeleccionado;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        lblError.setVisible(false);
+        configurarEventos();
     }
 
-    @FXML
+    private void configurarEventos() {
+        btnExaminarArchivos.setOnAction(event -> manejarSeleccionArchivo());
+        btnGuardar.setOnAction(event -> manejarGuardar());
+        btnCancelar.setOnAction(event -> regresar());
+    }
+
+    private void manejarSeleccionArchivo() {
+        FileChooser selectorArchivos = new FileChooser();
+        selectorArchivos.setTitle("Seleccionar Plan de Actividades");
+        selectorArchivos.getExtensionFilters().add( new FileChooser.ExtensionFilter("Archivos PDF", "*.pdf"));
+
+        Stage escenario = (Stage) btnExaminarArchivos.getScene().getWindow();
+        File archivo = selectorArchivos.showOpenDialog(escenario);
+        if (archivo != null) {
+            archivoSeleccionado = archivo;
+            lblNombreArchivo.setText(archivo.getName());
+            actualizarEstadoUI(true);
+        }
+    }
+
+    private void actualizarEstadoUI(boolean archivoCargado) {
+        //Nota solo para la revision del bnoquejo, jajajaja: Aqui voy a habilitar el boton de guardado
+        // el de vista previa y el .setManaged en el boton de vista previa,
+    }
+
     private void manejarGuardar() {
-        lblError.setVisible(false);
-
-        String mensajeValidacion = validarCampos();
-        if (mensajeValidacion != null) {
-            lblError.setText(mensajeValidacion);
-            lblError.setVisible(true);
-            return;
-        }
-
         try {
-            int idProyecto = Integer.parseInt(txtIdProyecto.getText().trim());
-
-            PlanDeActividadesDTO planDeActividadesDTO = new PlanDeActividadesDTO(
-                    0,
-                    txtMatricula.getText().trim(),
-                    idProyecto,
-                    txtDescripcion.getText().trim()
-            );
-
-            PlanDeActividadesDAO planDeActividadesDAO = new PlanDeActividadesDAO();
-            planDeActividadesDAO.agregarPlanDeActividades(planDeActividadesDTO);
-
-            cerrarVentana();
-
-        } catch (NumberFormatException e) {
-            lblError.setText("El ID del proyecto debe ser un número válido.");
-            lblError.setVisible(true);
-        } catch (DAOExcepcion e) {
-            LOGGER.log(Level.SEVERE, "Error al guardar plan de actividades", e);
-            lblError.setText("No se pudo guardar el plan. Intente más tarde.");
-            lblError.setVisible(true);
+            // Otra nota para la revision, xd: Aqui pues el metodo de procesar guardado comun donde se convierte a bytes para el DTO y el DAO
+            // Se construye el dto, se crea el DAO
+            regresar();
+        }catch (IOException ex){
+            LOGGER.log(Level.SEVERE, "Error al leer el archivo físico: " + archivoSeleccionado.getName(), ex);
+        }catch (DAOExcepcion ex){
+            LOGGER.log(Level.SEVERE, "Error al guardar el plan de actividades en la base de datos", ex);
         }
     }
 
-    @FXML
-    private void manejarCancelar() {
-        cerrarVentana();
+    @Override
+    public void setEscenaAnterior(Scene escena) {
+        this.escenaAnterior = escena;
     }
 
-    private String validarCampos() {
-        StringBuilder errores = new StringBuilder();
-
-        if (txtMatricula.getText().trim().isEmpty()) {
-            errores.append("La matrícula no puede estar vacía.\n");
+    private void regresar() {
+        if (escenaAnterior != null) {
+            Stage escenario = (Stage) btnCancelar.getScene().getWindow();
+            escenario.setScene(escenaAnterior);
         }
-        if (txtIdProyecto.getText().trim().isEmpty()) {
-            errores.append("El ID del proyecto no puede estar vacío.\n");
-        } else {
-            try {
-                Integer.parseInt(txtIdProyecto.getText().trim());
-            } catch (NumberFormatException e) {
-                errores.append("El ID del proyecto debe ser un número válido.\n");
-            }
-        }
-        if (txtDescripcion.getText().trim().isEmpty()) {
-            errores.append("La descripción no puede estar vacía.\n");
-        }
-
-        boolean hayErrores = errores.length() > 0;
-        return hayErrores ? errores.toString() : null;
     }
 
-    private void cerrarVentana() {
-        ((Stage) btnGuardar.getScene().getWindow()).close();
-    }
 }
