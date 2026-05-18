@@ -2,6 +2,7 @@ package gui.controladores;
 
 import excepciones.DAOExcepcion;
 import excepciones.EntidadNoEncontradaExcepcion;
+import interfaces.Regresable;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -27,7 +28,7 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class BuzonControlador implements Initializable {
+public class BuzonControlador implements Initializable, Regresable {
 
     private static final Logger logger = Logger.getLogger(BuzonControlador.class.getName());
 
@@ -40,6 +41,8 @@ public class BuzonControlador implements Initializable {
     @FXML private Label    lblFecha;
     @FXML private TextArea txtContenido;
     @FXML private Label    lblError;
+
+    private Scene escenaAnterior;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -134,8 +137,16 @@ public class BuzonControlador implements Initializable {
         }
     }
 
+    @Override
+    public void setEscenaAnterior(Scene escena) {
+        this.escenaAnterior = escena;
+    }
+
     @FXML
     private void salir() {
-        ((Stage) tablaMensajes.getScene().getWindow()).close();
+        if (escenaAnterior != null) {
+            Stage escenario = (Stage) tablaMensajes.getScene().getWindow();
+            escenario.setScene(escenaAnterior);
+        }
     }
 }

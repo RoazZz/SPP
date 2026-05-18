@@ -52,8 +52,8 @@ public class PruebaReporteDAO {
             statement.execute("SET FOREIGN_KEY_CHECKS = 1");
         }
 
-        reporteValido = new ReporteDTO(0, TipoReporte.MENSUAL, LocalDate.now(), "/rutas/nuevo.pdf", EstadoReporte.GENERADO);
-        reporteInvalidoDatosNulos = new ReporteDTO(0, null, LocalDate.now(), null, null);
+        // reporteValido = new ReporteDTO(0, TipoReporte.MENSUAL, LocalDate.now(), "/rutas/nuevo.pdf", EstadoReporte.GENERADO);
+       // reporteInvalidoDatosNulos = new ReporteDTO(0, null, LocalDate.now(), null, null);
     }
 
     @AfterEach
