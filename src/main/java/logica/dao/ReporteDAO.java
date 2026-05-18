@@ -35,7 +35,10 @@ public class ReporteDAO implements ReporteDAOInterfaz {
                     "r.mes, r.hashArchivo, r.hashContenido, r.Calificacion " +
                     "FROM reporte r " +
                     "JOIN practicante p ON r.idUsuario = p.idUsuario " +
-                    "WHERE p.idSeccion = ?";
+                    "WHERE p.idSeccion = ? AND r.Estado = 'ENTREGADO'";
+    public static final String SQL_SELECT_ALL_ENTREGADOS =
+            "SELECT idReporte, idUsuario, TipoReporte, Fecha, Ruta, Estado, mes, hashArchivo, hashContenido, Calificacion " +
+                    "FROM reporte WHERE Estado = 'ENTREGADO'";
 
     private final Connection conexion;
     private static final Logger LOGGER = Logger.getLogger(ReporteDAO.class.getName());
@@ -235,5 +238,21 @@ public class ReporteDAO implements ReporteDAOInterfaz {
                 resultSet.getString("hashContenido"),
                 calificacion
         );
+    }
+
+    public List<ReporteDTO> listarReportesEntregados() throws DAOExcepcion {
+        List<ReporteDTO> listaReportes = new ArrayList<>();
+
+        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_SELECT_ALL_ENTREGADOS);
+             ResultSet resultSet = preparedStatement.executeQuery()) {
+            while (resultSet.next()) {
+                listaReportes.add(crearDTO(resultSet));
+            }
+
+            return listaReportes;
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error al listar reportes entregados", e);
+            throw new DAOExcepcion("Error al listar reportes entregados", e);
+        }
     }
 }
