@@ -1,10 +1,12 @@
 package logica.dto;
 
-import logica.enums.TipoReporte;
 import logica.enums.EstadoReporte;
+import logica.enums.TipoReporte;
+
 import java.time.LocalDate;
 
 public class ReporteDTO {
+
     private int idReporte;
     private int idUsuario;
     private TipoReporte tipoReporte;
@@ -14,8 +16,11 @@ public class ReporteDTO {
     private String mes;
     private String hashArchivo;
     private String hashContenido;
+    private Double calificacion;
 
-    public ReporteDTO(int idReporte, int idUsuario, TipoReporte tipoReporte, LocalDate fecha, String ruta, EstadoReporte estado, String mes, String hashArchivo, String hashContenido) {
+    public ReporteDTO(int idReporte, int idUsuario, TipoReporte tipoReporte, LocalDate fecha,
+                      String ruta, EstadoReporte estado, String mes,
+                      String hashArchivo, String hashContenido, Double calificacion) {
         this.idReporte = idReporte;
         this.idUsuario = idUsuario;
         this.tipoReporte = tipoReporte;
@@ -25,19 +30,7 @@ public class ReporteDTO {
         this.mes = mes;
         this.hashArchivo = hashArchivo;
         this.hashContenido = hashContenido;
-    }
-
-    public String getHashArchivo() {
-        return hashArchivo;
-    }
-    public void setHashArchivo(String hashArchivo) {
-        this.hashArchivo = hashArchivo;
-    }
-    public String getHashContenido() {
-        return hashContenido;
-    }
-    public void setHashContenido(String hashContenido) {
-        this.hashContenido = hashContenido;
+        this.calificacion = calificacion;
     }
 
     public int getIdReporte() {
@@ -94,5 +87,29 @@ public class ReporteDTO {
 
     public void setMes(String mes) {
         this.mes = mes;
+    }
+
+    public String getHashArchivo() {
+        return hashArchivo;
+    }
+
+    public void setHashArchivo(String hashArchivo) {
+        this.hashArchivo = hashArchivo;
+    }
+
+    public String getHashContenido() {
+        return hashContenido;
+    }
+
+    public void setHashContenido(String hashContenido) {
+        this.hashContenido = hashContenido;
+    }
+
+    public Double getCalificacion() {
+        return calificacion;
+    }
+
+    public void setCalificacion(Double calificacion) {
+        this.calificacion = calificacion;
     }
 }

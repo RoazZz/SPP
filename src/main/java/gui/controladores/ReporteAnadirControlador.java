@@ -147,7 +147,8 @@ public class ReporteAnadirControlador implements Initializable, Regresable {
                         EstadoReporte.ENTREGADO,
                         cbTipoReporte.getValue() == TipoReporte.MENSUAL ? cbMes.getValue() : null,
                         hashArchivo,
-                        hashContenido
+                        hashContenido,
+                        null
                 );
                 reporteDAO.agregarReporte(reporteDTO);
 

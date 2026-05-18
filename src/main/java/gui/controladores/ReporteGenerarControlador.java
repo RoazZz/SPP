@@ -145,7 +145,9 @@ public class ReporteGenerarControlador implements Initializable, Regresable {
                     EstadoReporte.GENERADO,
                     mesSeleccionado,
                     null,
-                    null);
+                    null,
+                    null
+            );
             reporteDAO.agregarReporte(reporteDTO);
 
             mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Reporte generado en: " + subCarpetaTipo + "/GENERADOS");
