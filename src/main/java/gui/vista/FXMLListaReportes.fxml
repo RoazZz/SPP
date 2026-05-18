@@ -20,7 +20,8 @@
     </top>
     <center>
         <VBox alignment="TOP_CENTER" spacing="20" style="-fx-padding: 30 40 30 40;">
-            <VBox maxWidth="876.0" prefWidth="876.0" spacing="15" styleClass="panel-formulario">
+            <VBox maxWidth="876.0" prefWidth="876.0" spacing="15" styleClass="panel-formulario"
+                  style="-fx-max-width: 876px;">
                 <Label styleClass="label-seccion" text="Reportes de Practicantes" />
                 <HBox alignment="CENTER_LEFT" spacing="15">
                     <ComboBox fx:id="cbFiltroTipo" prefWidth="200" promptText="Filtrar por tipo" />
@@ -35,7 +36,7 @@
                         <TableColumn fx:id="colFecha" prefWidth="120" text="Fecha" />
                         <TableColumn fx:id="colEstado" prefWidth="120" text="Estado" />
                         <TableColumn fx:id="colMes" prefWidth="100" text="Mes" />
-                        <TableColumn fx:id="colAcciones" prefWidth="120" sortable="false" text="Acciones" />
+                        <TableColumn fx:id="colAcciones" prefWidth="220" sortable="false" text="Acciones" />
                     </columns>
                 </TableView>
                 <HBox alignment="CENTER_RIGHT" spacing="15">
