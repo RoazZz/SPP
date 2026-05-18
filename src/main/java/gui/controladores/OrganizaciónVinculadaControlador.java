@@ -1,5 +1,6 @@
 package gui.controladores;
 
+import excepciones.DAOExcepcion;
 import javafx.fxml.FXML;
 
 import javafx.scene.control.Label;
@@ -7,6 +8,7 @@ import javafx.scene.control.TextField;
 import logica.dao.OrganizacionVinculadaDAO;
 import logica.dto.OrganizacionVinculadaDTO;
 
+import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -45,8 +47,8 @@ public class OrganizaciónVinculadaControlador {
 
             txtMensajeGuardar.setText("Organización Vinculada guardada con exito");
 
-        }catch (Exception e){
-           logger.log(Level.SEVERE,"Error al guardar Organizacion vinculada");
+        }catch (DAOExcepcion e){
+           logger.log(Level.SEVERE,"Error al guardar Organizacion vinculada", e.getMessage());
         }
     }
 

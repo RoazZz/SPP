@@ -3,24 +3,24 @@ package logica.dto;
 import java.math.BigDecimal;
 
 public class AutoevaluacionDTO {
-    private int idAutoevalaucion;
+    private int idAutoevaluacion;
     private String matricula;
     private BigDecimal calificacion;
     private String comentarios;
 
-    public AutoevaluacionDTO(int idAutoevalaucion, String matricula, BigDecimal calificacion, String comentarios) {
-        this.idAutoevalaucion = idAutoevalaucion;
+    public AutoevaluacionDTO(int idAutoevaluacion, String matricula, BigDecimal calificacion, String comentarios) {
+        this.idAutoevaluacion = idAutoevaluacion;
         this.matricula = matricula;
         this.calificacion = calificacion;
         this.comentarios = comentarios;
     }
 
-    public int getIdAutoevalaucion() {
-        return idAutoevalaucion;
+    public int getIdAutoevaluacion() {
+        return idAutoevaluacion;
     }
 
-    public void setIdAutoevalaucion(int idAutoevalaucion) {
-        this.idAutoevalaucion = idAutoevalaucion;
+    public void setIdAutoevaluacion(int idAutoevaluacion) {
+        this.idAutoevaluacion = idAutoevaluacion;
     }
 
     public String getMatricula() {

@@ -159,7 +159,7 @@ public class AutoevaluacionGenerarControlador implements Regresable {
                 txtComentarios.getText().trim()
         );
         AutoevaluacionDAO autoevaluacionDAO = new AutoevaluacionDAO();
-        autoevaluacionDAO.agregarAutoevalaucion(autoevaluacionDTO);
+        autoevaluacionDAO.agregarautoevaluacion(autoevaluacionDTO);
     }
 
     private void procesarGeneracion() {

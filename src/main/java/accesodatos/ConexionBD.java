@@ -50,7 +50,7 @@ public class ConexionBD{
     }
 
     public void cerrarConexion(){
-        if(conexion != null){
+        if (conexion != null){
             try{
                 conexion.close();
                 instancia = null;

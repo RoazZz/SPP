@@ -22,6 +22,7 @@ import logica.dto.BuzonDTO;
 import logica.dto.MensajeDTO;
 import logica.utilidades.SesionUsuarioSingleton;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -131,7 +132,7 @@ public class BuzonControlador implements Initializable, Regresable {
             escenario.setScene(new Scene(vista));
             escenario.setTitle("Enviar Mensaje");
             escenario.show();
-        } catch (Exception e) {
+        } catch (IOException e) {
             logger.log(Level.SEVERE, "Error al abrir la ventana de enviar mensaje", e);
             lblError.setText("No se pudo abrir la ventana de enviar mensaje.");
         }

@@ -25,10 +25,10 @@ public class DocumentosSoporteDAO implements DocumentosSoporteDAOInterfaz {
     public DocumentosSoporteDAO() throws DAOExcepcion {
         try{
             this.conexion = ConexionBD.obtenerInstancia().obtenerConexion();
-        }catch (IOException e){
+        } catch (IOException e){
             logger.log(Level.SEVERE, "Error al leer archivo de cofniguración", e);
             throw new DAOExcepcion("Error de configuracion", e);
-        }catch (SQLException e) {
+        } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error de conexion SQL en DocumentoSoporteDAO", e);
             throw new DAOExcepcion("Error de base de datos", e);
         }
@@ -66,7 +66,7 @@ public class DocumentosSoporteDAO implements DocumentosSoporteDAOInterfaz {
                             resultSet.getString("TipoDocumento"),
                             resultSet.getString("Estado")
                     );
-                }else{
+                } else{
                     logger.log(Level.WARNING, "No se encontró documento de soporte con ID: " + idDocumento);
                     throw new DAOExcepcion("Documento de soporte no encontrado con ID: " + idDocumento, null);
                 }
@@ -87,7 +87,7 @@ public class DocumentosSoporteDAO implements DocumentosSoporteDAOInterfaz {
             if (filasAfectadas > 0){
                 logger.log(Level.INFO, "Documento de soporte actualizado con éxito. ID: " + documento.getIdDocumento());
                 return true;
-            }else{
+            } else{
                 logger.log(Level.WARNING, "No se encontró documento de soporte para actualizar con ID: " + documento.getIdDocumento());
                 throw new EntidadNoEncontradaExcepcion("Documento de soporte no encontrado para actualizar con ID: " + documento.getIdDocumento());
             }

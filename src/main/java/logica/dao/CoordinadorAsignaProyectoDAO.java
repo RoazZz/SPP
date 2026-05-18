@@ -31,10 +31,10 @@ public class CoordinadorAsignaProyectoDAO implements CoordinadorAsignaProyectoDA
     public CoordinadorAsignaProyectoDAO() throws DAOExcepcion {
         try{
         this.conexion = ConexionBD.obtenerInstancia().obtenerConexion();
-        }catch (IOException e){
+        } catch (IOException e){
             logger.log(Level.SEVERE, "Error al leer archivo de configuración", e);
             throw new DAOExcepcion("Error de configuracion", e);
-        }catch (SQLException e) {
+        } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error de conexion SQL en CoordinadorAsignaProyectoDAO", e);
             throw new DAOExcepcion("Error de base de datos", e);
         }
@@ -48,7 +48,7 @@ public class CoordinadorAsignaProyectoDAO implements CoordinadorAsignaProyectoDA
             preparedStatement.setString(3, coordinadorAsignaProyectoDTO.getTipoEstado().name());
             preparedStatement.executeUpdate();
             logger.log(Level.INFO, "Asignación de Proyecto creada exitosamente: " + coordinadorAsignaProyectoDTO.getNumeroDePersonal());
-        }catch (Exception e){
+        } catch (SQLException e){
             logger.log(Level.SEVERE, "Error al insertar Asignación de Proyecto", e);
             throw new DAOExcepcion("Error al insertar la asignacion de proyecto: ", e);
         }
@@ -60,7 +60,7 @@ public class CoordinadorAsignaProyectoDAO implements CoordinadorAsignaProyectoDA
             preparedStatement.setString(1, coordinadorAsignaProyectoDTO.getTipoEstado().name());
             preparedStatement.setInt(2, coordinadorAsignaProyectoDTO.getIdProyecto());
             preparedStatement.executeUpdate();
-        }catch (Exception e){
+        } catch (Exception e){
             logger.log(Level.SEVERE, "Error al actualizar Asignación de Proyecto", e);
             throw new DAOExcepcion("Error al actualizar la asignacion del proyecto: ", e);
         }
@@ -83,7 +83,7 @@ public class CoordinadorAsignaProyectoDAO implements CoordinadorAsignaProyectoDA
                 }
             }
             return listaAsignacionesProyecto;
-        } catch (Exception e) {
+        } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error al listar las Asignaciones de Proyecto por numero de personal", e);
             throw new DAOExcepcion("Error al obtener las asignaciones de proyecto por numero de personal: ", e);
         }
@@ -103,7 +103,7 @@ public class CoordinadorAsignaProyectoDAO implements CoordinadorAsignaProyectoDA
                 listaAsignacionesProyecto.add(asignacionProyecto);
             }
             return listaAsignacionesProyecto;
-        }catch (Exception e){
+        } catch (SQLException e){
             logger.log(Level.SEVERE, "Error al listar las Asignaciones de Proyecto por id de proyecto", e);
             throw new DAOExcepcion("Error al obtener las asignaciones de proyecto por id de Proyecto: ", e);
         }
@@ -123,7 +123,7 @@ public class CoordinadorAsignaProyectoDAO implements CoordinadorAsignaProyectoDA
                 listaAsignacionesProyecto.add(asignacionProyecto);
             }
             return listaAsignacionesProyecto;
-        }catch (Exception e){
+        } catch (SQLException e){
             logger.log(Level.SEVERE, "Error al listar las asignaciones de proyecto", e);
             throw new DAOExcepcion("Error al obtener todas las asignaciones de proyecto: ", e);
         }

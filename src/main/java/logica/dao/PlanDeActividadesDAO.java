@@ -26,10 +26,10 @@ public class PlanDeActividadesDAO implements PlanDeActivadesDAOInterfaz {
     public PlanDeActividadesDAO() throws DAOExcepcion {
         try{
             this.conexion = ConexionBD.obtenerInstancia().obtenerConexion();
-        }catch (IOException e){
+        } catch (IOException e){
             logger.log(Level.SEVERE, "Error de entrada/salida al configurar la conexión", e);
             throw new DAOExcepcion("Error al leer la configuración de la base de datos", e);
-        }catch (SQLException e) {
+        } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error de SQL al intentar conectar", e);
             throw new DAOExcepcion("Error de acceso a la base de datos", e);
         }
@@ -84,7 +84,7 @@ public class PlanDeActividadesDAO implements PlanDeActivadesDAOInterfaz {
         try(PreparedStatement preparedStatement = conexion.prepareStatement(SQL_SELECT_BY_MATRICULA)){
             preparedStatement.setString(1, matricula);
             try(ResultSet resultSet = preparedStatement.executeQuery()){
-                while(resultSet.next()){
+                while (resultSet.next()){
                     PlanDeActividadesDTO plan = new PlanDeActividadesDTO(
                             resultSet.getInt("idPlanActividades"),
                             resultSet.getString("Matricula"),
@@ -105,7 +105,7 @@ public class PlanDeActividadesDAO implements PlanDeActivadesDAOInterfaz {
         List<PlanDeActividadesDTO> planDeActividadesDTO = new ArrayList<>();
         try(PreparedStatement preparedStatement = conexion.prepareStatement(SQL_SELECT_ALL)){
             try(ResultSet resultSet = preparedStatement.executeQuery()){
-                while(resultSet.next()){
+                while (resultSet.next()){
                     PlanDeActividadesDTO plan = new PlanDeActividadesDTO(
                             resultSet.getInt("idPlanActividades"),
                             resultSet.getString("Matricula"),
@@ -133,7 +133,7 @@ public class PlanDeActividadesDAO implements PlanDeActivadesDAOInterfaz {
                             resultSet.getInt("idProyecto"),
                             resultSet.getString("Descripcion")
                     );
-                }else{
+                } else{
                     logger.log(Level.WARNING, "No se encontró Plan de Actividades con ID: " + idPlanDeActividades);
                     throw new EntidadNoEncontradaExcepcion("No se encontró el Plan de Actividades con el ID proporcionado");
                 }

@@ -40,10 +40,10 @@ public class CoordinadorDAO implements CoordinadorDAOInterfaz{
     public CoordinadorDAO() throws DAOExcepcion {
         try {
             this.conexion = ConexionBD.obtenerInstancia().obtenerConexion();
-        }catch (IOException e){
+        } catch (IOException e){
             logger.log(Level.SEVERE, "Error al leer archivo de configuración", e);
             throw new DAOExcepcion("Error de configuracion", e);
-        }catch (SQLException e) {
+        } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error de conexion SQL en CoordinadorDAO", e);
             throw new DAOExcepcion("Error de base de datos", e);
         }
@@ -120,7 +120,7 @@ public class CoordinadorDAO implements CoordinadorDAOInterfaz{
                             TipoDeUsuario.valueOf(resultSet.getString("TipoUsuario")),
                             resultSet.getString("NumeroDePersonal")
                     );
-                }else{
+                } else{
                     logger.log(Level.WARNING, "No se encontró coordinado con numero de personal: " + numeroPersonal);
                     throw new EntidadNoEncontradaExcepcion("Coordinador no encontrado con numero de personal: " + numeroPersonal);
                 }
@@ -137,7 +137,7 @@ public class CoordinadorDAO implements CoordinadorDAOInterfaz{
         try {
             try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_SELECT_ALL);
                  ResultSet resultSet = preparedStatement.executeQuery()) {
-                while(resultSet.next()) {
+                while (resultSet.next()) {
                     CoordinadorDTO coordinador = new CoordinadorDTO(
                             resultSet.getInt("idUsuario"),
                             resultSet.getString("nombre"),

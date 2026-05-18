@@ -28,10 +28,10 @@ public class ActividadDAO implements ActividadDAOInterfaz {
     public ActividadDAO() throws DAOExcepcion{
         try{
             this.conexion = ConexionBD.obtenerInstancia().obtenerConexion();
-        }catch (IOException e){
+        } catch (IOException e){
             logger.log(Level.SEVERE, "Error al leer archivo de configuración", e);
             throw new DAOExcepcion("Error de configuracion", e);
-        }catch (SQLException e) {
+        } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error de conexion SQL en ActividadDAO", e);
             throw new DAOExcepcion("Error de base de datos", e);
         }
@@ -69,7 +69,7 @@ public class ActividadDAO implements ActividadDAOInterfaz {
             preparedStatement.setInt(5, actividad.getIdActividad());
             int filasAfectadas = preparedStatement.executeUpdate();
             if (filasAfectadas > 0) {
-                logger.log(Level.SEVERE, "Actividad Actualizada correctamente: " + actividad.getIdActividad());
+                logger.log(Level.INFO, "Actividad Actualizada correctamente: " + actividad.getIdActividad());
             } else {
                 logger.log(Level.WARNING, "No se encontro Actividad con el ID: " + actividad.getIdActividad());
                 throw new EntidadNoEncontradaExcepcion("No existe actividad con id: " + actividad.getIdActividad());
@@ -95,7 +95,7 @@ public class ActividadDAO implements ActividadDAOInterfaz {
                             resultSet.getString("Descripcion"),
                             resultSet.getDate("Fecha")
                     );
-                }else{
+                } else{
                     logger.log(Level.WARNING, "No se encontró actividad con id: " + idActividad);
                     throw new EntidadNoEncontradaExcepcion("No existe actividad con id: " + idActividad);
                 }

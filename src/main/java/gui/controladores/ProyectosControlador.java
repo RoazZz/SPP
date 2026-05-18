@@ -16,6 +16,7 @@ import javafx.scene.control.TableView;
 import javafx.stage.Stage;
 import logica.dto.ProyectoDTO;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -85,7 +86,7 @@ public class ProyectosControlador implements Initializable, Regresable {
 
             escenario.setScene(new Scene(vista));
             escenario.show();
-        } catch (Exception e) {
+        } catch (IOException e) {
             logger.log(Level.SEVERE, "Error al abrir formulario de proyecto", e);
             lblMensaje.setText("No se pudo abrir el formulario.");
         }
@@ -111,7 +112,7 @@ public class ProyectosControlador implements Initializable, Regresable {
 
             escenario.setScene(new Scene(vista));
             escenario.show();
-        } catch (Exception e) {
+        } catch (IOException e) {
             logger.log(Level.SEVERE, "Error al abrir formulario de edición", e);
             lblMensaje.setText("No se pudo abrir el formulario de edición.");
         }

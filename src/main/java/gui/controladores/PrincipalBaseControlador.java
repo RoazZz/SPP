@@ -46,7 +46,7 @@ public abstract class PrincipalBaseControlador implements Initializable {
             Stage escenario = (Stage) btnCerrarSesion.getScene().getWindow();
 
             Object controlador = cargador.getController();
-            if(controlador instanceof Regresable regresable){
+            if (controlador instanceof Regresable regresable){
                 regresable.setEscenaAnterior(escenario.getScene());
             }
 

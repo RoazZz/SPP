@@ -30,10 +30,10 @@ public class UsuarioDAO implements UsuarioDAOInterfaz {
     public UsuarioDAO() throws DAOExcepcion {
         try {
             this.conexion = ConexionBD.obtenerInstancia().obtenerConexion();
-        }catch (IOException e){
+        } catch (IOException e){
             logger.log(Level.SEVERE, "Error al leer archivo de configuración", e);
             throw new DAOExcepcion("Error de configuracion", e);
-        }catch (SQLException e) {
+        } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error de conexion SQL en UsuarioDAO", e);
             throw new DAOExcepcion("Error de base de datos", e);
         }
@@ -102,7 +102,7 @@ public class UsuarioDAO implements UsuarioDAOInterfaz {
                 String estado = resultSet.getString("Estado");
                 String tipoUsuario = resultSet.getString("TipoUsuario");
                 return new UsuarioDTO(idDeUsuario, nombre, apellidoPaterno, apellidoMaterno, contrasenia, TipoEstado.valueOf(estado), TipoDeUsuario.valueOf(tipoUsuario));
-            }else{
+            } else{
                 logger.log(Level.WARNING, "No se encontro algun usuario con id: " + idUsuario);
                 throw new EntidadNoEncontradaExcepcion("No existe usuario con el id: " + idUsuario);
             }

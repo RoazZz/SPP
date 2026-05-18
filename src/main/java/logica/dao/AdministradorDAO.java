@@ -45,10 +45,10 @@ public class AdministradorDAO implements AdministradorDAOInterfaz {
     public AdministradorDAO() throws DAOExcepcion {
         try{
             this.conexion = ConexionBD.obtenerInstancia().obtenerConexion();
-        }catch (IOException e){
+        } catch (IOException e){
             logger.log(Level.SEVERE, "Error de entrada/salida al configurar la conexión", e);
             throw new DAOExcepcion("Error al leer la configuración de la base de datos", e);
-        }catch (SQLException e) {
+        } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error de SQL al intentar conectar", e);
             throw new DAOExcepcion("Error de acceso a la base de datos", e);
         }
@@ -79,7 +79,7 @@ public class AdministradorDAO implements AdministradorDAOInterfaz {
                 conexion.commit();
                 logger.log(Level.INFO, "Administrador agregado correctamente: " + admin.getIdUsuario());
                 return admin;
-            }else{
+            } else{
                 logger.log(Level.WARNING, "Usuario base no generado para el Administrador");
                 throw new EntidadNoCreadaExcepcion("Usuario base no creado correctamente");
             }
@@ -93,7 +93,7 @@ public class AdministradorDAO implements AdministradorDAOInterfaz {
             }
             logger.log(Level.SEVERE, "Error SQL al agregar administrador", e);
             throw new DAOExcepcion("Error al agregar administrador", e);
-        } catch (Exception e) {
+        } catch (EntidadNoEncontradaExcepcion e) {
             try {
                 if (conexion != null) {
                     conexion.rollback();
@@ -132,7 +132,7 @@ public class AdministradorDAO implements AdministradorDAOInterfaz {
                     throw new EntidadNoEncontradaExcepcion("Administrador no encontrado con ID: " + idAdministrador);
                 }
             }
-        }catch (SQLException e){
+        } catch (SQLException e){
             logger.log(Level.SEVERE, "Error SQL al buscar administrador por ID", e);
             throw new DAOExcepcion("Error al buscar administrador por ID", e);
         }
@@ -158,7 +158,7 @@ public class AdministradorDAO implements AdministradorDAOInterfaz {
                     throw new EntidadNoEncontradaExcepcion("Administrador no encontrado con nombre: " + nombre);
                 }
             }
-        }catch (SQLException e){
+        } catch (SQLException e){
             logger.log(Level.SEVERE, "Error SQL al buscar administrador por nombre", e);
             throw new DAOExcepcion("Error al buscar administrador por nombre", e);
         }
