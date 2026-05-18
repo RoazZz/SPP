@@ -107,18 +107,24 @@ public class ListaUsuariosControlador implements Regresable{
             @Override
             protected void updateItem(Void item, boolean vacio) {
                 super.updateItem(item, vacio);
+
                 if (vacio || getIndex() >= getTableView().getItems().size()) {
                     setGraphic(null);
-                } else {
-                    UsuarioDTO usuarioDTO = getTableView().getItems().get(getIndex());
-                    if (usuarioDTO.getTipoEstado() == TipoEstado.ACTIVO) {
-                        btnInactivar.setVisible(true);
-                        btnInactivar.setText("INACTIVAR");
-                    } else {
-                        btnInactivar.setVisible(false);
-                        btnInactivar.setText("INACTIVO");
-                    }
+                    return;
+                }
+
+                TipoDeUsuario rol = SesionUsuarioSingleton.obtenerInstancia()
+                        .obtenerUsuarioActual()
+                        .getTipoDeUsuario();
+                PermisosRol permisos = new PermisosRol(rol);
+
+                UsuarioDTO usuarioDTO = getTableView().getItems().get(getIndex());
+
+                if (permisos.peudeInactivarUsuario() && usuarioDTO.getTipoEstado() == TipoEstado.ACTIVO) {
+                    btnInactivar.setVisible(true);
                     setGraphic(contenedor);
+                } else {
+                    setGraphic(null);
                 }
             }
         });

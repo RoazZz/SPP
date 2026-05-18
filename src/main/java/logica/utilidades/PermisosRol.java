@@ -27,6 +27,10 @@ public class PermisosRol {
         return rol == TipoDeUsuario.COORDINADOR || rol == TipoDeUsuario.ADMIN;
     }
 
+    public boolean peudeInactivarUsuario(){
+        return rol == TipoDeUsuario.COORDINADOR || rol == TipoDeUsuario.ADMIN;
+    }
+
     public List<TipoDeUsuario> tiposVisibles() {
         return switch (rol) {
             case ADMIN -> List.of(TipoDeUsuario.PROFESOR, TipoDeUsuario.COORDINADOR);
@@ -34,5 +38,7 @@ public class PermisosRol {
             default -> List.of();
         };
     }
+
+
 
 }
