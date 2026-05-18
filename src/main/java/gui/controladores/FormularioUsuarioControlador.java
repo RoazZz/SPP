@@ -157,6 +157,7 @@ public class FormularioUsuarioControlador implements Regresable {
 
     private void guardarProfesor() {
         CamposProfesorControlador hijo = (CamposProfesorControlador) controladorHijo;
+
         try {
             ProfesorDTO ProfesorDTO = profesorControlador.construirProfesorDTO(
                     modoEdicion ? profesorExistente.getIdUsuario() : 0,
@@ -165,7 +166,8 @@ public class FormularioUsuarioControlador implements Regresable {
                     txtApellidoM.getText().trim(),
                     txtContrasenia.getText(),
                     hijo.getNumeroPersonal(),
-                    hijo.getTurno()
+                    hijo.getTurno(),
+                    hijo.getSeccion()
             );
             profesorControlador.procesarGuardadoProfesor(ProfesorDTO, modoEdicion);
             mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito",
