@@ -16,31 +16,41 @@ import java.util.logging.Logger;
 public class MensajeDAO implements MensajeDAOInterfaz {
     private static final String SQL_INSERT =
             "INSERT INTO Mensaje (idBuzonOrigen, idBuzonDestino, asunto, contenido) VALUES (?, ?, ?, ?)";
-    private static final String SQL_SELECT_BY_ID =
-            "SELECT idMensaje, idBuzonOrigen, idBuzonDestino, asunto, contenido, fecha, leido, fechaLectura " +
-                    "FROM Mensaje WHERE idMensaje = ?";
     private static final String SQL_MARCAR_LEIDO = "UPDATE Mensaje SET leido = 1, fechaLectura = NOW() WHERE idMensaje = ?";
     private static final String SQL_SELECT_BY_BUZON_DESTINO =
             "SELECT idMensaje, idBuzonOrigen, idBuzonDestino, asunto, contenido, fecha, leido, fechaLectura " +
                     "FROM Mensaje WHERE idBuzonDestino = ?";
+    private static final String SQL_SELECT_BY_BUZON_DESTINO_CON_REMITENTE =
+            "SELECT m.idMensaje, m.idBuzonOrigen, m.idBuzonDestino, m.asunto, m.contenido, " +
+                    "m.fecha, m.leido, m.fechaLectura, " +
+                    "u.Nombre, u.ApellidoP, u.ApellidoM, u.TipoUsuario, " +
+                    "COALESCE(p.Matricula, c.NumeroDePersonal, pr.NumeroDePersonal, CAST(a.idAdministrador AS CHAR)) AS identificador " +
+                    "FROM Mensaje m " +
+                    "JOIN Buzon b ON m.idBuzonOrigen = b.idBuzon " +
+                    "JOIN Usuario u ON b.idUsuario = u.idUsuario " +
+                    "LEFT JOIN Practicante p ON u.idUsuario = p.idUsuario " +
+                    "LEFT JOIN Coordinador c ON u.idUsuario = c.idUsuario " +
+                    "LEFT JOIN Profesor pr ON u.idUsuario = pr.idUsuario " +
+                    "LEFT JOIN Administrador a ON u.idUsuario = a.idUsuario " +
+                    "WHERE m.idBuzonDestino = ?";
 
     private Connection conexion;
     private static final Logger logger = Logger.getLogger(MensajeDAO.class.getName());
 
     public MensajeDAO() throws DAOExcepcion {
-        try{
+        try {
             this.conexion = ConexionBD.obtenerInstancia().obtenerConexion();
-        }catch (IOException e){
+        } catch (IOException e) {
             logger.log(Level.SEVERE, "Error de entrada/salida al configurar la conexión", e);
             throw new DAOExcepcion("Error al leer la configuración de la base de datos", e);
-        }catch (SQLException e) {
+        } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error de SQL al intentar conectar", e);
             throw new DAOExcepcion("Error de acceso a la base de datos", e);
         }
     }
 
     @Override
-    public boolean insertarMensaje(MensajeDTO mensajeDTO) throws DAOExcepcion{
+    public boolean insertarMensaje(MensajeDTO mensajeDTO) throws DAOExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setInt(1, mensajeDTO.getIdBuzonOrigen());
             preparedStatement.setInt(2, mensajeDTO.getIdBuzonDestino());
@@ -100,6 +110,40 @@ public class MensajeDAO implements MensajeDAOInterfaz {
             return mensajes;
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error SQL al obtener mensajes del buzon: " + idBuzonDestino, e);
+            throw new DAOExcepcion("Error al obtener la lista de mensajes", e);
+        }
+    }
+
+    @Override
+    public List<MensajeDTO> obtenerMensajesConRemitente(int idBuzonDestino) throws DAOExcepcion {
+        List<MensajeDTO> mensajes = new ArrayList<>();
+        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_SELECT_BY_BUZON_DESTINO_CON_REMITENTE)) {
+            preparedStatement.setInt(1, idBuzonDestino);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                MensajeDTO mensajeDTO = new MensajeDTO(
+                        resultSet.getInt("idMensaje"),
+                        resultSet.getInt("idBuzonOrigen"),
+                        resultSet.getInt("idBuzonDestino"),
+                        resultSet.getString("asunto"),
+                        resultSet.getString("contenido"),
+                        resultSet.getTimestamp("fecha").toLocalDateTime(),
+                        resultSet.getBoolean("leido"),
+                        resultSet.getTimestamp("fechaLectura") != null ?
+                                resultSet.getTimestamp("fechaLectura").toLocalDateTime() : null
+                );
+                String nombreCompleto = resultSet.getString("Nombre") + " " +
+                        resultSet.getString("ApellidoP") + " " +
+                        resultSet.getString("ApellidoM");
+                String identificador = resultSet.getString("identificador");
+                String tipoUsuario = resultSet.getString("TipoUsuario");
+                mensajeDTO.setNombreRemitente(nombreCompleto + " - " + identificador + " (" + tipoUsuario + ")");
+                logger.log(Level.INFO, "Remitente seteado: " + mensajeDTO.getNombreRemitente());
+                mensajes.add(mensajeDTO);
+            }
+            return mensajes;
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error SQL al obtener mensajes con remitente: " + idBuzonDestino, e);
             throw new DAOExcepcion("Error al obtener la lista de mensajes", e);
         }
     }

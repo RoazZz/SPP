@@ -11,6 +11,7 @@ public class MensajeDTO {
     private LocalDateTime fecha;
     private boolean leido;
     private LocalDateTime fechaLectura;
+    private String nombreRemitente;
 
     public MensajeDTO(int idMensaje, int idBuzonOrigen, int idBuzonDestino,
                       String asunto, String contenido, LocalDateTime fecha,
@@ -97,4 +98,11 @@ public class MensajeDTO {
         this.fechaLectura = fechaLectura;
     }
 
+    public String getNombreRemitente() {
+        return nombreRemitente;
+    }
+
+    public void setNombreRemitente(String nombreRemitente) {
+        this.nombreRemitente = nombreRemitente;
+    }
 }

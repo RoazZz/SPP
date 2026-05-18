@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane prefHeight="550.0" prefWidth="950.0" stylesheets="@/estilos.css"
+            xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="gui.controladores.EnviarMensajeControlador">
+
+   <top>
+      <VBox styleClass="header-container">
+         <padding><Insets bottom="15" left="25" right="25" top="15" /></padding>
+         <Label styleClass="titulo-ventana" text="Enviar Mensaje" />
+         <Label styleClass="subtitulo-ventana" text="Redacta y envía un mensaje" />
+      </VBox>
+   </top>
+
+   <center>
+      <VBox alignment="TOP_CENTER" spacing="20" style="-fx-padding: 30 40 30 40;">
+
+         <VBox spacing="15" styleClass="panel-formulario">
+            <Label styleClass="label-seccion" text="Nuevo Mensaje" />
+
+            <Label text="Destinatario:" styleClass="label-campo" />
+            <TextField fx:id="txtBuscarDestinatario"
+                       promptText="Escribe para filtrar destinatarios..." />
+            <ComboBox fx:id="cbDestinatario" maxWidth="Infinity"
+                      promptText="Selecciona un destinatario" />
+
+            <Label text="Asunto:" styleClass="label-campo" />
+            <TextField fx:id="txtAsunto" promptText="Escribe el asunto del mensaje" />
+
+            <Label text="Mensaje:" styleClass="label-campo" />
+            <TextArea fx:id="txtMensaje" promptText="Escribe un mensaje"
+                      prefHeight="120" wrapText="true" />
+
+            <HBox alignment="CENTER_RIGHT" spacing="15">
+               <Label fx:id="lblMensaje" styleClass="label-error" wrapText="true" maxWidth="400.0" />
+               <Region HBox.hgrow="ALWAYS" />
+               <Button fx:id="btnLimpiar" onAction="#limpiar" styleClass="btn-cancelar" text="LIMPIAR" />
+               <Button fx:id="btnEnviar"  onAction="#enviar"  styleClass="btn-guardar"  text="ENVIAR" />
+            </HBox>
+         </VBox>
+
+         <Separator />
+
+         <HBox alignment="CENTER_RIGHT" spacing="20">
+            <Region HBox.hgrow="ALWAYS" />
+            <Button fx:id="btnSalir" onAction="#salir" styleClass="btn-cancelar" text="SALIR" />
+         </HBox>
+
+      </VBox>
+   </center>
+</BorderPane>

@@ -1,49 +1,85 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
-<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1">
-   <top>
-      <VBox prefHeight="54.0" prefWidth="600.0" BorderPane.alignment="CENTER">
-         <children>
-            <Label alignment="TOP_CENTER" prefHeight="59.0" prefWidth="600.0" text="Buzón" textAlignment="CENTER">
-               <font>
-                  <Font size="20.0" />
-               </font>
-            </Label>
-         </children>
-      </VBox>
-   </top>
-   <center>
-      <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
-         <children>
-            <VBox prefHeight="280.0" prefWidth="600.0">
-               <children>
-                  <Separator prefWidth="200.0" />
-                  <Label alignment="TOP_CENTER" prefHeight="20.0" prefWidth="651.0" text="Mensaje" textAlignment="CENTER">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
-                  </Label>
-                  <Separator prefWidth="200.0" />
-                  <TextField promptText="Destinatario" />
-                  <TextField prefHeight="147.0" prefWidth="600.0" promptText="Asunto" />
-                  <Separator prefWidth="200.0" />
-                  <HBox alignment="CENTER" nodeOrientation="LEFT_TO_RIGHT" prefHeight="59.0" prefWidth="600.0">
-                     <children>
-                        <Button alignment="TOP_RIGHT" contentDisplay="RIGHT" mnemonicParsing="false" nodeOrientation="RIGHT_TO_LEFT" prefHeight="32.0" prefWidth="51.0" text="Enviar" textAlignment="CENTER" />
-                     </children>
-                  </HBox>
-               </children>
-            </VBox>
-         </children>
-      </VBox>
-   </center>
+<BorderPane prefHeight="620.0" prefWidth="950.0" stylesheets="@/estilos.css"
+            xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="gui.controladores.BuzonControlador">
+
+    <top>
+        <VBox styleClass="header-container">
+            <padding><Insets bottom="15" left="25" right="25" top="15" /></padding>
+            <Label styleClass="titulo-ventana" text="Buzón" />
+            <Label styleClass="subtitulo-ventana" text="Mensajes recibidos" />
+        </VBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" fitToHeight="false"
+                    hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                    style="-fx-background-color: transparent; -fx-background: transparent;">
+            <content>
+                <VBox alignment="TOP_CENTER" spacing="20" style="-fx-padding: 30 40 30 40;">
+
+                    <VBox spacing="10" styleClass="panel-formulario">
+                        <Label styleClass="label-seccion" text="Mensajes recibidos" />
+                        <TableView fx:id="tablaMensajes" prefHeight="220">
+                            <columns>
+                                <TableColumn fx:id="colRemitente" text="Remitente" prefWidth="200" />
+                                <TableColumn fx:id="colAsunto"    text="Asunto"    prefWidth="380" />
+                                <TableColumn fx:id="colFecha"     text="Fecha"     prefWidth="160" />
+                            </columns>
+                        </TableView>
+                    </VBox>
+
+                    <VBox spacing="12" styleClass="panel-formulario">
+                        <Label styleClass="label-seccion" text="Vista previa" />
+
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label text="De:" styleClass="label-seccion" minWidth="65" />
+                            <Label fx:id="lblRemitente" styleClass="label-seccion" wrapText="true" HBox.hgrow="ALWAYS" />
+                        </HBox>
+
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label text="Asunto:" styleClass="label-seccion" minWidth="65" />
+                            <Label fx:id="lblAsunto" styleClass="label-seccion" wrapText="true" HBox.hgrow="ALWAYS" />
+                        </HBox>
+
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label text="Fecha:" styleClass="label-seccion" minWidth="65" />
+                            <Label fx:id="lblFecha" styleClass="label-seccion" />
+                        </HBox>
+
+                        <Separator />
+
+                        <Label text="Contenido:" styleClass="label-seccion" />
+                        <TextArea fx:id="txtContenido" editable="false" wrapText="true" prefHeight="110" />
+                    </VBox>
+
+                    <Separator />
+
+                    <HBox alignment="CENTER_RIGHT" spacing="15">
+                        <Label fx:id="lblError" styleClass="label-error" wrapText="true" maxWidth="400.0" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Button fx:id="btnNuevoMensaje" onAction="#abrirEnviarMensaje" styleClass="btn-guardar" text="NUEVO MENSAJE" />
+                        <Button fx:id="btnSalir" onAction="#salir" styleClass="btn-cancelar" text="SALIR" />
+                    </HBox>
+
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+
 </BorderPane>

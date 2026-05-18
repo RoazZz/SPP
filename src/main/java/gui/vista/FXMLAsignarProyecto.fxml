@@ -31,11 +31,15 @@
                 </HBox>
                 <TableView fx:id="tablaSolicitudes" prefHeight="400.0" VBox.vgrow="ALWAYS">
                     <columns>
-                        <TableColumn fx:id="colMatricula" prefWidth="150.0" text="Matrícula" />
-                        <TableColumn fx:id="colIdProyecto" prefWidth="100.0" text="ID Proyecto" />
-                        <TableColumn fx:id="colPeriodo" prefWidth="200.0" text="Periodo" />
-                        <TableColumn fx:id="colEstado" prefWidth="150.0" text="Estado" />
-                        <TableColumn fx:id="colAsignar" prefWidth="150.0" sortable="false" text="Acción" />
+                        <TableColumn fx:id="colMatricula" prefWidth="89.59996795654297" text="Matrícula" />
+                        <TableColumn fx:id="colIdProyecto" prefWidth="97.60000610351562" text="Nombre" />
+                        <TableColumn fx:id="colPeriodo" prefWidth="112.79998779296875" text="Apellido Paterno" />
+                        <TableColumn fx:id="colEstado" prefWidth="122.4000244140625" text="Apellido Materno" />
+                        <TableColumn fx:id="colAsignar" prefWidth="121.5999755859375" sortable="false" text="Id Proyecto" />
+                  <TableColumn prefWidth="97.60003662109375" text="Proyecto" />
+                  <TableColumn prefWidth="83.20001220703125" text="Descripción" />
+                  <TableColumn prefWidth="75.0" text="Estado Solicitud" />
+                  <TableColumn prefWidth="75.0" text="Accion" />
                     </columns>
                 </TableView>
             </VBox>

@@ -10,7 +10,13 @@ import logica.enums.TipoDeUsuario;
 import logica.enums.TipoEstado;
 
 import java.io.IOException;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -28,6 +34,11 @@ public class AdministradorDAO implements AdministradorDAOInterfaz {
                     "administrador.idAdministrador" +
                     " FROM usuario JOIN administrador ON usuario.idUsuario = administrador.idUsuario " +
                     "WHERE usuario.nombre = ?";
+    private static final String SQL_SELECT_ALL =
+            "SELECT usuario.idUsuario, usuario.nombre, usuario.apellidoP, usuario.apellidoM, " +
+                    "usuario.contrasenia, usuario.TipoUsuario, usuario.estado, " +
+                    "administrador.idAdministrador " +
+                    "FROM usuario JOIN administrador ON usuario.idUsuario = administrador.idUsuario";
     private Connection conexion;
     private static final Logger logger = Logger.getLogger(AdministradorDAO.class.getName());
 
@@ -150,6 +161,31 @@ public class AdministradorDAO implements AdministradorDAOInterfaz {
         }catch (SQLException e){
             logger.log(Level.SEVERE, "Error SQL al buscar administrador por nombre", e);
             throw new DAOExcepcion("Error al buscar administrador por nombre", e);
+        }
+    }
+
+    @Override
+    public List<AdministradorDTO> listarAdministradores() throws DAOExcepcion {
+        List<AdministradorDTO> listaAdministrador = new ArrayList<>();
+        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_SELECT_ALL);
+             ResultSet resultSet = preparedStatement.executeQuery()) {
+            while (resultSet.next()) {
+                AdministradorDTO administrador = new AdministradorDTO(
+                        resultSet.getInt("idUsuario"),
+                        resultSet.getString("nombre"),
+                        resultSet.getString("apellidoP"),
+                        resultSet.getString("apellidoM"),
+                        resultSet.getString("contrasenia"),
+                        TipoEstado.valueOf(resultSet.getString("estado")),
+                        TipoDeUsuario.valueOf(resultSet.getString("TipoUsuario")),
+                        resultSet.getInt("idAdministrador")
+                );
+                listaAdministrador.add(administrador);
+            }
+            return listaAdministrador;
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error al listar administradores", e);
+            throw new DAOExcepcion("Error al listar los administradores", e);
         }
     }
 

@@ -15,7 +15,7 @@ public class ConexionBD{
     private String ENLACE;
     private String USUARIO;
     private String CONTRASEÑA;
-    private Connection conexion = null;
+    private static Connection conexion = null;
 
     private static final Logger logger = Logger.getLogger(ConexionBD.class.getName());
 
@@ -45,7 +45,7 @@ public class ConexionBD{
         return instancia;
     }
 
-    public Connection obtenerConexion() {
+    public static Connection obtenerConexion() {
         return conexion;
     }
 

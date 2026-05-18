@@ -11,5 +11,6 @@ public interface MensajeDAOInterfaz {
     boolean insertarMensaje(MensajeDTO mensajeDTO) throws DAOExcepcion;
     boolean marcarComoLeido(int idMensaje) throws DAOExcepcion, EntidadNoEncontradaExcepcion;
     List<MensajeDTO> obtenerMensajesPorDestinatario(int idBuzonDestino) throws DAOExcepcion;
+    List<MensajeDTO> obtenerMensajesConRemitente(int idBuzonDestino) throws DAOExcepcion;
 
 }
