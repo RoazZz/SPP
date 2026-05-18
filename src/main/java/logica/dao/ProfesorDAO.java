@@ -22,18 +22,18 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ProfesorDAO implements ProfesorDAOInterfaz {
-    private static final String SQL_INSERT = "INSERT INTO profesor(idUsuario, NumeroDePersonal, Turno) VALUES (?, ?, ?)";
+    private static final String SQL_INSERT = "INSERT INTO profesor(idUsuario, NumeroDePersonal, Turno, idSeccion) VALUES (?, ?, ?, ?)";
     private static final String SQL_BUSCAR_POR_NUM_PERSONAL =
             "SELECT usuario.idUsuario, usuario.nombre, usuario.apellidoP, usuario.apellidoM, " +
             "usuario.contrasenia, usuario.TipoUsuario, usuario.estado, " +
-            "profesor.NumeroDePersonal, profesor.Turno " +
+            "profesor.NumeroDePersonal, profesor.Turno , profesor.IdSeccion " +
             "FROM usuario JOIN profesor ON usuario.idUsuario = profesor.idUsuario " +
             "WHERE profesor.NumeroDePersonal = ?";
     private static final String SQL_UPDATE = "UPDATE profesor SET Turno = ? WHERE NumeroDePersonal = ?";
     private static final String SQL_SELECT_ALL =
             "SELECT usuario.idUsuario, usuario.nombre, usuario.apellidoP, usuario.apellidoM, " +
             "usuario.contrasenia, usuario.TipoUsuario, usuario.estado, " +
-            "profesor.NumeroDePersonal, profesor.Turno " +
+            "profesor.NumeroDePersonal, profesor.Turno, profesor.IdSeccion " +
             "FROM usuario JOIN profesor ON usuario.idUsuario = profesor.idUsuario";
     private static final String SQL_EXISTE_NUMERO_PERSONAL = "SELECT COUNT(*) FROM Profesor WHERE NumeroDePersonal = ? AND idUsuario != ?";
 
@@ -66,6 +66,7 @@ public class ProfesorDAO implements ProfesorDAOInterfaz {
                     preparedStatement.setInt(1, idGenerado);
                     preparedStatement.setString(2, profesor.getNumeroDePersonal());
                     preparedStatement.setString(3, profesor.getTurno().name());
+                    preparedStatement.setInt(4, profesor.getIdSeccion());
                     preparedStatement.executeUpdate();
                 }
                 BuzonDTO buzonDTO = new BuzonDTO(idGenerado);

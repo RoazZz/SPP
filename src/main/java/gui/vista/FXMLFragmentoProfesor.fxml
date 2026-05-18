@@ -7,5 +7,6 @@
         <Label text="Datos de Profesor" styleClass="label-seccion" />
         <TextField fx:id="txtNumeroPersonal" promptText="Número de Personal" />
         <ComboBox fx:id="cbTurno" promptText="Seleccione Turno" maxWidth="Infinity" />
+        <TextField fx:id="txtSeccion" promptText="Sección" />
     </children>
 </VBox>
