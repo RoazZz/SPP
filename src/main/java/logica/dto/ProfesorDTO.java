@@ -7,11 +7,15 @@ import logica.enums.TipoTurno;
 public class ProfesorDTO extends UsuarioDTO {
     private String numeroDePersonal;
     private TipoTurno turno;
+    private int idSeccion;
 
-    public ProfesorDTO(int idUsuario, String nombre, String apellidoPaterno, String apellidoMaterno, String contrasenia, TipoEstado estado, TipoDeUsuario tipoDeUsuario, String numeroDePersonal, TipoTurno turno) {
+    public ProfesorDTO(int idUsuario, String nombre, String apellidoPaterno, String apellidoMaterno,
+                       String contrasenia, TipoEstado estado, TipoDeUsuario tipoDeUsuario,
+                       String numeroDePersonal, TipoTurno turno, Integer idSeccion) {
         super(idUsuario, nombre, apellidoPaterno, apellidoMaterno, contrasenia, estado, tipoDeUsuario);
         this.numeroDePersonal = numeroDePersonal;
         this.turno = turno;
+        this.idSeccion = idSeccion;
     }
 
     public String getNumeroDePersonal() {
@@ -30,4 +34,11 @@ public class ProfesorDTO extends UsuarioDTO {
         this.turno = turno;
     }
 
+    public int getIdSeccion() {
+        return idSeccion;
+    }
+
+    public void setIdSeccion(int idSeccion) {
+        this.idSeccion = idSeccion;
+    }
 }

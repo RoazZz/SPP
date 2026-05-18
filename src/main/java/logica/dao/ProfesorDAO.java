@@ -140,7 +140,8 @@ public class ProfesorDAO implements ProfesorDAOInterfaz {
                             TipoEstado.valueOf(resultSet.getString("estado")),
                             TipoDeUsuario.valueOf(resultSet.getString("TipoUsuario")),
                             resultSet.getString("NumeroDePersonal"),
-                            TipoTurno.valueOf(resultSet.getString("Turno"))
+                            TipoTurno.valueOf(resultSet.getString("Turno")),
+                            resultSet.getInt("idSeccion")
                     );
                 }else{
                     LOGGER.log(Level.WARNING, "No se encontró profesor con numero de personal: " + numPersonal);
@@ -167,7 +168,8 @@ public class ProfesorDAO implements ProfesorDAOInterfaz {
                         TipoEstado.valueOf(resultSet.getString("estado")),
                         TipoDeUsuario.valueOf(resultSet.getString("tipoUsuario")),
                         resultSet.getString("NumeroDePersonal"),
-                        TipoTurno.valueOf(resultSet.getString("Turno"))
+                        TipoTurno.valueOf(resultSet.getString("Turno")),
+                        resultSet.getInt("idSeccion")
                 );
                 listaProfesor.add(profesor);
             }
