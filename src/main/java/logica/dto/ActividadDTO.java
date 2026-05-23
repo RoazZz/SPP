@@ -1,20 +1,23 @@
 package logica.dto;
 
 import java.sql.Date;
+import java.time.LocalDate;
 
 public class ActividadDTO {
     private int idActividad;
     private String matricula;
     private String nombre;
     private String descripcion;
-    private Date fecha;
+    private LocalDate fechaInicio;
+    private LocalDate fechaCierre;
 
-    public ActividadDTO(int idActividad, String matricula, String nombre, String descripcion, Date fecha){
+    public ActividadDTO(int idActividad, String matricula, String nombre, String descripcion, LocalDate fechaInicio, LocalDate fechaCierre){
         this.idActividad = idActividad;
         this.matricula = matricula;
         this.nombre = nombre;
         this.descripcion = descripcion;
-        this.fecha = fecha;
+        this.fechaInicio = fechaInicio;
+        this.fechaCierre = fechaCierre;
     }
 
     public int getIdActividad() {
@@ -49,11 +52,10 @@ public class ActividadDTO {
         this.descripcion = descripcion;
     }
 
-    public Date getFecha() {
-        return fecha;
-    }
+    public LocalDate getFechaInicio() { return fechaInicio; }
+    public void setFechaInicio(LocalDate fechaInicio) { this.fechaInicio = fechaInicio; }
 
-    public void setFecha(Date fecha) {
-        this.fecha = fecha;
-    }
+    public LocalDate getFechaCierre() { return fechaCierre; }
+    public void setFechaCierre(LocalDate fechaCierre) { this.fechaCierre = fechaCierre; }
+
 }

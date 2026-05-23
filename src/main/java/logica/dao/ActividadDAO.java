@@ -20,9 +20,10 @@ import java.util.logging.Logger;
 public class ActividadDAO implements ActividadDAOInterfaz {
     private final Connection conexion;
     private static final Logger logger = Logger.getLogger(ActividadDAO.class.getName());
-    private static final String SQL_INSERT = "INSERT INTO Actividad (Matricula, Nombre, Descripcion, Fecha ) VALUES (?, ?, ?, ?)";
+    private static final String SQL_INSERT = "INSERT INTO Actividad (Matricula, Nombre, Descripcion, FechaInicio, FechaCierre ) VALUES (?, ?, ?, ?, ?)";
     private static final String SQL_BUSCAR_POR_ID_ACTIVIDAD = "SELECT * FROM Actividad WHERE idActividad = ?";
-    private static final String SQL_UPDATE = "UPDATE Actividad SET Matricula = ?, Nombre = ?, Descripcion = ?, Fecha = ? WHERE idActividad = ?";
+    private static final String SQL_UPDATE = "UPDATE Actividad SET Matricula = ?, Nombre = ?, Descripcion = ?, FechaInicio = ?, FechaCierre = ? WHERE idActividad = ?";
+    private static final String SQL_SELECT_BY_MATRICULA = "SELECT * FROM Actividad WHERE Matricula = ?";
     private static final String SQL_SELECT_ALL = "SELECT * FROM Actividad";
 
     public ActividadDAO() throws DAOExcepcion{
@@ -43,7 +44,8 @@ public class ActividadDAO implements ActividadDAOInterfaz {
             preparedStatement.setString(1, actividad.getMatricula());
             preparedStatement.setString(2, actividad.getNombre());
             preparedStatement.setString(3, actividad.getDescripcion());
-            preparedStatement.setDate(4, actividad.getFecha());
+            preparedStatement.setDate(4, java.sql.Date.valueOf(actividad.getFechaInicio()));
+            preparedStatement.setDate(5, java.sql.Date.valueOf(actividad.getFechaCierre()));
             preparedStatement.executeUpdate();
 
             try (ResultSet resultSet = preparedStatement.getGeneratedKeys()) {
@@ -65,11 +67,12 @@ public class ActividadDAO implements ActividadDAOInterfaz {
             preparedStatement.setString(1, actividad.getMatricula());
             preparedStatement.setString(2, actividad.getNombre());
             preparedStatement.setString(3, actividad.getDescripcion());
-            preparedStatement.setDate(4, actividad.getFecha());
-            preparedStatement.setInt(5, actividad.getIdActividad());
+            preparedStatement.setDate(4, java.sql.Date.valueOf(actividad.getFechaInicio()));
+            preparedStatement.setDate(5, java.sql.Date.valueOf(actividad.getFechaCierre()));
+            preparedStatement.setInt(6, actividad.getIdActividad());
             int filasAfectadas = preparedStatement.executeUpdate();
             if (filasAfectadas > 0) {
-                logger.log(Level.SEVERE, "Actividad Actualizada correctamente: " + actividad.getIdActividad());
+                logger.log(Level.INFO, "Actividad Actualizada correctamente: " + actividad.getIdActividad());
             } else {
                 logger.log(Level.WARNING, "No se encontro Actividad con el ID: " + actividad.getIdActividad());
                 throw new EntidadNoEncontradaExcepcion("No existe actividad con id: " + actividad.getIdActividad());
@@ -93,7 +96,8 @@ public class ActividadDAO implements ActividadDAOInterfaz {
                             resultSet.getString("Matricula"),
                             resultSet.getString("Nombre"),
                             resultSet.getString("Descripcion"),
-                            resultSet.getDate("Fecha")
+                            resultSet.getDate("FechaInicio").toLocalDate(),
+                            resultSet.getDate("FechaCierre").toLocalDate()
                     );
                 }else{
                     logger.log(Level.WARNING, "No se encontró actividad con id: " + idActividad);
@@ -103,6 +107,30 @@ public class ActividadDAO implements ActividadDAOInterfaz {
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error al buscar la actividad", e);
             throw new DAOExcepcion("Error al buscar actividad por idActividad: ", e);
+        }
+    }
+
+    @Override
+    public List<ActividadDTO> listarActividadesPorMatricula(String matricula) throws DAOExcepcion {
+        List<ActividadDTO> listaActividad = new ArrayList<>();
+        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_SELECT_BY_MATRICULA)) {
+            preparedStatement.setString(1, matricula);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                ActividadDTO actividad = new ActividadDTO(
+                        resultSet.getInt("idActividad"),
+                        resultSet.getString("Matricula"),
+                        resultSet.getString("Nombre"),
+                        resultSet.getString("Descripcion"),
+                        resultSet.getDate("FechaInicio").toLocalDate(),
+                        resultSet.getDate("FechaCierre").toLocalDate()
+                );
+                listaActividad.add(actividad);
+            }
+            return listaActividad;
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error al listar actividades por matrícula", e);
+            throw new DAOExcepcion("Error al listar actividades por matrícula: ", e);
         }
     }
 
@@ -117,7 +145,8 @@ public class ActividadDAO implements ActividadDAOInterfaz {
                         resultSet.getString("Matricula"),
                         resultSet.getString("Nombre"),
                         resultSet.getString("Descripcion"),
-                        resultSet.getDate("Fecha")
+                        resultSet.getDate("FechaInicio").toLocalDate(),
+                        resultSet.getDate("FechaCierre").toLocalDate()
                 );
                 listaActividad.add(actividad);
             }

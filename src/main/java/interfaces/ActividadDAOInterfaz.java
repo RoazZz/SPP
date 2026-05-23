@@ -10,5 +10,6 @@ public interface ActividadDAOInterfaz {
     public boolean agregarActividad (ActividadDTO actividad) throws DAOExcepcion;
     public boolean actualizarActividad (ActividadDTO actividad) throws DAOExcepcion;
     public ActividadDTO buscarActividadPorIdActividad (int idActividad) throws DAOExcepcion, EntidadNoEncontradaExcepcion;
+    List<ActividadDTO> listarActividadesPorMatricula(String matricula) throws DAOExcepcion;
     public List<ActividadDTO> listarActividades() throws DAOExcepcion;
 }
