@@ -7,6 +7,7 @@ public class PrincipalCoordinadorControlador extends PrincipalBaseControlador{
     @FXML Button btnProyectos;
     @FXML Button btnReportes;
     @FXML Button btnPracticantes;
+    @FXML Button btnReporteIndicadores;
 
 
     @Override
@@ -14,5 +15,7 @@ public class PrincipalCoordinadorControlador extends PrincipalBaseControlador{
         btnProyectos.setOnAction(e -> abrirVentana("/gui/vista/FXMLProyectos.fxml"));
         btnReportes.setOnAction(e -> abrirVentana("/gui/vista/FXMLReportes.fxml"));
         btnPracticantes.setOnAction(e -> abrirVentana("/gui/vista/FXMLListaUsuarios.fxml"));
+        btnReporteIndicadores.setOnAction(e -> abrirVentana("/gui/vista/FXMLReporteIndicadores.fxml"));
+
     }
 }

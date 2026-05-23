@@ -86,7 +86,16 @@
                     </graphic>
                 </Button>
 
+                <Button fx:id="btnReporteIndicadores" mnemonicParsing="false" prefHeight="126.0" prefWidth="176.0" styleClass="btn-icono" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER">
+                    <graphic>
+                        <ImageView fitHeight="131.0" fitWidth="199.0" pickOnBounds="true" preserveRatio="true">
+                            <image><Image url="@/Indicadores.png" /></image>
+                        </ImageView>
+                    </graphic>
+                </Button>
+
                 <Label styleClass="label-seccion" stylesheets="@/estilos.css" text="Practicantes" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER" />
+                <Label styleClass="label-seccion" stylesheets="@/estilos.css" text="Reporte de Indicadores" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER" />
 
                 <Button fx:id="btnCerrarSesion" mnemonicParsing="false" text="Cerrar Sesión" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
             </children>
