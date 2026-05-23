@@ -31,10 +31,10 @@ public class SolicitaProyectoDAO implements SolicitudProyectoDAOInterfaz {
     public SolicitaProyectoDAO() throws DAOExcepcion {
         try{
             this.conexion = ConexionBD.obtenerInstancia().obtenerConexion();
-        }catch (IOException e){
+        } catch (IOException e){
             logger.log(Level.SEVERE, "Error de entrada/salida al configurar la conexión", e);
             throw new DAOExcepcion("Error al leer la configuración de la base de datos", e);
-        }catch (SQLException e) {
+        } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error de SQL al intentar conectar", e);
             throw new DAOExcepcion("Error de acceso a la base de datos", e);
         }
@@ -50,7 +50,7 @@ public class SolicitaProyectoDAO implements SolicitudProyectoDAOInterfaz {
 
             logger.log(Level.INFO, "Solicitud de proyecto insertada. Proyecto ID: " + solicitaProyectoDTO.getIdProyecto());
             return solicitaProyectoDTO;
-        }catch (Exception e){
+        } catch (SQLException e){
             logger.log(Level.SEVERE, "Error SQL al insertar solicitud de proyecto", e);
             throw new DAOExcepcion("Error al insertar la solicitud de proyecto", e);
         }
@@ -62,14 +62,14 @@ public class SolicitaProyectoDAO implements SolicitudProyectoDAOInterfaz {
             preparedStatement.setString(1, solicitaProyectoDTO.getEstadoProyecto().name());
             preparedStatement.setInt(2, solicitaProyectoDTO.getIdProyecto());
             int filasAfectadas = preparedStatement.executeUpdate();
-            if(filasAfectadas > 0){
+            if (filasAfectadas > 0){
                 logger.log(Level.INFO, "Solicitud de proyecto actualizada exitosamente. Proyecto ID: " + solicitaProyectoDTO.getIdProyecto());
                 return true;
             } else {
                 logger.log(Level.WARNING, "No se encontró la solicitud de proyecto para actualizar. Proyecto ID: " + solicitaProyectoDTO.getIdProyecto());
                 throw new EntidadNoEncontradaExcepcion("No se encontró la solicitud de proyecto para actualizar con ID: " + solicitaProyectoDTO.getIdProyecto());
             }
-        }catch (Exception e){
+        } catch (SQLException e){
             logger.log(Level.SEVERE, "Error SQL al actualizar solicitud de proyecto", e);
             throw new DAOExcepcion("Error al actualizar la solicitud de proyecto", e);
         }

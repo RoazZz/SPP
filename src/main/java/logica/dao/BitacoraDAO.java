@@ -27,10 +27,10 @@ public class BitacoraDAO implements BitacoraDAOInterfaz {
     public BitacoraDAO() throws DAOExcepcion {
         try{
         this.conexion = ConexionBD.obtenerInstancia().obtenerConexion();
-        }catch (IOException e){
+        } catch (IOException e){
             logger.log(Level.SEVERE, "Error al leer archivo de configuración", e);
             throw new DAOExcepcion("Error de configuracion", e);
-        }catch (SQLException e) {
+        } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error de conexion SQL en BitacoraDAO", e);
             throw new DAOExcepcion("Error de base de datos", e);
         }
@@ -70,7 +70,7 @@ public class BitacoraDAO implements BitacoraDAOInterfaz {
                             resultSet.getTimestamp("Fecha_Hora").toLocalDateTime(),
                             resultSet.getString("Descripcion")
                     );
-                }else{
+                } else{
                     logger.log(Level.WARNING, "No se encontro alguna bitacora con Matricula : " + matricula);
                     throw new EntidadNoEncontradaExcepcion("No existe bitacora con Matricula : " + matricula);
                 }

@@ -68,19 +68,19 @@ public class PruebaAutoevaluacionDAO {
 
     @Test
     public void pruebaAgregarAutoevaluacionExitoso() throws Exception {
-        AutoevaluacionDTO resultado = autoevaluacionDAO.agregarAutoevalaucion(autoevalaucionValida);
-        assertTrue(resultado.getIdAutoevalaucion() > 0);
+        AutoevaluacionDTO resultado = autoevaluacionDAO.agregarautoevaluacion(autoevalaucionValida);
+        assertTrue(resultado.getIdAutoevaluacion() > 0);
     }
 
     @Test
     public void pruebaBuscarAutoevaluacionExitoso() throws Exception {
         AutoevaluacionDTO recuperado = autoevaluacionDAO.buscarAutoevaluacionPorMatricula("S21012345");
-        assertEquals(999, recuperado.getIdAutoevalaucion());
+        assertEquals(999, recuperado.getIdAutoevaluacion());
     }
 
     @Test
     public void pruebaAgregarAutoevaluacionErrorMatriculaNula() {
-        assertThrows(DAOExcepcion.class, () -> autoevaluacionDAO.agregarAutoevalaucion(autoevaluacionInvalidaMatriculaNula));
+        assertThrows(DAOExcepcion.class, () -> autoevaluacionDAO.agregarautoevaluacion(autoevaluacionInvalidaMatriculaNula));
     }
 
     @Test

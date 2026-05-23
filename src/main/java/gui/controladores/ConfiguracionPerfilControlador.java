@@ -87,7 +87,7 @@ public class ConfiguracionPerfilControlador implements Initializable, Regresable
                 default:
                     return true;
             }
-        }catch (ReglaDeNegocioExcepcion e){
+        } catch (ReglaDeNegocioExcepcion e){
             mostrarAlerta(Alert.AlertType.WARNING, "Dato Inválido", e.getMessage());
             return false;
         } catch (Exception e) {

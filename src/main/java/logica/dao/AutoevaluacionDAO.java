@@ -25,17 +25,17 @@ public class AutoevaluacionDAO implements AutoevaluacionDAOInterfaz {
     public AutoevaluacionDAO() throws DAOExcepcion {
         try{
             this.conexion = ConexionBD.obtenerInstancia().obtenerConexion();
-        }catch (IOException e){
+        } catch (IOException e){
             logger.log(Level.SEVERE, "Error al leer archivo de cofniguración", e);
             throw new DAOExcepcion("Error de configuracion", e);
-        }catch (SQLException e) {
+        } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error de conexion SQL en ProfesorDAO", e);
             throw new DAOExcepcion("Error de base de datos", e);
         }
     }
 
     @Override
-    public AutoevaluacionDTO agregarAutoevalaucion(AutoevaluacionDTO autoevaluacion) throws DAOExcepcion {
+    public AutoevaluacionDTO agregarautoevaluacion(AutoevaluacionDTO autoevaluacion) throws DAOExcepcion {
         try(PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)){
             preparedStatement.setString(1, autoevaluacion.getMatricula());
             preparedStatement.setBigDecimal(2, autoevaluacion.getCalificacion());
@@ -44,7 +44,7 @@ public class AutoevaluacionDAO implements AutoevaluacionDAOInterfaz {
 
             try (ResultSet resultSet = preparedStatement.getGeneratedKeys()) {
                 if (resultSet.next()) {
-                    autoevaluacion.setIdAutoevalaucion(resultSet.getInt(1));
+                    autoevaluacion.setIdAutoevaluacion(resultSet.getInt(1));
                 }
             }
             logger.log(Level.INFO, "Autoevaluacion registrada exitosamente para: " + autoevaluacion.getMatricula());
@@ -67,7 +67,7 @@ public class AutoevaluacionDAO implements AutoevaluacionDAOInterfaz {
                 if (filasAfectadas > 0) {
                     logger.log(Level.INFO, "Autoevaluacion actualizada para matricula: " + autoevaluacion.getMatricula());
                     return true;
-                }else{
+                } else{
                     logger.log(Level.WARNING, "No se encontró Autoevaluación para actualizar con matricula: " + autoevaluacion.getMatricula());
                     throw new EntidadNoEncontradaExcepcion("No se encontró autoevaluación para actualizar con matricula: " + autoevaluacion.getMatricula());
                 }
@@ -89,7 +89,7 @@ public class AutoevaluacionDAO implements AutoevaluacionDAOInterfaz {
                             resultSet.getBigDecimal("Calificacion"),
                             resultSet.getString("Comentarios")
                     );
-                }else{
+                } else{
                     logger.log(Level.WARNING, "No se encontró Autoevaluación con matricula: " + matricula);
                     throw new EntidadNoEncontradaExcepcion("Autoevaluación no encontrada con matricula: " + matricula);
                 }

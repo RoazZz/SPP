@@ -43,10 +43,10 @@ public class ProfesorDAO implements ProfesorDAOInterfaz {
     public ProfesorDAO() throws DAOExcepcion{
         try{
             this.conexion = ConexionBD.obtenerInstancia().obtenerConexion();
-        }catch (IOException e){
+        } catch (IOException e){
             LOGGER.log(Level.SEVERE, "Error al leer archivo de cofniguración", e);
             throw new DAOExcepcion("Error de configuracion", e);
-        }catch (SQLException e) {
+        } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "Error de conexion SQL en ProfesorDAO", e);
             throw new DAOExcepcion("Error de base de datos", e);
         }
@@ -88,7 +88,7 @@ public class ProfesorDAO implements ProfesorDAOInterfaz {
             }
             LOGGER.log(Level.SEVERE, "Error SQL al agregar profesor", e);
             throw new DAOExcepcion("Error al agregar profesor", e);
-        } catch (Exception e) {
+        } catch (EntidadNoEncontradaExcepcion e) {
             try {
                 if (conexion != null) {
                     conexion.rollback();
@@ -113,7 +113,7 @@ public class ProfesorDAO implements ProfesorDAOInterfaz {
             preparedStatement.setString(1, profesor.getTurno().name());
             preparedStatement.setString(2, profesor.getNumeroDePersonal());
             int filasAfectadas = preparedStatement.executeUpdate();
-            if(filasAfectadas > 0){
+            if (filasAfectadas > 0){
                 LOGGER.log(Level.INFO, "Profesor actualizado en tabla profesor con numero personal: " + profesor.getNumeroDePersonal());
                 return true;
             } else {
@@ -144,7 +144,7 @@ public class ProfesorDAO implements ProfesorDAOInterfaz {
                             TipoTurno.valueOf(resultSet.getString("Turno")),
                             resultSet.getInt("idSeccion")
                     );
-                }else{
+                } else{
                     LOGGER.log(Level.WARNING, "No se encontró profesor con numero de personal: " + numPersonal);
                     throw new EntidadNoEncontradaExcepcion("Profesor no encontrado con numero de personal: " + numPersonal);
                 }

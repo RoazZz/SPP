@@ -28,10 +28,10 @@ public class SeccionDAO implements SeccionDAOInterfaz {
     public SeccionDAO() throws DAOExcepcion {
         try{
             this.conexion = ConexionBD.obtenerInstancia().obtenerConexion();
-        }catch (IOException e){
+        } catch (IOException e){
             logger.log(Level.SEVERE, "Error de entrada/salida al configurar la conexión", e);
             throw new DAOExcepcion("Error al leer la configuración de la base de datos", e);
-        }catch (SQLException e) {
+        } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error de SQL al intentar conectar", e);
             throw new DAOExcepcion("Error de acceso a la base de datos", e);
         }
@@ -46,7 +46,7 @@ public class SeccionDAO implements SeccionDAOInterfaz {
 
             logger.log(Level.INFO, "Seccion agregada exitosamente: " + seccionDTO.getNombre());
             return seccionDTO;
-        }catch (SQLException e) {
+        } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error SQL al agregar seccion", e);
             throw new DAOExcepcion("Error al guardar la sección en la base de datos", e);
         }
@@ -61,7 +61,7 @@ public class SeccionDAO implements SeccionDAOInterfaz {
             if (filasAfectadas > 0) {
                 logger.log(Level.INFO, "Seccion actualizada exitosamente: " + seccionDTO.getNombre());
                 return true;
-            }else{
+            } else{
                 logger.log(Level.WARNING, "No se encontró la Sección para actualizar. ID: " + seccionDTO.getIdSeccion());
                 throw new EntidadNoEncontradaExcepcion("No se encontró la Sección con el ID: " + seccionDTO.getIdSeccion());
             }
@@ -81,12 +81,12 @@ public class SeccionDAO implements SeccionDAOInterfaz {
                             resultSet.getInt("idSeccion"),
                             resultSet.getString("Nombre")
                     );
-                }else{
+                } else{
                     logger.log(Level.WARNING, "No se encontró la Sección con ID: " + idSeccion);
                     throw new EntidadNoEncontradaExcepcion("No se encontró la Sección con el ID proporcionado");
                 }
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error SQL al obtener seccion por ID: " + idSeccion, e);
             throw new DAOExcepcion("Error al consultar la sección", e);
         }
@@ -105,7 +105,7 @@ public class SeccionDAO implements SeccionDAOInterfaz {
                 lista.add(seccion);
             }
             return lista;
-        } catch (Exception e) {
+        } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error SQL al listar todas las secciones", e);
             throw new DAOExcepcion("Error al obtener la lista de secciones", e);
         }

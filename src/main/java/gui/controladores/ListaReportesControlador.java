@@ -2,6 +2,7 @@ package gui.controladores;
 
 import excepciones.DAOExcepcion;
 import excepciones.EntidadNoEncontradaExcepcion;
+import interfaces.Regresable;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -24,7 +25,6 @@ import logica.dao.ProfesorDAO;
 import logica.dao.ReporteDAO;
 import logica.dto.ProfesorDTO;
 import logica.dto.ReporteDTO;
-import logica.enums.TipoDeUsuario;
 import logica.utilidades.SesionUsuarioSingleton;
 
 import java.awt.Desktop;
@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ListaReportesControlador {
+public class ListaReportesControlador implements Regresable {
 
     @FXML private ComboBox<String> cbFiltroTipo;
     @FXML private TableView<ReporteDTO> tablaReportes;
@@ -52,6 +52,8 @@ public class ListaReportesControlador {
     private ObservableList<ReporteDTO> listaCompleta;
     private FilteredList<ReporteDTO> listaFiltrada;
 
+    private Scene escenaAnterior;
+
     private static final Logger LOGGER = Logger.getLogger(ListaReportesControlador.class.getName());
 
     @FXML
@@ -61,7 +63,7 @@ public class ListaReportesControlador {
         configurarFiltroPorTipo();
         cargarReportes();
         btnLimpiarFiltro.setOnAction(e -> cbFiltroTipo.setValue("TODOS"));
-        btnCerrar.setOnAction(e -> btnCerrar.getScene().getWindow().hide());
+        btnCerrar.setOnAction(e -> regresar());
     }
 
     private void configurarColumnas() {
@@ -132,7 +134,19 @@ public class ListaReportesControlador {
 
     private void cargarReportes() {
         try {
-            List<ReporteDTO> reportes = obtenerReportesSegunRol();
+            ProfesorDTO profesor = (ProfesorDTO) SesionUsuarioSingleton.obtenerInstancia()
+                    .obtenerUsuarioActual();
+
+            ProfesorDAO profesorDAO = new ProfesorDAO();
+            ProfesorDTO profesorCompleto = profesorDAO.buscarProfesorPorNumPersonal(
+                    profesor.getNumeroDePersonal()
+            );
+
+            ReporteDAO reporteDAO = new ReporteDAO();
+            List<ReporteDTO> reportes = reporteDAO.listarReportesPorSeccion(
+                    profesorCompleto.getIdSeccion()
+            );
+
             listaCompleta = FXCollections.observableArrayList(reportes);
             listaFiltrada = new FilteredList<>(listaCompleta, r -> true);
             tablaReportes.setItems(listaFiltrada);
@@ -141,30 +155,6 @@ public class ListaReportesControlador {
             LOGGER.log(Level.SEVERE, "Error al cargar reportes", e);
             mostrarAlerta(Alert.AlertType.ERROR, "Error", "Imposible acceder. Intente más tarde.");
         }
-    }
-
-    private List<ReporteDTO> obtenerReportesSegunRol() throws DAOExcepcion, EntidadNoEncontradaExcepcion {
-        TipoDeUsuario rol = SesionUsuarioSingleton.obtenerInstancia()
-                .obtenerUsuarioActual()
-                .getTipoDeUsuario();
-
-        if (rol == TipoDeUsuario.PROFESOR) {
-            return obtenerReportesDeProfesor();
-        }
-
-        ReporteDAO reporteDAO = new ReporteDAO();
-        return reporteDAO.listarTodosReporte();
-    }
-
-    private List<ReporteDTO> obtenerReportesDeProfesor() throws DAOExcepcion, EntidadNoEncontradaExcepcion {
-        ProfesorDTO profesor = (ProfesorDTO) SesionUsuarioSingleton.obtenerInstancia()
-                .obtenerUsuarioActual();
-
-        ProfesorDAO profesorDAO = new ProfesorDAO();
-        ProfesorDTO profesorCompleto = profesorDAO.buscarProfesorPorNumPersonal(profesor.getNumeroDePersonal());
-
-        ReporteDAO reporteDAO = new ReporteDAO();
-        return reporteDAO.listarReportesPorSeccion(profesorCompleto.getIdSeccion());
     }
 
     private void aplicarFiltro(String tipo) {
@@ -229,5 +219,18 @@ public class ListaReportesControlador {
         alerta.setTitle(titulo);
         alerta.setHeaderText(null);
         alerta.showAndWait();
+    }
+
+    @Override
+    public void setEscenaAnterior(Scene escena) {
+        this.escenaAnterior = escena;
+    }
+
+    private void regresar() {
+        if (escenaAnterior != null) {
+            Stage escenario = (Stage) btnCerrar.getScene().getWindow();
+            escenario.setScene(escenaAnterior);
+            escenario.show();
+        }
     }
 }

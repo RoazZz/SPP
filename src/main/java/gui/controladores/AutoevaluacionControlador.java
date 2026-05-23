@@ -10,6 +10,8 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import logica.dao.AutoevaluacionDAO;
 import logica.dto.AutoevaluacionDTO;
+import logica.dto.PracticanteDTO;
+import logica.utilidades.SesionUsuarioSingleton;
 
 import java.math.BigDecimal;
 import java.net.URL;
@@ -46,7 +48,7 @@ public class AutoevaluacionControlador implements Initializable {
 
         try {
             BigDecimal calificacion = new BigDecimal(txtCalificacion.getText().trim());
-            String matricula = ""; //  obtener del SesionUsuario - Cambiale Jared
+            String matricula = ((PracticanteDTO) SesionUsuarioSingleton.obtenerInstancia().obtenerUsuarioActual()).getMatricula();
 
             AutoevaluacionDTO autoevaluacionDTO = new AutoevaluacionDTO(
                     0,
@@ -56,7 +58,7 @@ public class AutoevaluacionControlador implements Initializable {
             );
 
             AutoevaluacionDAO autoevaluacionDAO = new AutoevaluacionDAO();
-            autoevaluacionDAO.agregarAutoevalaucion(autoevaluacionDTO);
+            autoevaluacionDAO.agregarautoevaluacion(autoevaluacionDTO);
 
             cerrarVentana();
 

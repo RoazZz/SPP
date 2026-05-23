@@ -25,10 +25,10 @@ public class BitacoraPSPDAO implements BitacoraPSPDAOInterfaz {
     public BitacoraPSPDAO() throws DAOExcepcion {
         try{
             this.conexion = ConexionBD.obtenerInstancia().obtenerConexion();
-        }catch (IOException e){
+        } catch (IOException e){
             logger.log(Level.SEVERE, "Error al leer archivo de cofniguración", e);
             throw new DAOExcepcion("Error de configuracion", e);
-        }catch (SQLException e) {
+        } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error de conexion SQL en BitacoraPSPDAO", e);
             throw new DAOExcepcion("Error de base de datos", e);
         }
@@ -65,7 +65,7 @@ public class BitacoraPSPDAO implements BitacoraPSPDAOInterfaz {
                             resultSet.getString("Matricula"),
                             resultSet.getDate("Fecha").toLocalDate()
                     );
-                }else{
+                } else{
                     logger.log(Level.WARNING, "No se encontró bitacoraPSP con ID: " + idBitacora);
                     throw new EntidadNoEncontradaExcepcion("BitacoraPSP no encontrado con ID: " + idBitacora);
                 }
@@ -83,10 +83,10 @@ public class BitacoraPSPDAO implements BitacoraPSPDAOInterfaz {
                 preparedStatement.setDate(2, java.sql.Date.valueOf(bitacora.getFecha()));
                 preparedStatement.setInt(3, bitacora.getIdBBitacora());
                 int filasAfectadas = preparedStatement.executeUpdate();
-                if(filasAfectadas > 0){
+                if (filasAfectadas > 0){
                     logger.log(Level.INFO, "Bitacora PSP actualizada con éxito. ID: " + bitacora.getIdBBitacora());
                     return true;
-                }else{
+                } else{
                     logger.log(Level.WARNING, "No se encontró BitacoraPSP para actualizar con ID: " + bitacora.getIdBBitacora());
                     throw new EntidadNoEncontradaExcepcion("BitacoraPSP no encontrado para actualizar con ID: " + bitacora.getIdBBitacora());
                 }
