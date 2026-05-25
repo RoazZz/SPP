@@ -2,7 +2,7 @@ package logica.dto;
 
 import logica.enums.GeneroDelPracticante;
 import logica.enums.TipoDeUsuario;
-import logica.enums.TipoEstado;
+import logica.enums.TipoEstadoUsuario;
 
 public class PracticanteDTO extends UsuarioDTO{
     private String matricula;
@@ -12,15 +12,8 @@ public class PracticanteDTO extends UsuarioDTO{
     private int edad;
     private boolean lenguaIndigena;
 
-    public PracticanteDTO (int idUsuario, String nombre, String apellidoPaterno, String apellidoMaterno, String contrasenia, TipoEstado estado, TipoDeUsuario tipoDeUsuario, String matricula, int idSeccion, String semestre,
-                           GeneroDelPracticante generoDelPracticante, int edad, boolean lenguaIndigena){
+    public PracticanteDTO(int idUsuario, String nombre, String apellidoPaterno, String apellidoMaterno, String contrasenia, TipoEstadoUsuario estado, TipoDeUsuario tipoDeUsuario) {
         super(idUsuario, nombre, apellidoPaterno, apellidoMaterno, contrasenia, estado, tipoDeUsuario);
-        this.matricula = matricula;
-        this.idSeccion = idSeccion;
-        this.semestre = semestre;
-        this.generoDelPracticante = generoDelPracticante;
-        this.edad = edad;
-        this.lenguaIndigena = lenguaIndigena;
     }
 
     public String getMatricula() {

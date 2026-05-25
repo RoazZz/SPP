@@ -7,7 +7,7 @@ import logica.dao.UsuarioDAO;
 import logica.dto.PracticanteDTO;
 import logica.enums.GeneroDelPracticante;
 import logica.enums.TipoDeUsuario;
-import logica.enums.TipoEstado;
+import logica.enums.TipoEstadoUsuario;
 import logica.utilidades.CifradorContraseña;
 
 import java.util.logging.Level;
@@ -28,11 +28,18 @@ public class PracticanteControlador {
 
     public PracticanteDTO construirPracticanteDTO(int id, String nombre, String apellidoP, String apellidoM, String contrasenia, String matricula, int idSeccion, String semestre, GeneroDelPracticante genero, int edad, boolean lenguaIndigena) {
         String contraseniaProtegida = CifradorContraseña.cifrarContraseña(contrasenia);
-        return new PracticanteDTO(
+        PracticanteDTO practicante = new PracticanteDTO(
                 id, nombre, apellidoP, apellidoM, contraseniaProtegida,
-                TipoEstado.ACTIVO, TipoDeUsuario.PRACTICANTE,
-                matricula, idSeccion, semestre, genero, edad, lenguaIndigena
+                TipoEstadoUsuario.ACTIVO, TipoDeUsuario.PRACTICANTE
         );
+        practicante.setMatricula(matricula);
+        practicante.setIdSeccion(idSeccion);
+        practicante.setSemestre(semestre);
+        practicante.setGeneroDelPracticante(genero);
+        practicante.setEdad(edad);
+        practicante.setLenguaIndigena(lenguaIndigena);
+
+        return practicante;
     }
 
     public void procesarGuardadoPracticante(PracticanteDTO practicanteDTO, boolean modoEdicion)

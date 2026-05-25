@@ -8,7 +8,7 @@ import logica.dto.BuzonDTO;
 import logica.dto.PracticanteDTO;
 import logica.enums.GeneroDelPracticante;
 import logica.enums.TipoDeUsuario;
-import logica.enums.TipoEstado;
+import logica.enums.TipoEstadoUsuario;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -122,21 +122,24 @@ public class PracticanteDAO implements PracticanteDAOInterfaz {
             preparedStatement.setString(1, matricula);
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                return new PracticanteDTO(
+                PracticanteDTO practicante = new PracticanteDTO(
                         resultSet.getInt("idUsuario"),
                         resultSet.getString("nombre"),
                         resultSet.getString("apellidoP"),
                         resultSet.getString("apellidoM"),
                         resultSet.getString("contrasenia"),
-                        TipoEstado.valueOf(resultSet.getString("estado")),
-                        TipoDeUsuario.valueOf(resultSet.getString("tipoUsuario")),
-                        resultSet.getString("Matricula"),
-                        resultSet.getInt("idSeccion"),
-                        resultSet.getString("Semestre"),
-                        GeneroDelPracticante.valueOf(resultSet.getString("Genero")),
-                        resultSet.getInt("Edad"),
-                        resultSet.getBoolean("LenguaIndigena")
+                        TipoEstadoUsuario.valueOf(resultSet.getString("estado")),
+                        TipoDeUsuario.valueOf(resultSet.getString("tipoUsuario"))
                 );
+
+                practicante.setMatricula(resultSet.getString("Matricula"));
+                practicante.setIdSeccion(resultSet.getInt("idSeccion"));
+                practicante.setSemestre(resultSet.getString("Semestre"));
+                practicante.setGeneroDelPracticante(GeneroDelPracticante.valueOf(resultSet.getString("Genero")));
+                practicante.setEdad(resultSet.getInt("Edad"));
+                practicante.setLenguaIndigena(resultSet.getBoolean("LenguaIndigena"));
+
+                return practicante;
             } else {
                 logger.log(Level.WARNING, "No se encontró practicante con matricula: " + matricula);
                 throw new EntidadNoEncontradaExcepcion("No existe practicante con matricula: " + matricula);
@@ -151,7 +154,10 @@ public class PracticanteDAO implements PracticanteDAOInterfaz {
     @Override
     public List<PracticanteDTO> listarPracticantes() throws DAOExcepcion {
         List<PracticanteDTO> listaPracticante = new ArrayList<>();
-        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_SELECT_ALL);  ResultSet resultSet = preparedStatement.executeQuery();) {
+
+        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_SELECT_ALL);
+             ResultSet resultSet = preparedStatement.executeQuery()) {
+
             while (resultSet.next()) {
                 PracticanteDTO practicante = new PracticanteDTO(
                         resultSet.getInt("idUsuario"),
@@ -159,17 +165,20 @@ public class PracticanteDAO implements PracticanteDAOInterfaz {
                         resultSet.getString("apellidoP"),
                         resultSet.getString("apellidoM"),
                         resultSet.getString("contrasenia"),
-                        TipoEstado.valueOf(resultSet.getString("estado")),
-                        TipoDeUsuario.valueOf(resultSet.getString("tipoUsuario")),
-                        resultSet.getString("Matricula"),
-                        resultSet.getInt("idSeccion"),
-                        resultSet.getString("Semestre"),
-                        GeneroDelPracticante.valueOf(resultSet.getString("Genero")),
-                        resultSet.getInt("Edad"),
-                        resultSet.getBoolean("LenguaIndigena")
+                        TipoEstadoUsuario.valueOf(resultSet.getString("estado")),
+                        TipoDeUsuario.valueOf(resultSet.getString("tipoUsuario"))
                 );
+
+                practicante.setMatricula(resultSet.getString("Matricula"));
+                practicante.setIdSeccion(resultSet.getInt("idSeccion"));
+                practicante.setSemestre(resultSet.getString("Semestre"));
+                practicante.setGeneroDelPracticante(GeneroDelPracticante.valueOf(resultSet.getString("Genero")));
+                practicante.setEdad(resultSet.getInt("Edad"));
+                practicante.setLenguaIndigena(resultSet.getBoolean("LenguaIndigena"));
+
                 listaPracticante.add(practicante);
             }
+
             return listaPracticante;
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error al listar los practicantes", e);
