@@ -6,7 +6,6 @@ import logica.enums.TipoReporte;
 import java.time.LocalDate;
 
 public class ReporteDTO {
-
     private int idReporte;
     private int idUsuario;
     private TipoReporte tipoReporte;
@@ -16,6 +15,8 @@ public class ReporteDTO {
     private String mes;
     private String hashArchivo;
     private String hashContenido;
+    // Se declara como Double y no como double para cuando la
+    // calificación del reporte necesite ser null (aún no ha sido calificado).
     private Double calificacion;
 
     public ReporteDTO(int idReporte, int idUsuario, TipoReporte tipoReporte, LocalDate fecha,
