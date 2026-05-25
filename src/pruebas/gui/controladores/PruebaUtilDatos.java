@@ -6,7 +6,7 @@ import logica.dao.UsuarioDAO;
 import logica.dto.ProfesorDTO;
 import logica.dto.UsuarioDTO;
 import logica.enums.TipoDeUsuario;
-import logica.enums.TipoEstado;
+import logica.enums.TipoEstadoUsuario;
 import logica.enums.TipoTurno;
 
 import java.sql.Connection;
@@ -25,10 +25,10 @@ public class PruebaUtilDatos {
     private final List<Integer> idsProfesoresPruebaInsertados = new ArrayList<>();
 
     public UsuarioDTO insertarUsuarioPruebaBase(String nombre, String apellidoPaterno, String apellidoMaterno,
-                                                TipoDeUsuario tipoDeUsuario, TipoEstado tipoEstado) throws Exception {
+                                                TipoDeUsuario tipoDeUsuario, TipoEstadoUsuario tipoEstadoUsuario) throws Exception {
         UsuarioDTO usuarioPrueba = new UsuarioDTO(
                 0, nombre, apellidoPaterno, apellidoMaterno,
-                "contraseniaPrueba123", tipoEstado, tipoDeUsuario
+                "contraseniaPrueba123", tipoEstadoUsuario, tipoDeUsuario
         );
         UsuarioDAO usuarioDAO = new UsuarioDAO();
         usuarioDAO.agregarUsuario(usuarioPrueba);
@@ -38,10 +38,10 @@ public class PruebaUtilDatos {
 
     public ProfesorDTO insertarProfesorPrueba(String nombre, String apellidoPaterno, String apellidoMaterno,
                                               String numeroDePersonal, TipoTurno turno,
-                                              TipoEstado tipoEstado) throws Exception {
+                                              TipoEstadoUsuario tipoEstadoUsuario) throws Exception {
         ProfesorDTO profesorPrueba = new ProfesorDTO(
                 0, nombre, apellidoPaterno, apellidoMaterno,
-                "contraseniaPrueba123", tipoEstado, TipoDeUsuario.PROFESOR,
+                "contraseniaPrueba123", tipoEstadoUsuario, TipoDeUsuario.PROFESOR,
                 numeroDePersonal, turno
         );
         ProfesorDAO profesorDAO = new ProfesorDAO();

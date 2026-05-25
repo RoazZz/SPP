@@ -8,9 +8,7 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -18,12 +16,11 @@ import javafx.stage.Stage;
 import logica.dao.UsuarioDAO;
 import logica.dto.UsuarioDTO;
 import logica.enums.TipoDeUsuario;
-import logica.enums.TipoEstado;
+import logica.enums.TipoEstadoUsuario;
 import javafx.scene.layout.HBox;
 import logica.utilidades.PermisosRol;
 import logica.utilidades.SesionUsuarioSingleton;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -120,7 +117,7 @@ public class ListaUsuariosControlador implements Regresable{
 
                 UsuarioDTO usuarioDTO = getTableView().getItems().get(getIndex());
 
-                if (permisos.peudeInactivarUsuario() && usuarioDTO.getTipoEstado() == TipoEstado.ACTIVO) {
+                if (permisos.peudeInactivarUsuario() && usuarioDTO.getTipoEstado() == TipoEstadoUsuario.ACTIVO) {
                     btnInactivar.setVisible(true);
                     setGraphic(contenedor);
                 } else {
@@ -203,14 +200,14 @@ public class ListaUsuariosControlador implements Regresable{
             mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Usuario inactivado.");
         } catch (DAOExcepcion e) {
             logger.log(Level.SEVERE, "Error al inactivar usuario", e);
-            usuario.setTipoEstado(TipoEstado.ACTIVO);
+            usuario.setTipoEstado(TipoEstadoUsuario.ACTIVO);
             tablaUsuarios.refresh();
             mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudo completar la acción.");
         }
     }
 
     private void inactivarUsuario(UsuarioDTO usuario) throws DAOExcepcion {
-        usuario.setTipoEstado(TipoEstado.INACTIVO);
+        usuario.setTipoEstado(TipoEstadoUsuario.INACTIVO);
         new UsuarioDAO().actualizarUsuario(usuario);
     }
 

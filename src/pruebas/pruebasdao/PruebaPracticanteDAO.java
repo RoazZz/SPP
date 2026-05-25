@@ -6,7 +6,7 @@ import logica.dao.PracticanteDAO;
 import logica.dto.PracticanteDTO;
 import logica.enums.GeneroDelPracticante;
 import logica.enums.TipoDeUsuario;
-import logica.enums.TipoEstado;
+import logica.enums.TipoEstadoUsuario;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -60,7 +60,7 @@ public class PruebaPracticanteDAO {
                 "Morales",
                 "Tirado",
                 "123",
-                TipoEstado.ACTIVO,
+                TipoEstadoUsuario.ACTIVO,
                 TipoDeUsuario.PRACTICANTE,
                 "S24021",
                 1,
@@ -75,7 +75,7 @@ public class PruebaPracticanteDAO {
                 "Morales",
                 "Tirado",
                 "123",
-                TipoEstado.ACTIVO,
+                TipoEstadoUsuario.ACTIVO,
                 TipoDeUsuario.PRACTICANTE,
                 null,
                 1,

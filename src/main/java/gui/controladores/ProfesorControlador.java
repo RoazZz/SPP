@@ -6,7 +6,7 @@ import logica.dao.ProfesorDAO;
 import logica.dao.UsuarioDAO;
 import logica.dto.ProfesorDTO;
 import logica.enums.TipoDeUsuario;
-import logica.enums.TipoEstado;
+import logica.enums.TipoEstadoUsuario;
 import logica.enums.TipoTurno;
 import logica.utilidades.CifradorContraseña;
 
@@ -34,7 +34,7 @@ public class ProfesorControlador {
                 apellidoP,
                 apellidoM,
                 contraseniaProtegida,
-                TipoEstado.ACTIVO,
+                TipoEstadoUsuario.ACTIVO,
                 TipoDeUsuario.PROFESOR,
                 numeroPersonal,
                 turno,

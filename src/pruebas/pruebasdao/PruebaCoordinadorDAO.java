@@ -5,7 +5,7 @@ import excepciones.DAOExcepcion;
 import logica.dao.CoordinadorDAO;
 import logica.dto.CoordinadorDTO;
 import logica.enums.TipoDeUsuario;
-import logica.enums.TipoEstado;
+import logica.enums.TipoEstadoUsuario;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -57,7 +57,7 @@ public class PruebaCoordinadorDAO {
                 "Morales",
                 "Tirado",
                 "123",
-                TipoEstado.ACTIVO,
+                TipoEstadoUsuario.ACTIVO,
                 TipoDeUsuario.COORDINADOR,
                 "25110"
         );
@@ -67,7 +67,7 @@ public class PruebaCoordinadorDAO {
                 "Morales",
                 "Tirado",
                 "123",
-                TipoEstado.ACTIVO,
+                TipoEstadoUsuario.ACTIVO,
                 TipoDeUsuario.COORDINADOR,
                 null
         );

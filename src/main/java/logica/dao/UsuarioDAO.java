@@ -6,7 +6,7 @@ import interfaces.UsuarioDAOInterfaz;
 import accesodatos.ConexionBD;
 import logica.dto.UsuarioDTO;
 import logica.enums.TipoDeUsuario;
-import logica.enums.TipoEstado;
+import logica.enums.TipoEstadoUsuario;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -101,7 +101,7 @@ public class UsuarioDAO implements UsuarioDAOInterfaz {
                 String contrasenia  = resultSet.getString("Contrasenia");
                 String estado = resultSet.getString("Estado");
                 String tipoUsuario = resultSet.getString("TipoUsuario");
-                return new UsuarioDTO(idDeUsuario, nombre, apellidoPaterno, apellidoMaterno, contrasenia, TipoEstado.valueOf(estado), TipoDeUsuario.valueOf(tipoUsuario));
+                return new UsuarioDTO(idDeUsuario, nombre, apellidoPaterno, apellidoMaterno, contrasenia, TipoEstadoUsuario.valueOf(estado), TipoDeUsuario.valueOf(tipoUsuario));
             } else{
                 logger.log(Level.WARNING, "No se encontro algun usuario con id: " + idUsuario);
                 throw new EntidadNoEncontradaExcepcion("No existe usuario con el id: " + idUsuario);
@@ -123,7 +123,7 @@ public class UsuarioDAO implements UsuarioDAOInterfaz {
                         resultSet.getString("ApellidoP"),
                         resultSet.getString("ApellidoM"),
                         resultSet.getString("Contrasenia"),
-                        TipoEstado.valueOf(resultSet.getString("Estado")),
+                        TipoEstadoUsuario.valueOf(resultSet.getString("Estado")),
                         TipoDeUsuario.valueOf(resultSet.getString("TipoUsuario"))
                 );
                 listaUsuario.add(usuario);

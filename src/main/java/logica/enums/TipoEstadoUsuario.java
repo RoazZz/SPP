@@ -1,6 +1,6 @@
 package logica.enums;
 
-public enum TipoEstado {
+public enum TipoEstadoUsuario {
     ACTIVO,
     INACTIVO
 }

@@ -7,7 +7,7 @@ import accesodatos.ConexionBD;
 import logica.dto.BuzonDTO;
 import logica.dto.CoordinadorDTO;
 import logica.enums.TipoDeUsuario;
-import logica.enums.TipoEstado;
+import logica.enums.TipoEstadoUsuario;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -116,7 +116,7 @@ public class CoordinadorDAO implements CoordinadorDAOInterfaz{
                             resultSet.getString("apellidoP"),
                             resultSet.getString("apellidoM"),
                             resultSet.getString("contrasenia"),
-                            TipoEstado.valueOf(resultSet.getString("estado")),
+                            TipoEstadoUsuario.valueOf(resultSet.getString("estado")),
                             TipoDeUsuario.valueOf(resultSet.getString("TipoUsuario")),
                             resultSet.getString("NumeroDePersonal")
                     );
@@ -144,7 +144,7 @@ public class CoordinadorDAO implements CoordinadorDAOInterfaz{
                             resultSet.getString("apellidoP"),
                             resultSet.getString("apellidoM"),
                             resultSet.getString("contrasenia"),
-                            TipoEstado.valueOf(resultSet.getString("estado")),
+                            TipoEstadoUsuario.valueOf(resultSet.getString("estado")),
                             TipoDeUsuario.valueOf(resultSet.getString("tipoUsuario")),
                             resultSet.getString("NumeroDePersonal")
                     );

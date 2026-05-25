@@ -1,14 +1,13 @@
 package gui.controladores;
 
 import accesodatos.ConexionBD;
-import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import logica.dto.UsuarioDTO;
 import logica.enums.TipoDeUsuario;
-import logica.enums.TipoEstado;
+import logica.enums.TipoEstadoUsuario;
 import logica.utilidades.SesionUsuarioSingleton;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,7 +42,7 @@ class PruebaFormularioUsuarioControlador extends PruebaBaseGUI {
                 "AdminApellidoP",
                 "AdminApellidoM",
                 "adminprueba123",
-                TipoEstado.ACTIVO,
+                TipoEstadoUsuario.ACTIVO,
                 TipoDeUsuario.ADMIN
         );
 

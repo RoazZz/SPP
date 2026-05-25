@@ -6,7 +6,7 @@ import excepciones.EntidadNoEncontradaExcepcion;
 import logica.dao.AdministradorDAO;
 import logica.dto.AdministradorDTO;
 import logica.enums.TipoDeUsuario;
-import logica.enums.TipoEstado;
+import logica.enums.TipoEstadoUsuario;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,8 +53,8 @@ public class PruebaAdministradorDAO {
             statement.execute("SET FOREIGN_KEY_CHECKS = 1");
         }
 
-        administradorValido = new AdministradorDTO(0, "Ignacio", "Calixto", "León", "pass123", TipoEstado.ACTIVO, TipoDeUsuario.ADMIN, 0);
-        administradorInvalidoNombreNulo = new AdministradorDTO(0, null, "Error", "M", "123", TipoEstado.ACTIVO, TipoDeUsuario.ADMIN, 0);
+        administradorValido = new AdministradorDTO(0, "Ignacio", "Calixto", "León", "pass123", TipoEstadoUsuario.ACTIVO, TipoDeUsuario.ADMIN, 0);
+        administradorInvalidoNombreNulo = new AdministradorDTO(0, null, "Error", "M", "123", TipoEstadoUsuario.ACTIVO, TipoDeUsuario.ADMIN, 0);
     }
     @AfterEach
     void restaurarRecursos() {

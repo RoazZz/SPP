@@ -7,7 +7,7 @@ import excepciones.EntidadNoEncontradaExcepcion;
 import interfaces.AdministradorDAOInterfaz;
 import logica.dto.AdministradorDTO;
 import logica.enums.TipoDeUsuario;
-import logica.enums.TipoEstado;
+import logica.enums.TipoEstadoUsuario;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -123,7 +123,7 @@ public class AdministradorDAO implements AdministradorDAOInterfaz {
                     resultSet.getString("nombre"),
                     resultSet.getString("apellidoP"),
                     resultSet.getString("apellidoM"),
-                    resultSet.getString("contrasenia"), TipoEstado.valueOf(resultSet.getString("estado")),
+                    resultSet.getString("contrasenia"), TipoEstadoUsuario.valueOf(resultSet.getString("estado")),
                     TipoDeUsuario.valueOf(resultSet.getString("TipoUsuario")),
                     resultSet.getInt("idAdministrador")
                     );
@@ -149,7 +149,7 @@ public class AdministradorDAO implements AdministradorDAOInterfaz {
                             resultSet.getString("nombre"),
                             resultSet.getString("apellidoP"),
                             resultSet.getString("apellidoM"),
-                            resultSet.getString("contrasenia"), TipoEstado.valueOf(resultSet.getString("estado")),
+                            resultSet.getString("contrasenia"), TipoEstadoUsuario.valueOf(resultSet.getString("estado")),
                             TipoDeUsuario.valueOf(resultSet.getString("TipoUsuario")),
                             resultSet.getInt("idAdministrador")
                     );
@@ -176,7 +176,7 @@ public class AdministradorDAO implements AdministradorDAOInterfaz {
                         resultSet.getString("apellidoP"),
                         resultSet.getString("apellidoM"),
                         resultSet.getString("contrasenia"),
-                        TipoEstado.valueOf(resultSet.getString("estado")),
+                        TipoEstadoUsuario.valueOf(resultSet.getString("estado")),
                         TipoDeUsuario.valueOf(resultSet.getString("TipoUsuario")),
                         resultSet.getInt("idAdministrador")
                 );

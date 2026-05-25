@@ -8,7 +8,7 @@ import interfaces.ProfesorDAOInterfaz;
 import logica.dto.BuzonDTO;
 import logica.dto.ProfesorDTO;
 import logica.enums.TipoDeUsuario;
-import logica.enums.TipoEstado;
+import logica.enums.TipoEstadoUsuario;
 import logica.enums.TipoTurno;
 
 import java.io.IOException;
@@ -138,7 +138,7 @@ public class ProfesorDAO implements ProfesorDAOInterfaz {
                             resultSet.getString("apellidoP"),
                             resultSet.getString("apellidoM"),
                             resultSet.getString("contrasenia"),
-                            TipoEstado.valueOf(resultSet.getString("estado")),
+                            TipoEstadoUsuario.valueOf(resultSet.getString("estado")),
                             TipoDeUsuario.valueOf(resultSet.getString("TipoUsuario")),
                             resultSet.getString("NumeroDePersonal"),
                             TipoTurno.valueOf(resultSet.getString("Turno")),
@@ -166,7 +166,7 @@ public class ProfesorDAO implements ProfesorDAOInterfaz {
                         resultSet.getString("apellidoP"),
                         resultSet.getString("apellidoM"),
                         resultSet.getString("contrasenia"),
-                        TipoEstado.valueOf(resultSet.getString("estado")),
+                        TipoEstadoUsuario.valueOf(resultSet.getString("estado")),
                         TipoDeUsuario.valueOf(resultSet.getString("tipoUsuario")),
                         resultSet.getString("NumeroDePersonal"),
                         TipoTurno.valueOf(resultSet.getString("Turno")),

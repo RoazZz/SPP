@@ -10,7 +10,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import logica.dto.UsuarioDTO;
 import logica.enums.TipoDeUsuario;
-import logica.enums.TipoEstado;
+import logica.enums.TipoEstadoUsuario;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -54,15 +54,15 @@ class PruebaListaUsuarioControlador extends PruebaBaseGUI {
 
         pruebaUtilDatos.insertarUsuarioPruebaBase(
                 PRUEBA_NOMBRE_PROFESOR, PRUEBA_APELLIDO_P_PROFESOR, PRUEBA_APELLIDO_M_PROFESOR,
-                TipoDeUsuario.PROFESOR, TipoEstado.ACTIVO);
+                TipoDeUsuario.PROFESOR, TipoEstadoUsuario.ACTIVO);
 
         pruebaUtilDatos.insertarUsuarioPruebaBase(
                 PRUEBA_NOMBRE_PRACTICANTE, PRUEBA_APELLIDO_P_PRACTICANTE, PRUEBA_APELLIDO_M_PRACTICANTE,
-                TipoDeUsuario.PRACTICANTE, TipoEstado.ACTIVO);
+                TipoDeUsuario.PRACTICANTE, TipoEstadoUsuario.ACTIVO);
 
         pruebaUtilDatos.insertarUsuarioPruebaBase(
                 PRUEBA_NOMBRE_PROFESOR_INACTIVO, PRUEBA_APELLIDO_P_PROFESOR_INACTIVO, PRUEBA_APELLIDO_M_PROFESOR_INACTIVO,
-                TipoDeUsuario.PROFESOR, TipoEstado.INACTIVO);
+                TipoDeUsuario.PROFESOR, TipoEstadoUsuario.INACTIVO);
 
         Platform.runLater(() -> controlador.recargar());
         pausarMilisegundos(PRUEBA_PAUSA_VISUAL_MS);

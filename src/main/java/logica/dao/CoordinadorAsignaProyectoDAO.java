@@ -2,11 +2,9 @@ package logica.dao;
 
 import accesodatos.ConexionBD;
 import excepciones.DAOExcepcion;
-import excepciones.EntidadNoEncontradaExcepcion;
 import interfaces.CoordinadorAsignaProyectoDAOInterfaz;
 import logica.dto.CoordinadorAsignaProyectoDTO;
 import logica.enums.EstadoAsignacionProyecto;
-import logica.enums.TipoEstado;
 
 import java.io.IOException;
 import java.sql.Connection;

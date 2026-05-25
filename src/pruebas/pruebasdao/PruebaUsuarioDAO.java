@@ -6,7 +6,7 @@ import excepciones.EntidadNoEncontradaExcepcion;
 import logica.dao.UsuarioDAO;
 import logica.dto.UsuarioDTO;
 import logica.enums.TipoDeUsuario;
-import logica.enums.TipoEstado;
+import logica.enums.TipoEstadoUsuario;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -55,7 +55,7 @@ public class PruebaUsuarioDAO {
                 "Morales",
                 "Tirado",
                 "123",
-                TipoEstado.ACTIVO,
+                TipoEstadoUsuario.ACTIVO,
                 TipoDeUsuario.PRACTICANTE
         );
         usuarioSinNombre = new UsuarioDTO(
@@ -64,7 +64,7 @@ public class PruebaUsuarioDAO {
                 "Morales",
                 "Tirado",
                 "123",
-                TipoEstado.ACTIVO,
+                TipoEstadoUsuario.ACTIVO,
                 TipoDeUsuario.PRACTICANTE
         );
     }

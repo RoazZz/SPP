@@ -1,7 +1,7 @@
 package logica.dto;
 
 import logica.enums.TipoDeUsuario;
-import logica.enums.TipoEstado;
+import logica.enums.TipoEstadoUsuario;
 
 public class UsuarioDTO {
     private int idUsuario;
@@ -9,16 +9,16 @@ public class UsuarioDTO {
     private String apellidoPaterno;
     private String apellidoMaterno;
     private String contrasenia;
-    private TipoEstado tipoEstado;
+    private TipoEstadoUsuario tipoEstadoUsuario;
     private TipoDeUsuario tipoDeUsuario;
 
-    public UsuarioDTO(int idUsuario, String nombre, String apellidoPaterno, String apellidoMaterno, String contrasenia, TipoEstado tipoEstado, TipoDeUsuario tipoDeUsuario) {
+    public UsuarioDTO(int idUsuario, String nombre, String apellidoPaterno, String apellidoMaterno, String contrasenia, TipoEstadoUsuario tipoEstadoUsuario, TipoDeUsuario tipoDeUsuario) {
         this.idUsuario = idUsuario;
         this.nombre = nombre;
         this.apellidoPaterno = apellidoPaterno;
         this.apellidoMaterno = apellidoMaterno;
         this.contrasenia = contrasenia;
-        this.tipoEstado = tipoEstado;
+        this.tipoEstadoUsuario = tipoEstadoUsuario;
         this.tipoDeUsuario = tipoDeUsuario;
     }
 
@@ -70,11 +70,11 @@ public class UsuarioDTO {
         this.tipoDeUsuario = tipoDeUsuario;
     }
 
-    public TipoEstado getTipoEstado() {
-        return tipoEstado;
+    public TipoEstadoUsuario getTipoEstado() {
+        return tipoEstadoUsuario;
     }
 
-    public void setTipoEstado(TipoEstado tipoEstado) {
-        this.tipoEstado = tipoEstado;
+    public void setTipoEstado(TipoEstadoUsuario tipoEstadoUsuario) {
+        this.tipoEstadoUsuario = tipoEstadoUsuario;
     }
 }

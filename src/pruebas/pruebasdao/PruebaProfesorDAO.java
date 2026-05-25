@@ -5,7 +5,7 @@ import excepciones.DAOExcepcion;
 import logica.dao.ProfesorDAO;
 import logica.dto.ProfesorDTO;
 import logica.enums.TipoDeUsuario;
-import logica.enums.TipoEstado;
+import logica.enums.TipoEstadoUsuario;
 import logica.enums.TipoTurno;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -57,8 +57,8 @@ public class PruebaProfesorDAO {
             statement.execute("SET FOREIGN_KEY_CHECKS = 1");
         }
 
-        profesorValido = new ProfesorDTO(0, "Roaz", "León", "M", "roaz123", TipoEstado.ACTIVO, TipoDeUsuario.PROFESOR, "12345", TipoTurno.MATUTINO);
-        profesorInvalidoNombreNulo = new ProfesorDTO(0, null, "Error", "M", "123", TipoEstado.ACTIVO, TipoDeUsuario.PROFESOR, "00000", TipoTurno.VESPERTINO);
+        profesorValido = new ProfesorDTO(0, "Roaz", "León", "M", "roaz123", TipoEstadoUsuario.ACTIVO, TipoDeUsuario.PROFESOR, "12345", TipoTurno.MATUTINO);
+        profesorInvalidoNombreNulo = new ProfesorDTO(0, null, "Error", "M", "123", TipoEstadoUsuario.ACTIVO, TipoDeUsuario.PROFESOR, "00000", TipoTurno.VESPERTINO);
     }
 
     @AfterEach
