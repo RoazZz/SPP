@@ -1,6 +1,5 @@
 package logica.dto;
 
-import java.sql.Date;
 import java.time.LocalDate;
 
 public class ActividadDTO {
@@ -11,7 +10,7 @@ public class ActividadDTO {
     private LocalDate fechaInicio;
     private LocalDate fechaCierre;
 
-    public ActividadDTO(int idActividad, String matricula, String nombre, String descripcion, LocalDate fechaInicio, LocalDate fechaCierre){
+    public ActividadDTO(int idActividad, String matricula, String nombre, String descripcion, LocalDate fechaInicio, LocalDate fechaCierre) {
         this.idActividad = idActividad;
         this.matricula = matricula;
         this.nombre = nombre;
@@ -52,10 +51,19 @@ public class ActividadDTO {
         this.descripcion = descripcion;
     }
 
-    public LocalDate getFechaInicio() { return fechaInicio; }
-    public void setFechaInicio(LocalDate fechaInicio) { this.fechaInicio = fechaInicio; }
+    public LocalDate getFechaInicio() {
+        return fechaInicio;
+    }
 
-    public LocalDate getFechaCierre() { return fechaCierre; }
-    public void setFechaCierre(LocalDate fechaCierre) { this.fechaCierre = fechaCierre; }
+    public void setFechaInicio(LocalDate fechaInicio) {
+        this.fechaInicio = fechaInicio;
+    }
 
+    public LocalDate getFechaCierre() {
+        return fechaCierre;
+    }
+
+    public void setFechaCierre(LocalDate fechaCierre) {
+        this.fechaCierre = fechaCierre;
+    }
 }

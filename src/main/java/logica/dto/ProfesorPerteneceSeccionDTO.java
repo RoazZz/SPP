@@ -4,7 +4,7 @@ public class ProfesorPerteneceSeccionDTO {
     private String numeroDePersonal;
     private int idSeccion;
 
-    public ProfesorPerteneceSeccionDTO(String numeroDePersonal, int idSeccion){
+    public ProfesorPerteneceSeccionDTO(String numeroDePersonal, int idSeccion) {
         this.numeroDePersonal = numeroDePersonal;
         this.idSeccion = idSeccion;
     }

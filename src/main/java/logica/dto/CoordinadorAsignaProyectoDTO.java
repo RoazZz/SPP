@@ -29,12 +29,11 @@ public class CoordinadorAsignaProyectoDTO {
         this.idProyecto = idProyecto;
     }
 
-
     public EstadoAsignacionProyecto getTipoEstado() {
         return tipoEstado;
     }
 
-    public void setEstado(EstadoAsignacionProyecto tipoEstado) {
+    public void setTipoEstado(EstadoAsignacionProyecto tipoEstado) {
         this.tipoEstado = tipoEstado;
     }
 }

@@ -12,7 +12,6 @@ public class UsuarioDTO {
     private TipoEstado tipoEstado;
     private TipoDeUsuario tipoDeUsuario;
 
-
     public UsuarioDTO(int idUsuario, String nombre, String apellidoPaterno, String apellidoMaterno, String contrasenia, TipoEstado tipoEstado, TipoDeUsuario tipoDeUsuario) {
         this.idUsuario = idUsuario;
         this.nombre = nombre;
@@ -21,9 +20,7 @@ public class UsuarioDTO {
         this.contrasenia = contrasenia;
         this.tipoEstado = tipoEstado;
         this.tipoDeUsuario = tipoDeUsuario;
-
     }
-
 
     public int getIdUsuario() {
         return idUsuario;
@@ -80,5 +77,4 @@ public class UsuarioDTO {
     public void setTipoEstado(TipoEstado tipoEstado) {
         this.tipoEstado = tipoEstado;
     }
-
 }
