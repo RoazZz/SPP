@@ -1,24 +1,24 @@
 package logica.dto;
 
 public class PlanDeActividadesDTO {
-    private int idplanActividades;
+    private int idPlanActividades;
     private String matricula;
     private int idProyecto;
     private String descripcion;
 
-    public PlanDeActividadesDTO(int idplanActividades, String matricula, int idProyecto, String descripcion) {
-        this.idplanActividades = idplanActividades;
+    public PlanDeActividadesDTO(int idPlanActividades, String matricula, int idProyecto, String descripcion) {
+        this.idPlanActividades = idPlanActividades;
         this.matricula = matricula;
         this.idProyecto = idProyecto;
         this.descripcion = descripcion;
     }
 
-    public int getIdplanActividades() {
-        return idplanActividades;
+    public int getIdPlanActividades() {
+        return idPlanActividades;
     }
 
-    public void setIdplanActividades(int idplanActividades) {
-        this.idplanActividades = idplanActividades;
+    public void setIdPlanActividades(int idPlanActividades) {
+        this.idPlanActividades = idPlanActividades;
     }
 
     public String getMatricula() {

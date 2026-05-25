@@ -13,7 +13,7 @@ public class BitacoraDTO {
         this.idRegistro = idRegistro;
         this.matricula = matricula;
         this.tipoEvento = tipoEvento;
-        this.fechaHora = LocalDateTime.now();
+        this.fechaHora = fechaHora;
         this.descripcionEvento = descripcionEvento;
     }
 

@@ -5,35 +5,34 @@ public class OrganizacionVinculadaDTO {
     private String nombre;
     private String direccion;
 
-    public OrganizacionVinculadaDTO(String idOrganizacion, String nombre, String direccion){
+    public OrganizacionVinculadaDTO(String idOrganizacion, String nombre, String direccion) {
         this.idOrganizacion = idOrganizacion;
         this.nombre = nombre;
         this.direccion = direccion;
     }
 
-    public String getidOrganizacion (){
+    public String getIdOrganizacion() {
         return idOrganizacion;
     }
 
-    public void setidOrganizacion(String idOrganizacion){
+    public void setIdOrganizacion(String idOrganizacion) {
         this.idOrganizacion = idOrganizacion;
-
     }
 
-    public String getNombre(){
+    public String getNombre() {
         return nombre;
     }
 
-    public void setNombre (String nombre){
+    public void setNombre(String nombre){
         this.nombre = nombre;
 
     }
 
-    public String getDireccion(){
+    public String getDireccion() {
         return direccion;
     }
 
-    public void setDireccion (String direccion){
+    public void setDireccion(String direccion) {
         this.direccion = direccion;
 
     }

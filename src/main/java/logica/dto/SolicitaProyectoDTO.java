@@ -31,11 +31,11 @@ public class SolicitaProyectoDTO {
         this.idProyecto = idProyecto;
     }
 
-    public TipoEstadoSolicitud getEstadoProyecto() {
+    public TipoEstadoSolicitud getTipoEstadoSolicitud() {
         return tipoEstadoSolicitud;
     }
 
-    public void setEstadoProyecto(TipoEstadoSolicitud tipoEstadoSolicitud) {
+    public void setTipoEstadoSolicitud(TipoEstadoSolicitud tipoEstadoSolicitud) {
         this.tipoEstadoSolicitud = tipoEstadoSolicitud;
     }
 

@@ -39,11 +39,11 @@ public class OrganizacionVinculadaDAO implements OrganizacionVinculadaDAOInterfa
     @Override
     public boolean agregarOrganizacionVinculada(OrganizacionVinculadaDTO organizacionVinculada) throws DAOExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT)){
-            preparedStatement.setString(1, organizacionVinculada.getidOrganizacion());
+            preparedStatement.setString(1, organizacionVinculada.getIdOrganizacion());
             preparedStatement.setString(2, organizacionVinculada.getNombre());
             preparedStatement.setString(3, organizacionVinculada.getDireccion());
             preparedStatement.executeUpdate();
-            logger.log(Level.INFO, "Organización Vinculada creada exitosamente: " + organizacionVinculada.getidOrganizacion());
+            logger.log(Level.INFO, "Organización Vinculada creada exitosamente: " + organizacionVinculada.getIdOrganizacion());
             return true;
         } catch (SQLException e){
             logger.log(Level.SEVERE, "Error al agregar Organizacion Vinculada", e);
@@ -56,9 +56,9 @@ public class OrganizacionVinculadaDAO implements OrganizacionVinculadaDAOInterfa
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_UPDATE)) {
             preparedStatement.setString(1, organizacionVinculada.getNombre());
             preparedStatement.setString(2, organizacionVinculada.getDireccion());
-            preparedStatement.setString(3, organizacionVinculada.getidOrganizacion());
+            preparedStatement.setString(3, organizacionVinculada.getIdOrganizacion());
             preparedStatement.executeUpdate();
-            logger.log(Level.INFO, "Organización Vinculada actualizada exitosamente: " + organizacionVinculada.getidOrganizacion());
+            logger.log(Level.INFO, "Organización Vinculada actualizada exitosamente: " + organizacionVinculada.getIdOrganizacion());
             return true;
         } catch (SQLException e){
             logger.log(Level.SEVERE, "Error al actualizar Organizacion Vinculada", e);

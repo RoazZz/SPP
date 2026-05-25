@@ -10,14 +10,14 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ConexionBD{
+public class ConexionBD {
     private static ConexionBD instancia;
-    private String ENLACE;
-    private String USUARIO;
-    private String CONTRASEÑA;
+    private String enlace;
+    private String usuario;
+    private String contrasenia;
     private static Connection conexion = null;
 
-    private static final Logger logger = Logger.getLogger(ConexionBD.class.getName());
+    private static final Logger REGISTRADOR = Logger.getLogger(ConexionBD.class.getName());
 
     private ConexionBD() throws IOException, SQLException {
         Properties properties = new Properties();
@@ -26,15 +26,18 @@ public class ConexionBD{
                 throw new FileNotFoundException("Archivo config.properties no encontrado en recursos");
             }
             properties.load(inputStream);
-            this.ENLACE = System.getProperty("db.enlace", properties.getProperty("db.enlace"));
-            this.USUARIO = System.getProperty("db.usuario", properties.getProperty("db.usuario"));
-            this.CONTRASEÑA = System.getProperty("db.contraseña", properties.getProperty("db.contraseña"));
+            this.enlace = System.getProperty("db.enlace", properties.getProperty("db.enlace"));
+            this.usuario = System.getProperty("db.usuario", properties.getProperty("db.usuario"));
+            this.contrasenia = System.getProperty("db.contrasenia", properties.getProperty("db.contrasenia"));
 
-            conexion = DriverManager.getConnection(ENLACE, USUARIO, CONTRASEÑA);
-            logger.log(Level.INFO, "Conexión exitosa a la base de datos");
-        } catch (IOException e) {
-            logger.log(Level.SEVERE, "Error al cargar configuración", e);
-            throw e;
+            conexion = DriverManager.getConnection(enlace, usuario, contrasenia);
+            REGISTRADOR.log(Level.INFO, "Conexión exitosa a la base de datos");
+        } catch (IOException ioException) {
+            REGISTRADOR.log(Level.SEVERE, "Error al cargar configuración", ioException);
+            throw ioException;
+        } catch (SQLException sqlException) {
+            REGISTRADOR.log(Level.SEVERE, "Error al establecer conexión con la base de datos", sqlException);
+            throw sqlException;
         }
     }
 
@@ -45,18 +48,19 @@ public class ConexionBD{
         return instancia;
     }
 
+
     public static Connection obtenerConexion() {
         return conexion;
     }
 
-    public void cerrarConexion(){
-        if (conexion != null){
-            try{
+    public void cerrarConexion() {
+        if (conexion != null) {
+            try {
                 conexion.close();
                 instancia = null;
-                logger.log(Level.INFO, "Conexión cerrada correctamente");
-            } catch (SQLException e) {
-                logger.log(Level.SEVERE, "Error al cerrar la conexión", e);
+                REGISTRADOR.log(Level.INFO, "Conexión cerrada correctamente");
+            } catch (SQLException sqlException) {
+                REGISTRADOR.log(Level.SEVERE, "Error al cerrar la conexión", sqlException);
             }
         }
     }

@@ -59,7 +59,7 @@ public class SolicitaProyectoDAO implements SolicitudProyectoDAOInterfaz {
     @Override
     public boolean actualizarSolicitudProyecto(SolicitaProyectoDTO solicitaProyectoDTO) throws DAOExcepcion {
         try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_UPDATE)) {
-            preparedStatement.setString(1, solicitaProyectoDTO.getEstadoProyecto().name());
+            preparedStatement.setString(1, solicitaProyectoDTO.getTipoEstadoSolicitud().name());
             preparedStatement.setInt(2, solicitaProyectoDTO.getIdProyecto());
             int filasAfectadas = preparedStatement.executeUpdate();
             if (filasAfectadas > 0){

@@ -98,7 +98,7 @@ public class AsignacionProyectoControlador implements Initializable, Regresable 
     public List<SolicitaProyectoDTO> obtenerSolicitudesPendientes(String periodo) throws DAOExcepcion {
         List<SolicitaProyectoDTO> todasLasSolicitudes = solicitaProyectoDAO.obtenerTodasLasSolicitudesProyecto();
         return todasLasSolicitudes.stream()
-                .filter(s -> s.getEstadoProyecto() == TipoEstadoSolicitud.PENDIENTE)
+                .filter(s -> s.getTipoEstadoSolicitud() == TipoEstadoSolicitud.PENDIENTE)
                 .toList();
     }
 
@@ -106,7 +106,7 @@ public class AsignacionProyectoControlador implements Initializable, Regresable 
             throws DAOExcepcion, ReglaDeNegocioExcepcion {
         validarAsignacion(solicitudDTO, numeroDePersonalCoordinador);
 
-        solicitudDTO.setEstadoProyecto(TipoEstadoSolicitud.ACEPTADO);
+        solicitudDTO.setTipoEstadoSolicitud(TipoEstadoSolicitud.ACEPTADO);
         solicitaProyectoDAO.actualizarSolicitudProyecto(solicitudDTO);
         LOGGER.log(Level.INFO, "Solicitud aprobada para matricula: ", solicitudDTO.getMatricula());
 
@@ -123,7 +123,7 @@ public class AsignacionProyectoControlador implements Initializable, Regresable 
         if (solicitudDTO == null) {
             throw new ReglaDeNegocioExcepcion("Debe seleccionar una solicitud.");
         }
-        if (solicitudDTO.getEstadoProyecto() != TipoEstadoSolicitud.PENDIENTE) {
+        if (solicitudDTO.getTipoEstadoSolicitud() != TipoEstadoSolicitud.PENDIENTE) {
             throw new ReglaDeNegocioExcepcion("Solo se pueden asignar solicitudes en estado Pendiente.");
         }
         if (numeroDePersonalCoordinador == null || numeroDePersonalCoordinador.trim().isEmpty()) {

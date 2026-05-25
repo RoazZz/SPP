@@ -3,22 +3,22 @@ package logica.dto;
 import java.time.LocalDate;
 
 public class BitacoraPSPDTO {
-    private int idBBitacora;
+    private int idBitacora;
     private String matricula;
     private LocalDate fecha;
 
-    public BitacoraPSPDTO(int idBBitacora, String matricula, LocalDate fecha) {
-        this.idBBitacora = idBBitacora;
+    public BitacoraPSPDTO(int idBitacora, String matricula, LocalDate fecha) {
+        this.idBitacora = idBitacora;
         this.matricula = matricula;
         this.fecha = fecha;
     }
 
     public int getIdBBitacora() {
-        return idBBitacora;
+        return idBitacora;
     }
 
     public void setIdBBitacora(int idBBitacora) {
-        this.idBBitacora = idBBitacora;
+        this.idBitacora = idBBitacora;
     }
 
     public String getMatricula() {

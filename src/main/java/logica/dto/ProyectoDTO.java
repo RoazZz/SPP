@@ -7,10 +7,10 @@ public class ProyectoDTO {
     private String nombre;
     private String descripcion;
 
-    public ProyectoDTO (int idProyecto, String idOrganizacion, String numeroPersonal, String nombre, String descripcion){
+    public ProyectoDTO(int idProyecto, String idOrganizacion, String numeroDePersonal, String nombre, String descripcion) {
         this.idProyecto = idProyecto;
         this.idOrganizacion = idOrganizacion;
-        this.numeroDePersonal = numeroPersonal;
+        this.numeroDePersonal = numeroDePersonal;
         this.nombre = nombre;
         this.descripcion = descripcion;
     }
@@ -54,5 +54,4 @@ public class ProyectoDTO {
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
     }
-
 }

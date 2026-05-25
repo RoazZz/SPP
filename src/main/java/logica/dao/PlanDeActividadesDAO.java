@@ -45,7 +45,7 @@ public class PlanDeActividadesDAO implements PlanDeActivadesDAOInterfaz {
 
             try (ResultSet resultSet = preparedStatement.getGeneratedKeys()) {
                 if (resultSet.next()) {
-                    planDeActividadesDTO.setIdplanActividades(resultSet.getInt(1));
+                    planDeActividadesDTO.setIdPlanActividades(resultSet.getInt(1));
                 }
             }
             logger.info("Plan de actividades agregado exitosamente");
@@ -62,18 +62,18 @@ public class PlanDeActividadesDAO implements PlanDeActivadesDAOInterfaz {
             preparedStatement.setString(1, planDeActividadesDTO.getMatricula());
             preparedStatement.setInt(2, planDeActividadesDTO.getIdProyecto());
             preparedStatement.setString(3, planDeActividadesDTO.getDescripcion());
-            preparedStatement.setInt(4, planDeActividadesDTO.getIdplanActividades());
+            preparedStatement.setInt(4, planDeActividadesDTO.getIdPlanActividades());
 
             int filasAfectadas = preparedStatement.executeUpdate();
             if (filasAfectadas > 0) {
-                logger.info("Plan de actividades actualizado exitosamente, ID: " + planDeActividadesDTO.getIdplanActividades());
+                logger.info("Plan de actividades actualizado exitosamente, ID: " + planDeActividadesDTO.getIdPlanActividades());
                 return true;
             } else {
-                logger.log(Level.WARNING, "No se encontró el plan de actividades para actualizar, ID: " + planDeActividadesDTO.getIdplanActividades());
-                throw new EntidadNoEncontradaExcepcion("No se encontró el plan de actividades con el ID: " + planDeActividadesDTO.getIdplanActividades());
+                logger.log(Level.WARNING, "No se encontró el plan de actividades para actualizar, ID: " + planDeActividadesDTO.getIdPlanActividades());
+                throw new EntidadNoEncontradaExcepcion("No se encontró el plan de actividades con el ID: " + planDeActividadesDTO.getIdPlanActividades());
             }
         } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error al actualizar plan ID: " + planDeActividadesDTO.getIdplanActividades(), e);
+            logger.log(Level.SEVERE, "Error al actualizar plan ID: " + planDeActividadesDTO.getIdPlanActividades(), e);
             throw new DAOExcepcion("Error al modificar los datos del plan", e);
         }
     }
