@@ -6,14 +6,12 @@
 
     <groupId>org.example</groupId>
     <artifactId>SPP-Project</artifactId>
-    <version>1.0-SNAPSHOT</version>
-
+    <version>1.0.0</version>
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <javafx.version>21.0.2</javafx.version>
     </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.openjfx</groupId>
@@ -23,7 +21,7 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
-            <version>21</version>
+            <version>${javafx.version}</version>
         </dependency>
         <dependency>
             <groupId>com.mysql</groupId>
@@ -87,7 +85,7 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
                 <configuration>
-                    <mainClass>App</mainClass>
+                    <mainClass>AplicacionSPP</mainClass>
                 </configuration>
             </plugin>
             <plugin>
