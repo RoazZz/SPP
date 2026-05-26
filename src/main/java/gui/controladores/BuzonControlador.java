@@ -2,7 +2,7 @@ package gui.controladores;
 
 import excepciones.DAOExcepcion;
 import excepciones.EntidadNoEncontradaExcepcion;
-import interfaces.Regresable;
+import logica.interfaces.Regresable;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

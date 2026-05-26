@@ -3,12 +3,11 @@
 package gui.controladores;
 
 import excepciones.ReglaDeNegocioExcepcion;
-import interfaces.Regresable;
+import logica.interfaces.Regresable;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import logica.dao.UsuarioDAO;
 import logica.dto.ProfesorDTO;

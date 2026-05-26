@@ -4,7 +4,7 @@ import accesodatos.ConexionBD;
 import excepciones.DAOExcepcion;
 import excepciones.EntidadNoCreadaExcepcion;
 import excepciones.EntidadNoEncontradaExcepcion;
-import interfaces.ProfesorDAOInterfaz;
+import logica.interfaces.ProfesorDAOInterfaz;
 import logica.dto.BuzonDTO;
 import logica.dto.ProfesorDTO;
 import logica.enums.TipoDeUsuario;
@@ -22,7 +22,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ProfesorDAO implements ProfesorDAOInterfaz {
-    private static final String SQL_INSERT = "INSERT INTO profesor(idUsuario, NumeroDePersonal, Turno, idSeccion) VALUES (?, ?, ?, ?)";
+    private static final String SQL_INSERT = "INSERT INTO profesor(idUsuario, NumeroDePersonal, Turno, idSeccion)" +
+            " VALUES (?, ?, ?, ?)";
     private static final String SQL_BUSCAR_POR_NUM_PERSONAL =
             "SELECT usuario.idUsuario, usuario.nombre, usuario.apellidoP, usuario.apellidoM, " +
             "usuario.contrasenia, usuario.TipoUsuario, usuario.estado, " +
@@ -35,20 +36,21 @@ public class ProfesorDAO implements ProfesorDAOInterfaz {
             "usuario.contrasenia, usuario.TipoUsuario, usuario.estado, " +
             "profesor.NumeroDePersonal, profesor.Turno, profesor.IdSeccion " +
             "FROM usuario JOIN profesor ON usuario.idUsuario = profesor.idUsuario";
-    private static final String SQL_EXISTE_NUMERO_PERSONAL = "SELECT COUNT(*) FROM Profesor WHERE NumeroDePersonal = ? AND idUsuario != ?";
+    private static final String SQL_EXISTE_NUMERO_PERSONAL = "SELECT COUNT(*) FROM Profesor WHERE NumeroDePersonal = ?" +
+            " AND idUsuario != ?";
 
     private Connection conexion;
-    private static final Logger LOGGER = Logger.getLogger(ProfesorDAO.class.getName());
+    private static final Logger REGISTRADOR = Logger.getLogger(ProfesorDAO.class.getName());
 
     public ProfesorDAO() throws DAOExcepcion{
         try{
             this.conexion = ConexionBD.obtenerInstancia().obtenerConexion();
-        } catch (IOException e){
-            LOGGER.log(Level.SEVERE, "Error al leer archivo de cofniguración", e);
-            throw new DAOExcepcion("Error de configuracion", e);
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error de conexion SQL en ProfesorDAO", e);
-            throw new DAOExcepcion("Error de base de datos", e);
+        } catch (IOException ioExcepcion){
+            REGISTRADOR.log(Level.SEVERE, "Error al leer archivo de cofniguración", ioExcepcion);
+            throw new DAOExcepcion("Error de configuracion", ioExcepcion);
+        } catch (SQLException sqlExcepcion) {
+            REGISTRADOR.log(Level.SEVERE, "Error de conexion SQL en ProfesorDAO", sqlExcepcion);
+            throw new DAOExcepcion("Error de base de datos", sqlExcepcion);
         }
     }
 
@@ -62,138 +64,140 @@ public class ProfesorDAO implements ProfesorDAOInterfaz {
             int idGenerado = profesor.getIdUsuario();
 
             if (idGenerado > 0) {
-                try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT)) {
-                    preparedStatement.setInt(1, idGenerado);
-                    preparedStatement.setString(2, profesor.getNumeroDePersonal());
-                    preparedStatement.setString(3, profesor.getTurno().name());
-                    preparedStatement.setInt(4, profesor.getIdSeccion());
-                    preparedStatement.executeUpdate();
+                try (PreparedStatement sentenciaPreparada = conexion.prepareStatement(SQL_INSERT)) {
+                    sentenciaPreparada.setInt(1, idGenerado);
+                    sentenciaPreparada.setString(2, profesor.getNumeroDePersonal());
+                    sentenciaPreparada.setString(3, profesor.getTurno().name());
+                    sentenciaPreparada.setInt(4, profesor.getIdSeccion());
+                    sentenciaPreparada.executeUpdate();
                 }
                 BuzonDTO buzonDTO = new BuzonDTO(idGenerado);
                 buzonDAO.agregarBuzon(buzonDTO);
                 conexion.commit();
-                LOGGER.log(Level.INFO, "Profesor agregado exitosamente: " + profesor.getNumeroDePersonal());
+                REGISTRADOR.log(Level.INFO, "Profesor agregado exitosamente: " + profesor.getNumeroDePersonal());
                 return profesor;
             } else {
-                LOGGER.log(Level.WARNING, "Usuario base no generado para profesor");
+                REGISTRADOR.log(Level.WARNING, "Usuario base no generado para profesor");
                 throw new EntidadNoCreadaExcepcion("Usuario base no creado correctamente");
             }
-        } catch (SQLException e) {
+        } catch (SQLException sqlExcepcion) {
             try {
                 if (conexion != null){
                     conexion.rollback();
                 }
-            } catch (SQLException exRollback) {
-                LOGGER.log(Level.SEVERE, "Error al hacer rollback", exRollback);
+            } catch (SQLException sqlExcepcionRollback) {
+                REGISTRADOR.log(Level.SEVERE, "Error al hacer rollback", sqlExcepcionRollback);
             }
-            LOGGER.log(Level.SEVERE, "Error SQL al agregar profesor", e);
-            throw new DAOExcepcion("Error al agregar profesor", e);
-        } catch (EntidadNoEncontradaExcepcion e) {
+            REGISTRADOR.log(Level.SEVERE, "Error SQL al agregar profesor", sqlExcepcion);
+            throw new DAOExcepcion("Error al agregar profesor", sqlExcepcion);
+        } catch (EntidadNoEncontradaExcepcion entidadNoEncontradaExcepcion) {
             try {
                 if (conexion != null) {
                     conexion.rollback();
                 }
-            } catch (SQLException exRollback) {
-                LOGGER.log(Level.SEVERE, "Error al hacer rollback tras error inesperado", exRollback);
+            } catch (SQLException sqlExcepcionRollback) {
+                REGISTRADOR.log(Level.SEVERE, "Error al hacer rollback tras error inesperado", sqlExcepcionRollback);
             }
-            LOGGER.log(Level.SEVERE, "Error no esperado en ProfesorDAO", e);
-            throw new DAOExcepcion("Ocurrió un error inesperado al registrar el profesor", e);
+            REGISTRADOR.log(Level.SEVERE, "Error no esperado en ProfesorDAO", entidadNoEncontradaExcepcion);
+            throw new DAOExcepcion("Ocurrió un error inesperado al registrar el profesor", entidadNoEncontradaExcepcion);
         } finally {
             try {
                 conexion.setAutoCommit(true);
-            } catch (SQLException e) {
-                LOGGER.log(Level.WARNING, "No se pudo resetear autocommit", e);
+            } catch (SQLException sqlExcepcion) {
+                REGISTRADOR.log(Level.WARNING, "No se pudo resetear autocommit", sqlExcepcion);
             }
         }
     }
 
     @Override
     public boolean actualizarProfesor(ProfesorDTO profesor) throws DAOExcepcion {
-        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_UPDATE)) {
-            preparedStatement.setString(1, profesor.getTurno().name());
-            preparedStatement.setString(2, profesor.getNumeroDePersonal());
-            int filasAfectadas = preparedStatement.executeUpdate();
+        try (PreparedStatement sentenciaPreparada = conexion.prepareStatement(SQL_UPDATE)) {
+            sentenciaPreparada.setString(1, profesor.getTurno().name());
+            sentenciaPreparada.setString(2, profesor.getNumeroDePersonal());
+            int filasAfectadas = sentenciaPreparada.executeUpdate();
             if (filasAfectadas > 0){
-                LOGGER.log(Level.INFO, "Profesor actualizado en tabla profesor con numero personal: " + profesor.getNumeroDePersonal());
+                REGISTRADOR.log(Level.INFO, "Profesor actualizado en tabla profesor con numero personal " + profesor.getNumeroDePersonal());
                 return true;
             } else {
-                LOGGER.log(Level.WARNING, "No se encontró profesor para actualizar con numero de personal: " + profesor.getNumeroDePersonal());
-                throw new EntidadNoEncontradaExcepcion("Profesor no encontrado para actualizar con numero de personal: " + profesor.getNumeroDePersonal());
+                REGISTRADOR.log(Level.WARNING, "No se encontró profesor para actualizar con numero de personal " + profesor.getNumeroDePersonal());
+                throw new EntidadNoEncontradaExcepcion("Profesor no encontrado para actualizar con numero de personal " + profesor.getNumeroDePersonal());
             }
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error al actualizar profesor", e);
-            throw new DAOExcepcion("Error al actualizar el profesor", e);
+        } catch (SQLException sqlExcepcion) {
+            REGISTRADOR.log(Level.SEVERE, "Error al actualizar profesor", sqlExcepcion);
+            throw new DAOExcepcion("Error al actualizar el profesor", sqlExcepcion);
         }
     }
 
     @Override
     public ProfesorDTO buscarProfesorPorNumPersonal(String numPersonal) throws DAOExcepcion, EntidadNoEncontradaExcepcion {
-        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_BUSCAR_POR_NUM_PERSONAL)) {
-            preparedStatement.setString(1, numPersonal);
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
+        try (PreparedStatement sentenciaPreparada = conexion.prepareStatement(SQL_BUSCAR_POR_NUM_PERSONAL)) {
+            sentenciaPreparada.setString(1, numPersonal);
+            try (ResultSet conjuntoResultado = sentenciaPreparada.executeQuery()) {
+                if (conjuntoResultado.next()) {
                     return new ProfesorDTO(
-                            resultSet.getInt("idUsuario"),
-                            resultSet.getString("nombre"),
-                            resultSet.getString("apellidoP"),
-                            resultSet.getString("apellidoM"),
-                            resultSet.getString("contrasenia"),
-                            TipoEstadoUsuario.valueOf(resultSet.getString("estado")),
-                            TipoDeUsuario.valueOf(resultSet.getString("TipoUsuario")),
-                            resultSet.getString("NumeroDePersonal"),
-                            TipoTurno.valueOf(resultSet.getString("Turno")),
-                            resultSet.getInt("idSeccion")
+                            conjuntoResultado.getInt("idUsuario"),
+                            conjuntoResultado.getString("nombre"),
+                            conjuntoResultado.getString("apellidoP"),
+                            conjuntoResultado.getString("apellidoM"),
+                            conjuntoResultado.getString("contrasenia"),
+                            TipoEstadoUsuario.valueOf(conjuntoResultado.getString("estado")),
+                            TipoDeUsuario.valueOf(conjuntoResultado.getString("TipoUsuario")),
+                            conjuntoResultado.getString("NumeroDePersonal"),
+                            TipoTurno.valueOf(conjuntoResultado.getString("Turno")),
+                            conjuntoResultado.getInt("idSeccion")
                     );
                 } else{
-                    LOGGER.log(Level.WARNING, "No se encontró profesor con numero de personal: " + numPersonal);
-                    throw new EntidadNoEncontradaExcepcion("Profesor no encontrado con numero de personal: " + numPersonal);
+                    REGISTRADOR.log(Level.WARNING, "No se encontró profesor con numero de personal " + numPersonal);
+                    throw new EntidadNoEncontradaExcepcion("Profesor no encontrado con numero de personal " + numPersonal);
                 }
             }
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error al buscar profesor por numero personal", e);
-            throw new DAOExcepcion("Error al buscar el profesor", e);
+        } catch (SQLException sqlExcepcion) {
+            REGISTRADOR.log(Level.SEVERE, "Error al buscar profesor por numero personal", sqlExcepcion);
+            throw new DAOExcepcion("Error al buscar el profesor", sqlExcepcion);
         }
     }
 
     @Override
     public List<ProfesorDTO> listarProfesores() throws DAOExcepcion {
         List<ProfesorDTO> listaProfesor = new ArrayList<>();
-        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_SELECT_ALL);  ResultSet resultSet = preparedStatement.executeQuery();) {
-            while (resultSet.next()) {
+        try (PreparedStatement sentenciaPreparada = conexion.prepareStatement(SQL_SELECT_ALL);
+             ResultSet conjuntoResultado = sentenciaPreparada.executeQuery();) {
+            while (conjuntoResultado.next()) {
                 ProfesorDTO profesor = new ProfesorDTO(
-                        resultSet.getInt("idUsuario"),
-                        resultSet.getString("nombre"),
-                        resultSet.getString("apellidoP"),
-                        resultSet.getString("apellidoM"),
-                        resultSet.getString("contrasenia"),
-                        TipoEstadoUsuario.valueOf(resultSet.getString("estado")),
-                        TipoDeUsuario.valueOf(resultSet.getString("tipoUsuario")),
-                        resultSet.getString("NumeroDePersonal"),
-                        TipoTurno.valueOf(resultSet.getString("Turno")),
-                        resultSet.getInt("idSeccion")
+                        conjuntoResultado.getInt("idUsuario"),
+                        conjuntoResultado.getString("nombre"),
+                        conjuntoResultado.getString("apellidoP"),
+                        conjuntoResultado.getString("apellidoM"),
+                        conjuntoResultado.getString("contrasenia"),
+                        TipoEstadoUsuario.valueOf(conjuntoResultado.getString("estado")),
+                        TipoDeUsuario.valueOf(conjuntoResultado.getString("tipoUsuario")),
+                        conjuntoResultado.getString("NumeroDePersonal"),
+                        TipoTurno.valueOf(conjuntoResultado.getString("Turno")),
+                        conjuntoResultado.getInt("idSeccion")
                 );
                 listaProfesor.add(profesor);
             }
             return listaProfesor;
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error al listar profesores", e);
-            throw new DAOExcepcion("Error al listar los profesores", e);
+        } catch (SQLException sqlExcepcion) {
+            REGISTRADOR.log(Level.SEVERE, "Error al listar profesores", sqlExcepcion);
+            throw new DAOExcepcion("Error al listar los profesores", sqlExcepcion);
         }
     }
 
+    @Override
     public boolean existeProfesorConNumeroPersonal(String numeroPersonal, int idExcluir) throws DAOExcepcion {
-        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_EXISTE_NUMERO_PERSONAL)) {
-            preparedStatement.setString(1, numeroPersonal);
-            preparedStatement.setInt(2, idExcluir);
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
-                    return resultSet.getInt(1) > 0;
+        try (PreparedStatement sentenciaPreparada = conexion.prepareStatement(SQL_EXISTE_NUMERO_PERSONAL)) {
+            sentenciaPreparada.setString(1, numeroPersonal);
+            sentenciaPreparada.setInt(2, idExcluir);
+            try (ResultSet conjuntoResultado = sentenciaPreparada.executeQuery()) {
+                if (conjuntoResultado.next()) {
+                    return conjuntoResultado.getInt(1) > 0;
                 }
                 return false;
             }
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error al verificar número de personal duplicado en profesor", e);
-            throw new DAOExcepcion("Error al verificar si existe el número de personal", e);
+        } catch (SQLException sqlException) {
+            REGISTRADOR.log(Level.SEVERE, "Error al verificar número de personal duplicado en profesor", sqlException);
+            throw new DAOExcepcion("Error al verificar si existe el número de personal", sqlException);
         }
     }
 

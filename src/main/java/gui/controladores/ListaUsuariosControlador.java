@@ -1,7 +1,7 @@
 package gui.controladores;
 
 import excepciones.DAOExcepcion;
-import interfaces.Regresable;
+import logica.interfaces.Regresable;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -16,7 +16,7 @@ import javafx.stage.Stage;
 import logica.dao.UsuarioDAO;
 import logica.dto.UsuarioDTO;
 import logica.enums.TipoDeUsuario;
-import logica.enums.TipoEstadoUsuario;
+import logica.enums.TipoEstado;
 import javafx.scene.layout.HBox;
 import logica.utilidades.PermisosRol;
 import logica.utilidades.SesionUsuarioSingleton;
@@ -117,7 +117,7 @@ public class ListaUsuariosControlador implements Regresable{
 
                 UsuarioDTO usuarioDTO = getTableView().getItems().get(getIndex());
 
-                if (permisos.peudeInactivarUsuario() && usuarioDTO.getTipoEstado() == TipoEstadoUsuario.ACTIVO) {
+                if (permisos.peudeInactivarUsuario() && usuarioDTO.getTipoEstado() == TipoEstado.ACTIVO) {
                     btnInactivar.setVisible(true);
                     setGraphic(contenedor);
                 } else {
@@ -200,14 +200,14 @@ public class ListaUsuariosControlador implements Regresable{
             mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Usuario inactivado.");
         } catch (DAOExcepcion e) {
             logger.log(Level.SEVERE, "Error al inactivar usuario", e);
-            usuario.setTipoEstado(TipoEstadoUsuario.ACTIVO);
+            usuario.setTipoEstado(TipoEstado.ACTIVO);
             tablaUsuarios.refresh();
             mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudo completar la acción.");
         }
     }
 
     private void inactivarUsuario(UsuarioDTO usuario) throws DAOExcepcion {
-        usuario.setTipoEstado(TipoEstadoUsuario.INACTIVO);
+        usuario.setTipoEstado(TipoEstado.INACTIVO);
         new UsuarioDAO().actualizarUsuario(usuario);
     }
 

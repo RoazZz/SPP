@@ -2,7 +2,7 @@ package logica.dao;
 
 import excepciones.DAOExcepcion;
 import excepciones.EntidadNoEncontradaExcepcion;
-import interfaces.UsuarioDAOInterfaz;
+import logica.interfaces.UsuarioDAOInterfaz;
 import accesodatos.ConexionBD;
 import logica.dto.UsuarioDTO;
 import logica.enums.TipoDeUsuario;
@@ -61,7 +61,7 @@ public class UsuarioDAO implements UsuarioDAOInterfaz {
                 }
             }
 
-            logger.log(Level.INFO, "Usuario base creado exitosamente: {0}", usuario.getIdUsuario());
+            logger.log(Level.INFO, "Usuario base creado exitosamente:", usuario.getIdUsuario());
             return usuario;
 
         } catch (SQLException e) {

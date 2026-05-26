@@ -2,7 +2,7 @@ package logica.dao;
 import accesodatos.ConexionBD;
 import excepciones.DAOExcepcion;
 import excepciones.EntidadNoEncontradaExcepcion;
-import interfaces.BitacoraPSPDAOInterfaz;
+import logica.interfaces.BitacoraPSPDAOInterfaz;
 import logica.dto.BitacoraPSPDTO;
 
 import java.io.IOException;
@@ -20,98 +20,98 @@ public class BitacoraPSPDAO implements BitacoraPSPDAOInterfaz {
     private static final String SQL_SELECT_ALL = "SELECT * FROM bitacorapsp";
 
     private Connection conexion;
-    private static final Logger logger = Logger.getLogger(BitacoraPSPDAO.class.getName());
+    private static final Logger REGISTRADOR = Logger.getLogger(BitacoraPSPDAO.class.getName());
 
     public BitacoraPSPDAO() throws DAOExcepcion {
         try{
             this.conexion = ConexionBD.obtenerInstancia().obtenerConexion();
-        } catch (IOException e){
-            logger.log(Level.SEVERE, "Error al leer archivo de cofniguración", e);
-            throw new DAOExcepcion("Error de configuracion", e);
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error de conexion SQL en BitacoraPSPDAO", e);
-            throw new DAOExcepcion("Error de base de datos", e);
+        } catch (IOException ioException){
+            REGISTRADOR.log(Level.SEVERE, "Error al leer archivo de cofniguración", ioException);
+            throw new DAOExcepcion("Error de configuracion", ioException);
+        } catch (SQLException sqlException) {
+            REGISTRADOR.log(Level.SEVERE, "Error de conexion SQL en BitacoraPSPDAO", sqlException);
+            throw new DAOExcepcion("Error de base de datos", sqlException);
         }
     }
 
     @Override
     public BitacoraPSPDTO agregarBitacoraPSP(BitacoraPSPDTO bitacora) throws DAOExcepcion {
-        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
-            preparedStatement.setString(1, bitacora.getMatricula());
-            preparedStatement.setDate(2, java.sql.Date.valueOf(bitacora.getFecha()));
-            preparedStatement.executeUpdate();
+        try (PreparedStatement sentenciaPreparada = conexion.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
+            sentenciaPreparada.setString(1, bitacora.getMatricula());
+            sentenciaPreparada.setDate(2, java.sql.Date.valueOf(bitacora.getFecha()));
+            sentenciaPreparada.executeUpdate();
 
-            try (ResultSet resultSet = preparedStatement.getGeneratedKeys()) {
-                if (resultSet.next()) {
-                    bitacora.setIdBBitacora(resultSet.getInt(1));
+            try (ResultSet conjuntoResultado = sentenciaPreparada.getGeneratedKeys()) {
+                if (conjuntoResultado.next()) {
+                    bitacora.setIdBBitacora(conjuntoResultado.getInt(1));
                 }
             }
-            logger.log(Level.INFO, "Bitacora PSP agregada con éxito. ID: " + bitacora.getIdBBitacora());
+            REGISTRADOR.log(Level.INFO, "Bitacora PSP agregada con éxito. ID " + bitacora.getIdBBitacora());
             return bitacora;
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error SQL al agregar bitacora PSP", e);
-            throw new DAOExcepcion("Error al agregar bitácora PSP", e);
+        } catch (SQLException sqlException) {
+            REGISTRADOR.log(Level.SEVERE, "Error SQL al agregar bitacora PSP", sqlException);
+            throw new DAOExcepcion("Error al agregar bitácora PSP", sqlException);
         }
     }
 
     @Override
     public BitacoraPSPDTO buscarBitacoraPSPPorId(int idBitacora) throws DAOExcepcion, EntidadNoEncontradaExcepcion {
-        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_SELECT_BY_IDBITACORA)) {
-            preparedStatement.setInt(1, idBitacora);
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
+        try (PreparedStatement sentenciaPreparada = conexion.prepareStatement(SQL_SELECT_BY_IDBITACORA)) {
+            sentenciaPreparada.setInt(1, idBitacora);
+            try (ResultSet conjuntoResultado = sentenciaPreparada.executeQuery()) {
+                if (conjuntoResultado.next()) {
                     return new BitacoraPSPDTO(
-                            resultSet.getInt("idBitacoraPSP"),
-                            resultSet.getString("Matricula"),
-                            resultSet.getDate("Fecha").toLocalDate()
+                            conjuntoResultado.getInt("idBitacoraPSP"),
+                            conjuntoResultado.getString("Matricula"),
+                            conjuntoResultado.getDate("Fecha").toLocalDate()
                     );
                 } else{
-                    logger.log(Level.WARNING, "No se encontró bitacoraPSP con ID: " + idBitacora);
-                    throw new EntidadNoEncontradaExcepcion("BitacoraPSP no encontrado con ID: " + idBitacora);
+                    REGISTRADOR.log(Level.WARNING, "No se encontró bitacoraPSP con ID " + idBitacora);
+                    throw new EntidadNoEncontradaExcepcion("BitacoraPSP no encontrado con ID " + idBitacora);
                 }
             }
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error SQL al buscar bitacora PSP por ID: " + idBitacora, e);
-            throw new DAOExcepcion("Error al buscar bitácora PSP por ID", e);
+        } catch (SQLException sqlException) {
+            REGISTRADOR.log(Level.SEVERE, "Error SQL al buscar bitacora PSP por ID: " + idBitacora, sqlException);
+            throw new DAOExcepcion("Error al buscar bitácora PSP por ID", sqlException);
         }
     }
 
     @Override
     public boolean actualizarBitacoraPSP(BitacoraPSPDTO bitacora) throws DAOExcepcion {
-        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_UPDATE)) {
-                preparedStatement.setString(1, bitacora.getMatricula());
-                preparedStatement.setDate(2, java.sql.Date.valueOf(bitacora.getFecha()));
-                preparedStatement.setInt(3, bitacora.getIdBBitacora());
-                int filasAfectadas = preparedStatement.executeUpdate();
+        try (PreparedStatement sentenciaPreparada = conexion.prepareStatement(SQL_UPDATE)) {
+                sentenciaPreparada.setString(1, bitacora.getMatricula());
+                sentenciaPreparada.setDate(2, java.sql.Date.valueOf(bitacora.getFecha()));
+                sentenciaPreparada.setInt(3, bitacora.getIdBBitacora());
+                int filasAfectadas = sentenciaPreparada.executeUpdate();
                 if (filasAfectadas > 0){
-                    logger.log(Level.INFO, "Bitacora PSP actualizada con éxito. ID: " + bitacora.getIdBBitacora());
+                    REGISTRADOR.log(Level.INFO, "Bitacora PSP actualizada con éxito. ID " + bitacora.getIdBBitacora());
                     return true;
                 } else{
-                    logger.log(Level.WARNING, "No se encontró BitacoraPSP para actualizar con ID: " + bitacora.getIdBBitacora());
-                    throw new EntidadNoEncontradaExcepcion("BitacoraPSP no encontrado para actualizar con ID: " + bitacora.getIdBBitacora());
+                    REGISTRADOR.log(Level.WARNING, "No se encontró BitacoraPSP para actualizar con ID " + bitacora.getIdBBitacora());
+                    throw new EntidadNoEncontradaExcepcion("BitacoraPSP no encontrado para actualizar con ID " + bitacora.getIdBBitacora());
                 }
-            } catch (SQLException e) {
-                logger.log(Level.SEVERE, "Error SQL al actualizar bitacora PSP", e);
-                throw new DAOExcepcion("Error al actualizar bitácora PSP", e);
+            } catch (SQLException sqlException) {
+                REGISTRADOR.log(Level.SEVERE, "Error SQL al actualizar bitacora PSP", sqlException);
+                throw new DAOExcepcion("Error al actualizar bitácora PSP", sqlException);
         }
     }
 
     public List<BitacoraPSPDTO> listarBitacorasPSP() throws DAOExcepcion{
         List<BitacoraPSPDTO> listaBitacorasPSP = new ArrayList<>();
-        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_SELECT_ALL);
-             ResultSet resultSet = preparedStatement.executeQuery()) {
-            while (resultSet.next()) {
+        try (PreparedStatement sentenciaPreparada = conexion.prepareStatement(SQL_SELECT_ALL);
+             ResultSet conjuntoResultado = sentenciaPreparada.executeQuery()) {
+            while (conjuntoResultado.next()) {
                 BitacoraPSPDTO bitacora = new BitacoraPSPDTO(
-                        resultSet.getInt("idBitacoraPSP"),
-                        resultSet.getString("Matricula"),
-                        resultSet.getDate("Fecha").toLocalDate()
+                        conjuntoResultado.getInt("idBitacoraPSP"),
+                        conjuntoResultado.getString("Matricula"),
+                        conjuntoResultado.getDate("Fecha").toLocalDate()
                 );
                 listaBitacorasPSP.add(bitacora);
             }
             return listaBitacorasPSP;
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error SQL al listar bitacoras PSP", e);
-            throw new DAOExcepcion("Error al listar bitácoras PSP", e);
+        } catch (SQLException sqlException) {
+            REGISTRADOR.log(Level.SEVERE, "Error SQL al listar bitacoras PSP", sqlException);
+            throw new DAOExcepcion("Error al listar bitácoras PSP", sqlException);
         }
     }
 }

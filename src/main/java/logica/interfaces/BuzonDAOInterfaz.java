@@ -1,4 +1,4 @@
-package interfaces;
+package logica.interfaces;
 
 import excepciones.DAOExcepcion;
 import excepciones.EntidadNoEncontradaExcepcion;

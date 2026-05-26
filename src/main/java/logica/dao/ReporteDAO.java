@@ -3,7 +3,7 @@ package logica.dao;
 import accesodatos.ConexionBD;
 import excepciones.DAOExcepcion;
 import excepciones.EntidadNoEncontradaExcepcion;
-import interfaces.ReporteDAOInterfaz;
+import logica.interfaces.ReporteDAOInterfaz;
 import logica.dto.ReporteDTO;
 import logica.enums.EstadoReporte;
 import logica.enums.TipoReporte;
@@ -22,13 +22,20 @@ import java.util.logging.Logger;
 
 public class ReporteDAO implements ReporteDAOInterfaz {
 
-    public static final String SQL_INSERT = "INSERT INTO reporte (idUsuario, TipoReporte, Fecha, Ruta, Estado, mes, hashArchivo, hashContenido) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-    public static final String SQL_UPDATE = "UPDATE reporte SET idUsuario = ?, TipoReporte = ?, Fecha = ?, Ruta = ?, Estado = ? " + "WHERE idReporte = ?";
-    public static final String SQL_UPDATE_CALIFICACION = "UPDATE reporte SET Calificacion = ?, Estado = ? WHERE idReporte = ?";
-    public static final String SQL_SELECT_BY_ID = "SELECT idReporte, idUsuario, TipoReporte, Fecha, Ruta, Estado, mes, hashArchivo, hashContenido, Calificacion " + "FROM reporte WHERE idReporte = ?";
-    public static final String SQL_SELECT_ALL = "SELECT idReporte, idUsuario, TipoReporte, Fecha, Ruta, Estado, mes, hashArchivo, hashContenido, Calificacion " + "FROM reporte";
-    public static final String SQL_SELECT_BY_USUARIO = "SELECT idReporte, idUsuario, TipoReporte, Fecha, Ruta, Estado, mes, hashArchivo, hashContenido, Calificacion " + "FROM reporte WHERE idUsuario = ?";
-    public static final String SQL_EXISTE_DUPLICADO = "SELECT COUNT(*) FROM reporte " + "WHERE idUsuario = ? AND TipoReporte = ? AND (mes = ? OR (mes IS NULL AND ? IS NULL)) AND Estado = ?";
+    public static final String SQL_INSERT = "INSERT INTO reporte (idUsuario, TipoReporte, Fecha, Ruta, Estado, mes," +
+            " hashArchivo, hashContenido) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    public static final String SQL_UPDATE = "UPDATE reporte SET idUsuario = ?, TipoReporte = ?, Fecha = ?, Ruta = ?, " +
+            "Estado = ? " + "WHERE idReporte = ?";
+    public static final String SQL_UPDATE_CALIFICACION = "UPDATE reporte SET Calificacion = ?, Estado = ?" +
+            " WHERE idReporte = ?";
+    public static final String SQL_SELECT_BY_ID = "SELECT idReporte, idUsuario, TipoReporte, Fecha, Ruta, Estado, mes," +
+            " hashArchivo, hashContenido, Calificacion " + "FROM reporte WHERE idReporte = ?";
+    public static final String SQL_SELECT_ALL = "SELECT idReporte, idUsuario, TipoReporte, Fecha, Ruta, Estado, mes," +
+            " hashArchivo, hashContenido, Calificacion " + "FROM reporte";
+    public static final String SQL_SELECT_BY_USUARIO = "SELECT idReporte, idUsuario, TipoReporte, Fecha, Ruta, Estado," +
+            " mes, hashArchivo, hashContenido, Calificacion " + "FROM reporte WHERE idUsuario = ?";
+    public static final String SQL_EXISTE_DUPLICADO = "SELECT COUNT(*) FROM reporte " + "WHERE idUsuario = ?" +
+            " AND TipoReporte = ? AND (mes = ? OR (mes IS NULL AND ? IS NULL)) AND Estado = ?";
     public static final String SQL_EXISTE_HASH = "SELECT COUNT(*) FROM reporte WHERE hashArchivo = ? OR hashContenido = ?";
     public static final String SQL_SELECT_POR_SECCION =
             "SELECT r.idReporte, r.idUsuario, r.TipoReporte, r.Fecha, r.Ruta, r.Estado, " +
@@ -41,96 +48,96 @@ public class ReporteDAO implements ReporteDAOInterfaz {
                     "FROM reporte WHERE Estado = 'ENTREGADO'";
 
     private final Connection conexion;
-    private static final Logger LOGGER = Logger.getLogger(ReporteDAO.class.getName());
+    private static final Logger REGISTRADOR = Logger.getLogger(ReporteDAO.class.getName());
 
     public ReporteDAO() throws DAOExcepcion {
         try {
             this.conexion = ConexionBD.obtenerInstancia().obtenerConexion();
-        } catch (IOException | SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error de conexión", e);
-            throw new DAOExcepcion("Error al conectar con la base de datos", e);
+        } catch (IOException | SQLException ioExcepcion) {
+            REGISTRADOR.log(Level.SEVERE, "Error de conexión", ioExcepcion);
+            throw new DAOExcepcion("Error al conectar con la base de datos", ioExcepcion);
         }
     }
 
     @Override
     public ReporteDTO agregarReporte(ReporteDTO reporte) throws DAOExcepcion {
-        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
-            preparedStatement.setInt(1, reporte.getIdUsuario());
-            preparedStatement.setString(2, reporte.getTipoReporte().name());
-            preparedStatement.setDate(3, Date.valueOf(reporte.getFecha()));
-            preparedStatement.setString(4, reporte.getRuta());
-            preparedStatement.setString(5, reporte.getEstado().name());
-            preparedStatement.setString(6, reporte.getMes());
-            preparedStatement.setString(7, reporte.getHashArchivo());
-            preparedStatement.setString(8, reporte.getHashContenido());
-            preparedStatement.executeUpdate();
+        try (PreparedStatement sentenciaPreparada = conexion.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
+            sentenciaPreparada.setInt(1, reporte.getIdUsuario());
+            sentenciaPreparada.setString(2, reporte.getTipoReporte().name());
+            sentenciaPreparada.setDate(3, Date.valueOf(reporte.getFecha()));
+            sentenciaPreparada.setString(4, reporte.getRuta());
+            sentenciaPreparada.setString(5, reporte.getEstado().name());
+            sentenciaPreparada.setString(6, reporte.getMes());
+            sentenciaPreparada.setString(7, reporte.getHashArchivo());
+            sentenciaPreparada.setString(8, reporte.getHashContenido());
+            sentenciaPreparada.executeUpdate();
 
-            try (ResultSet resultSet = preparedStatement.getGeneratedKeys()) {
-                if (resultSet.next()) {
-                    reporte.setIdReporte(resultSet.getInt(1));
+            try (ResultSet conjuntoResultado = sentenciaPreparada.getGeneratedKeys()) {
+                if (conjuntoResultado.next()) {
+                    reporte.setIdReporte(conjuntoResultado.getInt(1));
                 }
             }
 
             return reporte;
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error al insertar reporte", e);
-            throw new DAOExcepcion("Error SQL al agregar reporte", e);
+        } catch (SQLException sqlExcecion) {
+            REGISTRADOR.log(Level.SEVERE, "Error al insertar reporte", sqlExcecion);
+            throw new DAOExcepcion("Error SQL al agregar reporte", sqlExcecion);
         }
     }
 
     @Override
     public boolean actualizarReporte(ReporteDTO reporte) throws DAOExcepcion {
-        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_UPDATE)) {
-            preparedStatement.setInt(1, reporte.getIdUsuario());
-            preparedStatement.setString(2, reporte.getTipoReporte().name());
-            preparedStatement.setDate(3, Date.valueOf(reporte.getFecha()));
-            preparedStatement.setString(4, reporte.getRuta());
-            preparedStatement.setString(5, reporte.getEstado().name());
-            preparedStatement.setInt(6, reporte.getIdReporte());
+        try (PreparedStatement sentenciaPreparada = conexion.prepareStatement(SQL_UPDATE)) {
+            sentenciaPreparada.setInt(1, reporte.getIdUsuario());
+            sentenciaPreparada.setString(2, reporte.getTipoReporte().name());
+            sentenciaPreparada.setDate(3, Date.valueOf(reporte.getFecha()));
+            sentenciaPreparada.setString(4, reporte.getRuta());
+            sentenciaPreparada.setString(5, reporte.getEstado().name());
+            sentenciaPreparada.setInt(6, reporte.getIdReporte());
 
-            if (preparedStatement.executeUpdate() == 0) {
+            if (sentenciaPreparada.executeUpdate() == 0) {
                 throw new EntidadNoEncontradaExcepcion("Reporte no encontrado para actualizar");
             }
 
             return true;
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error al actualizar reporte", e);
-            throw new DAOExcepcion("Error al actualizar reporte", e);
+        } catch (SQLException sqlExcepcion) {
+            REGISTRADOR.log(Level.SEVERE, "Error al actualizar reporte", sqlExcepcion);
+            throw new DAOExcepcion("Error al actualizar reporte", sqlExcepcion);
         }
     }
 
     public boolean calificarReporte(int idReporte, double calificacion) throws DAOExcepcion {
-        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_UPDATE_CALIFICACION)) {
-            preparedStatement.setDouble(1, calificacion);
-            preparedStatement.setString(2, EstadoReporte.CALIFICADO.name());
-            preparedStatement.setInt(3, idReporte);
+        try (PreparedStatement sentenciaPreparada = conexion.prepareStatement(SQL_UPDATE_CALIFICACION)) {
+            sentenciaPreparada.setDouble(1, calificacion);
+            sentenciaPreparada.setString(2, EstadoReporte.CALIFICADO.name());
+            sentenciaPreparada.setInt(3, idReporte);
 
-            if (preparedStatement.executeUpdate() == 0) {
+            if (sentenciaPreparada.executeUpdate() == 0) {
                 throw new EntidadNoEncontradaExcepcion("Reporte no encontrado para calificar: " + idReporte);
             }
 
             return true;
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error al calificar reporte", e);
-            throw new DAOExcepcion("Error al calificar el reporte", e);
+        } catch (SQLException sqlExcepcion) {
+            REGISTRADOR.log(Level.SEVERE, "Error al calificar reporte", sqlExcepcion);
+            throw new DAOExcepcion("Error al calificar el reporte", sqlExcepcion);
         }
     }
 
     @Override
     public ReporteDTO buscarReportePorId(int idReporte) throws DAOExcepcion, EntidadNoEncontradaExcepcion {
-        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_SELECT_BY_ID)) {
-            preparedStatement.setInt(1, idReporte);
+        try (PreparedStatement sentenciaPreparada = conexion.prepareStatement(SQL_SELECT_BY_ID)) {
+            sentenciaPreparada.setInt(1, idReporte);
 
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
-                    return crearDTO(resultSet);
+            try (ResultSet conjuntoResultado = sentenciaPreparada.executeQuery()) {
+                if (conjuntoResultado.next()) {
+                    return crearDTO(conjuntoResultado);
                 }
 
                 throw new EntidadNoEncontradaExcepcion("Reporte no encontrado con id: " + idReporte);
             }
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error al buscar reporte por id", e);
-            throw new DAOExcepcion("Error al buscar reporte", e);
+        } catch (SQLException sqlExcepcion) {
+            REGISTRADOR.log(Level.SEVERE, "Error al buscar reporte por id", sqlExcepcion);
+            throw new DAOExcepcion("Error al buscar reporte", sqlExcepcion);
         }
     }
 
@@ -138,104 +145,104 @@ public class ReporteDAO implements ReporteDAOInterfaz {
     public List<ReporteDTO> listarTodosReporte() throws DAOExcepcion {
         List<ReporteDTO> listaReportes = new ArrayList<>();
 
-        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_SELECT_ALL);
-             ResultSet resultSet = preparedStatement.executeQuery()) {
-            while (resultSet.next()) {
-                listaReportes.add(crearDTO(resultSet));
+        try (PreparedStatement sentenciaPreparada = conexion.prepareStatement(SQL_SELECT_ALL);
+             ResultSet conjuntoResultado = sentenciaPreparada.executeQuery()) {
+            while (conjuntoResultado.next()) {
+                listaReportes.add(crearDTO(conjuntoResultado));
             }
 
             return listaReportes;
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error al listar todos los reportes", e);
-            throw new DAOExcepcion("Error al listar reportes", e);
+        } catch (SQLException sqlExcepcion) {
+            REGISTRADOR.log(Level.SEVERE, "Error al listar todos los reportes", sqlExcepcion);
+            throw new DAOExcepcion("Error al listar reportes", sqlExcepcion);
         }
     }
 
     public List<ReporteDTO> listarReportesPorUsuario(int idUsuario) throws DAOExcepcion {
         List<ReporteDTO> listaReportes = new ArrayList<>();
 
-        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_SELECT_BY_USUARIO)) {
-            preparedStatement.setInt(1, idUsuario);
+        try (PreparedStatement sentenciaPreparada = conexion.prepareStatement(SQL_SELECT_BY_USUARIO)) {
+            sentenciaPreparada.setInt(1, idUsuario);
 
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                while (resultSet.next()) {
-                    listaReportes.add(crearDTO(resultSet));
+            try (ResultSet conjuntoResultado = sentenciaPreparada.executeQuery()) {
+                while (conjuntoResultado.next()) {
+                    listaReportes.add(crearDTO(conjuntoResultado));
                 }
             }
 
             return listaReportes;
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error al listar reportes por usuario", e);
-            throw new DAOExcepcion("Error al listar reportes por usuario", e);
+        } catch (SQLException sqlExcepcion) {
+            REGISTRADOR.log(Level.SEVERE, "Error al listar reportes por usuario", sqlExcepcion);
+            throw new DAOExcepcion("Error al listar reportes por usuario", sqlExcepcion);
         }
     }
 
     public List<ReporteDTO> listarReportesPorSeccion(int idSeccion) throws DAOExcepcion {
         List<ReporteDTO> listaReportes = new ArrayList<>();
 
-        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_SELECT_POR_SECCION)) {
-            preparedStatement.setInt(1, idSeccion);
+        try (PreparedStatement sentenciaPreparada = conexion.prepareStatement(SQL_SELECT_POR_SECCION)) {
+            sentenciaPreparada.setInt(1, idSeccion);
 
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                while (resultSet.next()) {
-                    listaReportes.add(crearDTO(resultSet));
+            try (ResultSet conjuntoResultado = sentenciaPreparada.executeQuery()) {
+                while (conjuntoResultado.next()) {
+                    listaReportes.add(crearDTO(conjuntoResultado));
                 }
             }
 
             return listaReportes;
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error al listar reportes por seccion", e);
-            throw new DAOExcepcion("Error al listar reportes por seccion", e);
+        } catch (SQLException sqlExcepcion) {
+            REGISTRADOR.log(Level.SEVERE, "Error al listar reportes por seccion", sqlExcepcion);
+            throw new DAOExcepcion("Error al listar reportes por seccion", sqlExcepcion);
         }
     }
 
     @Override
     public boolean existeDuplicado(int idUsuario, TipoReporte tipo, String mes, EstadoReporte estado) throws DAOExcepcion {
-        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_EXISTE_DUPLICADO)) {
-            preparedStatement.setInt(1, idUsuario);
-            preparedStatement.setString(2, tipo.name());
-            preparedStatement.setString(3, mes);
-            preparedStatement.setString(4, mes);
-            preparedStatement.setString(5, estado.name());
+        try (PreparedStatement sentenciaPreparada = conexion.prepareStatement(SQL_EXISTE_DUPLICADO)) {
+            sentenciaPreparada.setInt(1, idUsuario);
+            sentenciaPreparada.setString(2, tipo.name());
+            sentenciaPreparada.setString(3, mes);
+            sentenciaPreparada.setString(4, mes);
+            sentenciaPreparada.setString(5, estado.name());
 
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                return resultSet.next() && resultSet.getInt(1) > 0;
+            try (ResultSet conjuntoResultado = sentenciaPreparada.executeQuery()) {
+                return conjuntoResultado.next() && conjuntoResultado.getInt(1) > 0;
             }
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error al verificar duplicado", e);
-            throw new DAOExcepcion("Error al verificar duplicado", e);
+        } catch (SQLException sqlExcepcion) {
+            REGISTRADOR.log(Level.SEVERE, "Error al verificar duplicado", sqlExcepcion);
+            throw new DAOExcepcion("Error al verificar duplicado", sqlExcepcion);
         }
     }
 
     @Override
     public boolean existeHashDuplicado(String hashArchivo, String hashContenido) throws DAOExcepcion {
-        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_EXISTE_HASH)) {
-            preparedStatement.setString(1, hashArchivo);
-            preparedStatement.setString(2, hashContenido);
+        try (PreparedStatement sentenciaPreparada = conexion.prepareStatement(SQL_EXISTE_HASH)) {
+            sentenciaPreparada.setString(1, hashArchivo);
+            sentenciaPreparada.setString(2, hashContenido);
 
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                return resultSet.next() && resultSet.getInt(1) > 0;
+            try (ResultSet conjuntoResultado = sentenciaPreparada.executeQuery()) {
+                return conjuntoResultado.next() && conjuntoResultado.getInt(1) > 0;
             }
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error al verificar hash duplicado", e);
-            throw new DAOExcepcion("Error al verificar hash duplicado", e);
+        } catch (SQLException sqlExcepcion) {
+            REGISTRADOR.log(Level.SEVERE, "Error al verificar hash duplicado", sqlExcepcion);
+            throw new DAOExcepcion("Error al verificar hash duplicado", sqlExcepcion);
         }
     }
 
-    private ReporteDTO crearDTO(ResultSet resultSet) throws SQLException {
-        double calificacionRaw = resultSet.getDouble("Calificacion");
-        Double calificacion = resultSet.wasNull() ? null : calificacionRaw;
+    private ReporteDTO crearDTO(ResultSet conjuntoResultado) throws SQLException {
+        double calificacionRaw = conjuntoResultado.getDouble("Calificacion");
+        Double calificacion = conjuntoResultado.wasNull() ? null : calificacionRaw;
 
         return new ReporteDTO(
-                resultSet.getInt("idReporte"),
-                resultSet.getInt("idUsuario"),
-                TipoReporte.valueOf(resultSet.getString("TipoReporte")),
-                resultSet.getDate("Fecha").toLocalDate(),
-                resultSet.getString("Ruta"),
-                EstadoReporte.valueOf(resultSet.getString("Estado")),
-                resultSet.getString("mes"),
-                resultSet.getString("hashArchivo"),
-                resultSet.getString("hashContenido"),
+                conjuntoResultado.getInt("idReporte"),
+                conjuntoResultado.getInt("idUsuario"),
+                TipoReporte.valueOf(conjuntoResultado.getString("TipoReporte")),
+                conjuntoResultado.getDate("Fecha").toLocalDate(),
+                conjuntoResultado.getString("Ruta"),
+                EstadoReporte.valueOf(conjuntoResultado.getString("Estado")),
+                conjuntoResultado.getString("mes"),
+                conjuntoResultado.getString("hashArchivo"),
+                conjuntoResultado.getString("hashContenido"),
                 calificacion
         );
     }
@@ -243,16 +250,16 @@ public class ReporteDAO implements ReporteDAOInterfaz {
     public List<ReporteDTO> listarReportesEntregados() throws DAOExcepcion {
         List<ReporteDTO> listaReportes = new ArrayList<>();
 
-        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_SELECT_ALL_ENTREGADOS);
-             ResultSet resultSet = preparedStatement.executeQuery()) {
-            while (resultSet.next()) {
-                listaReportes.add(crearDTO(resultSet));
+        try (PreparedStatement sentenciaPreparada = conexion.prepareStatement(SQL_SELECT_ALL_ENTREGADOS);
+             ResultSet conjuntoResultado = sentenciaPreparada.executeQuery()) {
+            while (conjuntoResultado.next()) {
+                listaReportes.add(crearDTO(conjuntoResultado));
             }
 
             return listaReportes;
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error al listar reportes entregados", e);
-            throw new DAOExcepcion("Error al listar reportes entregados", e);
+        } catch (SQLException sqlExcepcion) {
+            REGISTRADOR.log(Level.SEVERE, "Error al listar reportes entregados", sqlExcepcion);
+            throw new DAOExcepcion("Error al listar reportes entregados", sqlExcepcion);
         }
     }
 }

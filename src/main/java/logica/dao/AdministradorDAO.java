@@ -4,7 +4,7 @@ import accesodatos.ConexionBD;
 import excepciones.DAOExcepcion;
 import excepciones.EntidadNoCreadaExcepcion;
 import excepciones.EntidadNoEncontradaExcepcion;
-import interfaces.AdministradorDAOInterfaz;
+import logica.interfaces.AdministradorDAOInterfaz;
 import logica.dto.AdministradorDTO;
 import logica.enums.TipoDeUsuario;
 import logica.enums.TipoEstadoUsuario;
@@ -40,154 +40,152 @@ public class AdministradorDAO implements AdministradorDAOInterfaz {
                     "administrador.idAdministrador " +
                     "FROM usuario JOIN administrador ON usuario.idUsuario = administrador.idUsuario";
     private Connection conexion;
-    private static final Logger logger = Logger.getLogger(AdministradorDAO.class.getName());
+    private static final Logger REGISTRADOR = Logger.getLogger(AdministradorDAO.class.getName());
 
     public AdministradorDAO() throws DAOExcepcion {
         try{
             this.conexion = ConexionBD.obtenerInstancia().obtenerConexion();
-        } catch (IOException e){
-            logger.log(Level.SEVERE, "Error de entrada/salida al configurar la conexión", e);
-            throw new DAOExcepcion("Error al leer la configuración de la base de datos", e);
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error de SQL al intentar conectar", e);
-            throw new DAOExcepcion("Error de acceso a la base de datos", e);
+        } catch (IOException ioException){
+            REGISTRADOR.log(Level.SEVERE, "Error de entrada/salida al configurar la conexión", ioException);
+            throw new DAOExcepcion("Error al leer la configuración de la base de datos", ioException);
+        } catch (SQLException sqlException) {
+            REGISTRADOR.log(Level.SEVERE, "Error de SQL al intentar conectar", sqlException);
+            throw new DAOExcepcion("Error de acceso a la base de datos", sqlException);
         }
     }
 
     @Override
-    public AdministradorDTO agregarAdministrador(AdministradorDTO admin) throws DAOExcepcion {
+    public AdministradorDTO agregarAdministrador(AdministradorDTO administrador) throws DAOExcepcion {
         UsuarioDAO usuarioDAO = new UsuarioDAO(this.conexion);
         try {
             conexion.setAutoCommit(false);
 
-            usuarioDAO.agregarUsuario(admin);
-            int idGenerado = admin.getIdUsuario();
+            usuarioDAO.agregarUsuario(administrador);
+            int idGenerado = administrador.getIdUsuario();
 
             if (idGenerado > 0) {
-                try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
-                    preparedStatement.setInt(1, idGenerado);
-                    preparedStatement.executeUpdate();
+                try (PreparedStatement sentenciaPreparada = conexion.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
+                    sentenciaPreparada.setInt(1, idGenerado);
+                    sentenciaPreparada.executeUpdate();
 
-                    try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
-                        if (generatedKeys.next()) {
-                            int idAdminGenerado = generatedKeys.getInt(1);
-                            admin.setIdAdministrador(idAdminGenerado);
-                            logger.log(Level.INFO, "Admin vinculado con ID de Usuario: " + idGenerado + " y ID de Admin: " + idAdminGenerado);
+                    try (ResultSet llavesGeneradas = sentenciaPreparada.getGeneratedKeys()) {
+                        if (llavesGeneradas.next()) {
+                            int idAdminGenerado = llavesGeneradas.getInt(1);
+                            administrador.setIdAdministrador(idAdminGenerado);
+                            REGISTRADOR.log(Level.INFO, "Admin vinculado con ID de Usuario " + idGenerado + " y ID de Admin " + idAdminGenerado);
                         }
                     }
                 }
                 conexion.commit();
-                logger.log(Level.INFO, "Administrador agregado correctamente: " + admin.getIdUsuario());
-                return admin;
+                REGISTRADOR.log(Level.INFO, "Administrador agregado correctamente " + administrador.getIdUsuario());
+                return administrador;
             } else{
-                logger.log(Level.WARNING, "Usuario base no generado para el Administrador");
+                REGISTRADOR.log(Level.WARNING, "Usuario base no generado para el Administrador");
                 throw new EntidadNoCreadaExcepcion("Usuario base no creado correctamente");
             }
-        } catch (SQLException e) {
+        } catch (SQLException sqlException) {
             try {
                 if (conexion != null){
                     conexion.rollback();
                 }
-            } catch (SQLException exRollback) {
-                logger.log(Level.SEVERE, "Error al hacer rollback", exRollback);
+            } catch (SQLException sqlExceptionRollBack) {
+                REGISTRADOR.log(Level.SEVERE, "Error al hacer rollback", sqlExceptionRollBack);
             }
-            logger.log(Level.SEVERE, "Error SQL al agregar administrador", e);
-            throw new DAOExcepcion("Error al agregar administrador", e);
-        } catch (EntidadNoEncontradaExcepcion e) {
+            REGISTRADOR.log(Level.SEVERE, "Error SQL al agregar administrador", sqlException);
+            throw new DAOExcepcion("Error al agregar administrador", sqlException);
+        } catch (EntidadNoEncontradaExcepcion entidadNoEncontradaExcepcion) {
             try {
                 if (conexion != null) {
                     conexion.rollback();
                 }
-            } catch (SQLException exRollback) {
-                logger.log(Level.SEVERE, "Error al hacer rollback tras error inesperado", exRollback);
+            } catch (SQLException sqlExceptionRollback) {
+                REGISTRADOR.log(Level.SEVERE, "Error al hacer rollback tras error inesperado", sqlExceptionRollback);
             }
-            logger.log(Level.SEVERE, "Error no esperado en AdministradorDAO", e);
-            throw new DAOExcepcion("Ocurrió un error inesperado al registrar el administrador", e);
+            REGISTRADOR.log(Level.SEVERE, "Error no esperado en AdministradorDAO", entidadNoEncontradaExcepcion);
+            throw new DAOExcepcion("Ocurrió un error inesperado al registrar el administrador", entidadNoEncontradaExcepcion);
         } finally {
             try {
                 conexion.setAutoCommit(true);
-            } catch (SQLException e) {
-                logger.log(Level.WARNING, "No se pudo resetear autocommit", e);
+            } catch (SQLException sqlException) {
+                REGISTRADOR.log(Level.WARNING, "No se pudo resetear autocommit", sqlException);
             }
         }
     }
 
     @Override
     public AdministradorDTO buscarAdministradorPorId(int idAdministrador) throws DAOExcepcion, EntidadNoEncontradaExcepcion {
-        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_BUSCAR_POR_ID)) {
-            preparedStatement.setInt(1, idAdministrador);
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
+        try (PreparedStatement sentenciaPreparada = conexion.prepareStatement(SQL_BUSCAR_POR_ID)) {
+            sentenciaPreparada.setInt(1, idAdministrador);
+            try (ResultSet conjuntoResultado = sentenciaPreparada.executeQuery()) {
+                if (conjuntoResultado.next()) {
                     return new AdministradorDTO(
-                    resultSet.getInt("idUsuario"),
-                    resultSet.getString("nombre"),
-                    resultSet.getString("apellidoP"),
-                    resultSet.getString("apellidoM"),
-                    resultSet.getString("contrasenia"), TipoEstadoUsuario.valueOf(resultSet.getString("estado")),
-                    TipoDeUsuario.valueOf(resultSet.getString("TipoUsuario")),
-                    resultSet.getInt("idAdministrador")
+                    conjuntoResultado.getInt("idUsuario"),
+                    conjuntoResultado.getString("nombre"),
+                    conjuntoResultado.getString("apellidoP"),
+                    conjuntoResultado.getString("apellidoM"),
+                    conjuntoResultado.getString("contrasenia"), TipoEstadoUsuario.valueOf(conjuntoResultado.getString("estado")),
+                    TipoDeUsuario.valueOf(conjuntoResultado.getString("TipoUsuario")),
+                    conjuntoResultado.getInt("idAdministrador")
                     );
                 } else {
-                    logger.log(Level.INFO, "Administrador no encontrado con ID: " + idAdministrador);
-                    throw new EntidadNoEncontradaExcepcion("Administrador no encontrado con ID: " + idAdministrador);
+                    REGISTRADOR.log(Level.INFO, "Administrador no encontrado con ID " + idAdministrador);
+                    throw new EntidadNoEncontradaExcepcion("Administrador no encontrado con ID " + idAdministrador);
                 }
             }
-        } catch (SQLException e){
-            logger.log(Level.SEVERE, "Error SQL al buscar administrador por ID", e);
-            throw new DAOExcepcion("Error al buscar administrador por ID", e);
+        } catch (SQLException sqlException){
+            REGISTRADOR.log(Level.SEVERE, "Error SQL al buscar administrador por ID", sqlException);
+            throw new DAOExcepcion("Error al buscar administrador por ID", sqlException);
         }
     }
 
     @Override
     public AdministradorDTO buscarAdministradorPorNombre(String nombre) throws DAOExcepcion, EntidadNoEncontradaExcepcion {
-        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_BUSCAR_POR_NOMBRE)) {
-            preparedStatement.setString(1, nombre);
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
+        try (PreparedStatement sentenciaPreparada = conexion.prepareStatement(SQL_BUSCAR_POR_NOMBRE)) {
+            sentenciaPreparada.setString(1, nombre);
+            try (ResultSet conjuntoResultado = sentenciaPreparada.executeQuery()) {
+                if (conjuntoResultado.next()) {
                     return new AdministradorDTO(
-                            resultSet.getInt("idUsuario"),
-                            resultSet.getString("nombre"),
-                            resultSet.getString("apellidoP"),
-                            resultSet.getString("apellidoM"),
-                            resultSet.getString("contrasenia"), TipoEstadoUsuario.valueOf(resultSet.getString("estado")),
-                            TipoDeUsuario.valueOf(resultSet.getString("TipoUsuario")),
-                            resultSet.getInt("idAdministrador")
+                            conjuntoResultado.getInt("idUsuario"),
+                            conjuntoResultado.getString("nombre"),
+                            conjuntoResultado.getString("apellidoP"),
+                            conjuntoResultado.getString("apellidoM"),
+                            conjuntoResultado.getString("contrasenia"), TipoEstadoUsuario.valueOf(conjuntoResultado.getString("estado")),
+                            TipoDeUsuario.valueOf(conjuntoResultado.getString("TipoUsuario")),
+                            conjuntoResultado.getInt("idAdministrador")
                     );
                 } else {
-                    logger.log(Level.INFO, "Administrador no encontrado con nombre: " + nombre);
-                    throw new EntidadNoEncontradaExcepcion("Administrador no encontrado con nombre: " + nombre);
+                    REGISTRADOR.log(Level.INFO, "Administrador no encontrado con nombre " + nombre);
+                    throw new EntidadNoEncontradaExcepcion("Administrador no encontrado con nombre " + nombre);
                 }
             }
-        } catch (SQLException e){
-            logger.log(Level.SEVERE, "Error SQL al buscar administrador por nombre", e);
-            throw new DAOExcepcion("Error al buscar administrador por nombre", e);
+        } catch (SQLException sqlException){
+            REGISTRADOR.log(Level.SEVERE, "Error SQL al buscar administrador por nombre", sqlException);
+            throw new DAOExcepcion("Error al buscar administrador por nombre", sqlException);
         }
     }
 
     @Override
     public List<AdministradorDTO> listarAdministradores() throws DAOExcepcion {
         List<AdministradorDTO> listaAdministrador = new ArrayList<>();
-        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_SELECT_ALL);
-             ResultSet resultSet = preparedStatement.executeQuery()) {
-            while (resultSet.next()) {
+        try (PreparedStatement sentenciaPreparada = conexion.prepareStatement(SQL_SELECT_ALL);
+             ResultSet conjuntoResultado = sentenciaPreparada.executeQuery()) {
+            while (conjuntoResultado.next()) {
                 AdministradorDTO administrador = new AdministradorDTO(
-                        resultSet.getInt("idUsuario"),
-                        resultSet.getString("nombre"),
-                        resultSet.getString("apellidoP"),
-                        resultSet.getString("apellidoM"),
-                        resultSet.getString("contrasenia"),
-                        TipoEstadoUsuario.valueOf(resultSet.getString("estado")),
-                        TipoDeUsuario.valueOf(resultSet.getString("TipoUsuario")),
-                        resultSet.getInt("idAdministrador")
+                        conjuntoResultado.getInt("idUsuario"),
+                        conjuntoResultado.getString("nombre"),
+                        conjuntoResultado.getString("apellidoP"),
+                        conjuntoResultado.getString("apellidoM"),
+                        conjuntoResultado.getString("contrasenia"),
+                        TipoEstadoUsuario.valueOf(conjuntoResultado.getString("estado")),
+                        TipoDeUsuario.valueOf(conjuntoResultado.getString("TipoUsuario")),
+                        conjuntoResultado.getInt("idAdministrador")
                 );
                 listaAdministrador.add(administrador);
             }
             return listaAdministrador;
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error al listar administradores", e);
-            throw new DAOExcepcion("Error al listar los administradores", e);
+        } catch (SQLException sqlExceptioN) {
+            REGISTRADOR.log(Level.SEVERE, "Error al listar administradores", sqlExceptioN);
+            throw new DAOExcepcion("Error al listar los administradores", sqlExceptioN);
         }
     }
-
-
 }

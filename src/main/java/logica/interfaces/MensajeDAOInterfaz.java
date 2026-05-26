@@ -1,10 +1,8 @@
-package interfaces;
+package logica.interfaces;
 
 import excepciones.DAOExcepcion;
 import excepciones.EntidadNoEncontradaExcepcion;
 import logica.dto.MensajeDTO;
-
-import java.time.LocalDate;
 import java.util.List;
 
 public interface MensajeDAOInterfaz {

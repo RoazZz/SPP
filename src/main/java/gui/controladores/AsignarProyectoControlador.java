@@ -2,7 +2,7 @@ package gui.controladores;
 
 import excepciones.DAOExcepcion;
 import excepciones.ReglaDeNegocioExcepcion;
-import interfaces.Regresable;
+import logica.interfaces.Regresable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;

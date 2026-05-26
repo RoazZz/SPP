@@ -2,7 +2,7 @@ package logica.dao;
 
 import excepciones.DAOExcepcion;
 import excepciones.EntidadNoEncontradaExcepcion;
-import interfaces.PracticanteDAOInterfaz;
+import logica.interfaces.PracticanteDAOInterfaz;
 import accesodatos.ConexionBD;
 import logica.dto.BuzonDTO;
 import logica.dto.PracticanteDTO;
@@ -22,8 +22,9 @@ import java.util.logging.Logger;
 
 public class PracticanteDAO implements PracticanteDAOInterfaz {
     private final Connection conexion;
-    private static final Logger logger = Logger.getLogger(PracticanteDAO.class.getName());
-    private static final String SQL_INSERT = "INSERT INTO Practicante (idUsuario, Matricula, idSeccion, Semestre, Genero, Edad, LenguaIndigena) VALUES ( ?, ?, ?, ?, ?, ?, ?)";
+    private static final Logger REGISTRADOR = Logger.getLogger(PracticanteDAO.class.getName());
+    private static final String SQL_INSERT = "INSERT INTO Practicante (idUsuario, Matricula, idSeccion, Semestre, " +
+            "Genero, Edad, LenguaIndigena) VALUES ( ?, ?, ?, ?, ?, ?, ?)";
     private static final String SQL_BUSCAR_POR_MATRICULA =
             "SELECT usuario.idUsuario, usuario.nombre, usuario.apellidoP, usuario.apellidoM, " +
             "usuario.contrasenia, usuario.tipoUsuario, usuario.Estado, " +
@@ -31,7 +32,8 @@ public class PracticanteDAO implements PracticanteDAOInterfaz {
             "practicante.edad, practicante.lenguaIndigena " +
             "FROM usuario JOIN practicante ON usuario.idUsuario = practicante.idUsuario " +
             "WHERE practicante.Matricula = ?";
-    private static final String SQL_UPDATE = "UPDATE Practicante SET idSeccion = ?, Semestre = ?, Genero = ?, Edad = ?, LenguaIndigena = ? WHERE Matricula = ?";
+    private static final String SQL_UPDATE = "UPDATE Practicante SET idSeccion = ?, Semestre = ?, Genero = ?, Edad = ?," +
+            " LenguaIndigena = ? WHERE Matricula = ?";
     private static final String SQL_SELECT_ALL =
             "SELECT usuario.idUsuario, usuario.nombre, usuario.apellidoP, usuario.apellidoM, " +
             "usuario.contrasenia, usuario.tipoUsuario, usuario.Estado, " +
@@ -44,12 +46,12 @@ public class PracticanteDAO implements PracticanteDAOInterfaz {
     public PracticanteDAO() throws DAOExcepcion {
         try{
         this.conexion = ConexionBD.obtenerInstancia().obtenerConexion();
-        } catch (IOException e){
-            logger.log(Level.SEVERE, "Error al leer archivo de configuración", e);
-            throw new DAOExcepcion("Error de configuracion", e);
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error de conexion SQL en PracticanteDAO", e);
-            throw new DAOExcepcion("Error de base de datos", e);
+        } catch (IOException ioExcepcion){
+            REGISTRADOR.log(Level.SEVERE, "Error al leer archivo de configuración", ioExcepcion);
+            throw new DAOExcepcion("Error de configuracion", ioExcepcion);
+        } catch (SQLException sqlExcepcion) {
+            REGISTRADOR.log(Level.SEVERE, "Error de conexion SQL en PracticanteDAO", sqlExcepcion);
+            throw new DAOExcepcion("Error de base de datos", sqlExcepcion);
         }
     }
 
@@ -62,92 +64,92 @@ public class PracticanteDAO implements PracticanteDAOInterfaz {
             usuarioDAO.agregarUsuario(practicante);
             int idGenerado = practicante.getIdUsuario();
             if (idGenerado > 0) {
-                try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT)) {
-                    preparedStatement.setInt(1, idGenerado);
-                    preparedStatement.setString(2, practicante.getMatricula());
-                    preparedStatement.setInt(3, practicante.getIdSeccion());
-                    preparedStatement.setString(4, practicante.getSemestre());
-                    preparedStatement.setString(5, practicante.getGeneroDelPracticante().name());
-                    preparedStatement.setInt(6, practicante.getEdad());
-                    preparedStatement.setBoolean(7, practicante.isLenguaIndigena());
-                    preparedStatement.executeUpdate();
+                try (PreparedStatement sentenciaPreparada = conexion.prepareStatement(SQL_INSERT)) {
+                    sentenciaPreparada.setInt(1, idGenerado);
+                    sentenciaPreparada.setString(2, practicante.getMatricula());
+                    sentenciaPreparada.setInt(3, practicante.getIdSeccion());
+                    sentenciaPreparada.setString(4, practicante.getSemestre());
+                    sentenciaPreparada.setString(5, practicante.getGeneroDelPracticante().name());
+                    sentenciaPreparada.setInt(6, practicante.getEdad());
+                    sentenciaPreparada.setBoolean(7, practicante.isLenguaIndigena());
+                    sentenciaPreparada.executeUpdate();
                 }
                 BuzonDTO buzonDTO = new BuzonDTO(idGenerado);
                 buzonDAO.agregarBuzon(buzonDTO);
                 conexion.commit();
-                logger.log(Level.INFO, "Practicante agregado exitosamente: " + practicante.getMatricula());
+                REGISTRADOR.log(Level.INFO, "Practicante agregado exitosamente " + practicante.getMatricula());
                 return true;
             } else {
-                logger.log(Level.SEVERE, "No se pudo crear usuario base para practicante");
+                REGISTRADOR.log(Level.SEVERE, "No se pudo crear usuario base para practicante");
                 throw new EntidadNoEncontradaExcepcion( "No se pudo crear el usuario base");
             }
-        } catch (SQLException e) {
+        } catch (SQLException sqlExcepcion) {
             try {
                 conexion.rollback();
-            } catch (SQLException ex) {
-                logger.log(Level.SEVERE, "Error al hacer rollback", ex);
+            } catch (SQLException sqlExcepcionRollback) {
+                REGISTRADOR.log(Level.SEVERE, "Error al hacer rollback", sqlExcepcionRollback);
             }
-            logger.log(Level.SEVERE, "Error al agregar practicante", e);
-            throw new DAOExcepcion("Error al agregar practicante: ", e);
+            REGISTRADOR.log(Level.SEVERE, "Error al agregar practicante", sqlExcepcion);
+            throw new DAOExcepcion("Error al agregar practicante: ", sqlExcepcion);
         } finally {
             try {
                 conexion.setAutoCommit(true);
-            } catch (SQLException ex) {
-                logger.log(Level.SEVERE, "Error al restaurar AutoCommit", ex);
+            } catch (SQLException sqlExcepcion) {
+                REGISTRADOR.log(Level.SEVERE, "Error al restaurar AutoCommit", sqlExcepcion);
             }
         }
     }
 
     @Override
     public boolean actualizarPracticante(PracticanteDTO practicante) throws DAOExcepcion {
-        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_UPDATE)) {
-            preparedStatement.setInt(1, practicante.getIdSeccion());
-            preparedStatement.setString(2, practicante.getSemestre());
-            preparedStatement.setString(3, practicante.getGeneroDelPracticante().name());
-            preparedStatement.setInt(4, practicante.getEdad());
-            preparedStatement.setBoolean(5, practicante.isLenguaIndigena());
-            preparedStatement.setString(6, practicante.getMatricula());
-            preparedStatement.executeUpdate();
-            logger.log(Level.INFO, "Practicante actualizado correctamente: " + practicante.getMatricula());
+        try (PreparedStatement sentenciaPreparada = conexion.prepareStatement(SQL_UPDATE)) {
+            sentenciaPreparada.setInt(1, practicante.getIdSeccion());
+            sentenciaPreparada.setString(2, practicante.getSemestre());
+            sentenciaPreparada.setString(3, practicante.getGeneroDelPracticante().name());
+            sentenciaPreparada.setInt(4, practicante.getEdad());
+            sentenciaPreparada.setBoolean(5, practicante.isLenguaIndigena());
+            sentenciaPreparada.setString(6, practicante.getMatricula());
+            sentenciaPreparada.executeUpdate();
+            REGISTRADOR.log(Level.INFO, "Practicante actualizado correctamente " + practicante.getMatricula());
             return true;
-        } catch (SQLException e){
-            logger.log(Level.SEVERE, "Error al actualizar al practicante", e);
-            throw new DAOExcepcion("Error al actualizar al Practicante: ", e);
+        } catch (SQLException sqlExcepcion){
+            REGISTRADOR.log(Level.SEVERE, "Error al actualizar al practicante", sqlExcepcion);
+            throw new DAOExcepcion("Error al actualizar al Practicante ", sqlExcepcion);
         }
     }
 
     @Override
     public PracticanteDTO buscarPracticantePorMatricula(String matricula) throws DAOExcepcion, EntidadNoEncontradaExcepcion{
-        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_BUSCAR_POR_MATRICULA)) {
-            preparedStatement.setString(1, matricula);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
+        try (PreparedStatement sentenciaPreparada = conexion.prepareStatement(SQL_BUSCAR_POR_MATRICULA)) {
+            sentenciaPreparada.setString(1, matricula);
+            ResultSet conjuntoResultado = sentenciaPreparada.executeQuery();
+            if (conjuntoResultado.next()) {
                 PracticanteDTO practicante = new PracticanteDTO(
-                        resultSet.getInt("idUsuario"),
-                        resultSet.getString("nombre"),
-                        resultSet.getString("apellidoP"),
-                        resultSet.getString("apellidoM"),
-                        resultSet.getString("contrasenia"),
-                        TipoEstadoUsuario.valueOf(resultSet.getString("estado")),
-                        TipoDeUsuario.valueOf(resultSet.getString("tipoUsuario"))
+                        conjuntoResultado.getInt("idUsuario"),
+                        conjuntoResultado.getString("nombre"),
+                        conjuntoResultado.getString("apellidoP"),
+                        conjuntoResultado.getString("apellidoM"),
+                        conjuntoResultado.getString("contrasenia"),
+                        TipoEstadoUsuario.valueOf(conjuntoResultado.getString("estado")),
+                        TipoDeUsuario.valueOf(conjuntoResultado.getString("tipoUsuario"))
                 );
 
-                practicante.setMatricula(resultSet.getString("Matricula"));
-                practicante.setIdSeccion(resultSet.getInt("idSeccion"));
-                practicante.setSemestre(resultSet.getString("Semestre"));
-                practicante.setGeneroDelPracticante(GeneroDelPracticante.valueOf(resultSet.getString("Genero")));
-                practicante.setEdad(resultSet.getInt("Edad"));
-                practicante.setLenguaIndigena(resultSet.getBoolean("LenguaIndigena"));
+                practicante.setMatricula(conjuntoResultado.getString("Matricula"));
+                practicante.setIdSeccion(conjuntoResultado.getInt("idSeccion"));
+                practicante.setSemestre(conjuntoResultado.getString("Semestre"));
+                practicante.setGeneroDelPracticante(GeneroDelPracticante.valueOf(conjuntoResultado.getString("Genero")));
+                practicante.setEdad(conjuntoResultado.getInt("Edad"));
+                practicante.setLenguaIndigena(conjuntoResultado.getBoolean("LenguaIndigena"));
 
                 return practicante;
             } else {
-                logger.log(Level.WARNING, "No se encontró practicante con matricula: " + matricula);
-                throw new EntidadNoEncontradaExcepcion("No existe practicante con matricula: " + matricula);
+                REGISTRADOR.log(Level.WARNING, "No se encontró practicante con matricula " + matricula);
+                throw new EntidadNoEncontradaExcepcion("No existe practicante con matricula " + matricula);
             }
 
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error al buscar al practicante", e);
-            throw new DAOExcepcion("Error al buscar al Practicante: ", e);
+        } catch (SQLException sqlExcepcion) {
+            REGISTRADOR.log(Level.SEVERE, "Error al buscar al practicante", sqlExcepcion);
+            throw new DAOExcepcion("Error al buscar al Practicante: ", sqlExcepcion);
         }
     }
 
@@ -155,50 +157,50 @@ public class PracticanteDAO implements PracticanteDAOInterfaz {
     public List<PracticanteDTO> listarPracticantes() throws DAOExcepcion {
         List<PracticanteDTO> listaPracticante = new ArrayList<>();
 
-        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_SELECT_ALL);
-             ResultSet resultSet = preparedStatement.executeQuery()) {
+        try (PreparedStatement sentenciaPreparada = conexion.prepareStatement(SQL_SELECT_ALL);
+             ResultSet conjuntoResultado = sentenciaPreparada.executeQuery()) {
 
-            while (resultSet.next()) {
+            while (conjuntoResultado.next()) {
                 PracticanteDTO practicante = new PracticanteDTO(
-                        resultSet.getInt("idUsuario"),
-                        resultSet.getString("nombre"),
-                        resultSet.getString("apellidoP"),
-                        resultSet.getString("apellidoM"),
-                        resultSet.getString("contrasenia"),
-                        TipoEstadoUsuario.valueOf(resultSet.getString("estado")),
-                        TipoDeUsuario.valueOf(resultSet.getString("tipoUsuario"))
+                        conjuntoResultado.getInt("idUsuario"),
+                        conjuntoResultado.getString("nombre"),
+                        conjuntoResultado.getString("apellidoP"),
+                        conjuntoResultado.getString("apellidoM"),
+                        conjuntoResultado.getString("contrasenia"),
+                        TipoEstadoUsuario.valueOf(conjuntoResultado.getString("estado")),
+                        TipoDeUsuario.valueOf(conjuntoResultado.getString("tipoUsuario"))
                 );
 
-                practicante.setMatricula(resultSet.getString("Matricula"));
-                practicante.setIdSeccion(resultSet.getInt("idSeccion"));
-                practicante.setSemestre(resultSet.getString("Semestre"));
-                practicante.setGeneroDelPracticante(GeneroDelPracticante.valueOf(resultSet.getString("Genero")));
-                practicante.setEdad(resultSet.getInt("Edad"));
-                practicante.setLenguaIndigena(resultSet.getBoolean("LenguaIndigena"));
+                practicante.setMatricula(conjuntoResultado.getString("Matricula"));
+                practicante.setIdSeccion(conjuntoResultado.getInt("idSeccion"));
+                practicante.setSemestre(conjuntoResultado.getString("Semestre"));
+                practicante.setGeneroDelPracticante(GeneroDelPracticante.valueOf(conjuntoResultado.getString("Genero")));
+                practicante.setEdad(conjuntoResultado.getInt("Edad"));
+                practicante.setLenguaIndigena(conjuntoResultado.getBoolean("LenguaIndigena"));
 
                 listaPracticante.add(practicante);
             }
 
             return listaPracticante;
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error al listar los practicantes", e);
-            throw new DAOExcepcion("Error al listar los Practicantes: ", e);
+        } catch (SQLException sqlExcepcion) {
+            REGISTRADOR.log(Level.SEVERE, "Error al listar los practicantes", sqlExcepcion);
+            throw new DAOExcepcion("Error al listar los Practicantes: ", sqlExcepcion);
         }
     }
 
     @Override
     public boolean existePracticanteConMatricula(String matricula) throws DAOExcepcion {
-        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_EXISTE_MATRICULA)) {
-            preparedStatement.setString(1, matricula);
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+        try (PreparedStatement sentenciaPreparada = conexion.prepareStatement(SQL_EXISTE_MATRICULA)) {
+            sentenciaPreparada.setString(1, matricula);
+            try (ResultSet resultSet = sentenciaPreparada.executeQuery()) {
                 if (resultSet.next()) {
                     return resultSet.getInt(1) > 0;
                 }
                 return false;
             }
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error al verificar matrícula duplicada", e);
-            throw new DAOExcepcion("Error al verificar si existe la matrícula", e);
+        } catch (SQLException sqlExcepcion) {
+            REGISTRADOR.log(Level.SEVERE, "Error al verificar matrícula duplicada", sqlExcepcion);
+            throw new DAOExcepcion("Error al verificar si existe la matrícula", sqlExcepcion);
         }
     }
 }

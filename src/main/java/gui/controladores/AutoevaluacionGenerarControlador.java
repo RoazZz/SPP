@@ -11,7 +11,7 @@ import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Paragraph;
 import excepciones.DAOExcepcion;
-import interfaces.Regresable;
+import logica.interfaces.Regresable;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;

@@ -3,7 +3,7 @@ package logica.dao;
 import accesodatos.ConexionBD;
 import excepciones.DAOExcepcion;
 import excepciones.EntidadNoEncontradaExcepcion;
-import interfaces.AutoevaluacionDAOInterfaz;
+import logica.interfaces.AutoevaluacionDAOInterfaz;
 import logica.dto.AutoevaluacionDTO;
 
 import java.io.IOException;
@@ -14,110 +14,112 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class AutoevaluacionDAO implements AutoevaluacionDAOInterfaz {
-    private static final String SQL_INSERT = "INSERT INTO autoevaluacion(Matricula, Calificacion, Comentarios) VALUES (?,?,?)";
+    private static final String SQL_INSERT = "INSERT INTO autoevaluacion(Matricula, Calificacion, Comentarios) " +
+            "VALUES (?,?,?)";
     private static final String SQL_SELECT_BY_MATRICULA = "SELECT * FROM autoevaluacion WHERE Matricula = ?";
-    private static final String SQL_UPDATE = "UPDATE autoevaluacion SET Calificacion = ?, Comentarios = ? WHERE Matricula = ?";
+    private static final String SQL_UPDATE = "UPDATE autoevaluacion SET Calificacion = ?, Comentarios = ?" +
+            " WHERE Matricula = ?";
     private static final String SQL_SELECT_ALL = "SELECT * FROM autoevaluacion";
 
     private Connection conexion;
-    private static final Logger logger = Logger.getLogger(AutoevaluacionDAO.class.getName());
+    private static final Logger REGISTRADOR = Logger.getLogger(AutoevaluacionDAO.class.getName());
 
     public AutoevaluacionDAO() throws DAOExcepcion {
         try{
             this.conexion = ConexionBD.obtenerInstancia().obtenerConexion();
-        } catch (IOException e){
-            logger.log(Level.SEVERE, "Error al leer archivo de cofniguración", e);
-            throw new DAOExcepcion("Error de configuracion", e);
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error de conexion SQL en ProfesorDAO", e);
-            throw new DAOExcepcion("Error de base de datos", e);
+        } catch (IOException ioException){
+            REGISTRADOR.log(Level.SEVERE, "Error al leer archivo de cofniguración", ioException);
+            throw new DAOExcepcion("Error de configuracion", ioException);
+        } catch (SQLException sqlException) {
+            REGISTRADOR.log(Level.SEVERE, "Error de conexion SQL en ProfesorDAO", sqlException);
+            throw new DAOExcepcion("Error de base de datos", sqlException);
         }
     }
 
     @Override
     public AutoevaluacionDTO agregarautoevaluacion(AutoevaluacionDTO autoevaluacion) throws DAOExcepcion {
-        try(PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)){
-            preparedStatement.setString(1, autoevaluacion.getMatricula());
-            preparedStatement.setBigDecimal(2, autoevaluacion.getCalificacion());
-            preparedStatement.setString(3, autoevaluacion.getComentarios());
-            preparedStatement.executeUpdate();
+        try(PreparedStatement sentenciaPreparada = conexion.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)){
+            sentenciaPreparada.setString(1, autoevaluacion.getMatricula());
+            sentenciaPreparada.setBigDecimal(2, autoevaluacion.getCalificacion());
+            sentenciaPreparada.setString(3, autoevaluacion.getComentarios());
+            sentenciaPreparada.executeUpdate();
 
-            try (ResultSet resultSet = preparedStatement.getGeneratedKeys()) {
-                if (resultSet.next()) {
-                    autoevaluacion.setIdAutoevaluacion(resultSet.getInt(1));
+            try (ResultSet conjuntoResultado = sentenciaPreparada.getGeneratedKeys()) {
+                if (conjuntoResultado.next()) {
+                    autoevaluacion.setIdAutoevaluacion(conjuntoResultado.getInt(1));
                 }
             }
-            logger.log(Level.INFO, "Autoevaluacion registrada exitosamente para: " + autoevaluacion.getMatricula());
+            REGISTRADOR.log(Level.INFO, "Autoevaluacion registrada exitosamente para " + autoevaluacion.getMatricula());
             return autoevaluacion;
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error SQL al agregar autoevaluacion", e);
-            throw new DAOExcepcion("Error al agregar autoevaluación", e);
+        } catch (SQLException sqlException) {
+            REGISTRADOR.log(Level.SEVERE, "Error SQL al agregar autoevaluacion", sqlException);
+            throw new DAOExcepcion("Error al agregar autoevaluación", sqlException);
         }
     }
 
     @Override
     public boolean actualizarAutoevaluacion(AutoevaluacionDTO autoevaluacion) throws DAOExcepcion {
-            try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_UPDATE)) {
-                preparedStatement.setBigDecimal(1, autoevaluacion.getCalificacion());
-                preparedStatement.setString(2, autoevaluacion.getComentarios());
-                preparedStatement.setString(3, autoevaluacion.getMatricula());
-                preparedStatement.executeUpdate();
+            try (PreparedStatement sentenciaPreparada = conexion.prepareStatement(SQL_UPDATE)) {
+                sentenciaPreparada.setBigDecimal(1, autoevaluacion.getCalificacion());
+                sentenciaPreparada.setString(2, autoevaluacion.getComentarios());
+                sentenciaPreparada.setString(3, autoevaluacion.getMatricula());
+                sentenciaPreparada.executeUpdate();
 
-                int filasAfectadas = preparedStatement.getUpdateCount();
+                int filasAfectadas = sentenciaPreparada.getUpdateCount();
                 if (filasAfectadas > 0) {
-                    logger.log(Level.INFO, "Autoevaluacion actualizada para matricula: " + autoevaluacion.getMatricula());
+                    REGISTRADOR.log(Level.INFO, "Autoevaluacion actualizada para matricula " + autoevaluacion.getMatricula());
                     return true;
                 } else{
-                    logger.log(Level.WARNING, "No se encontró Autoevaluación para actualizar con matricula: " + autoevaluacion.getMatricula());
-                    throw new EntidadNoEncontradaExcepcion("No se encontró autoevaluación para actualizar con matricula: " + autoevaluacion.getMatricula());
+                    REGISTRADOR.log(Level.WARNING, "No se encontró Autoevaluación para actualizar con matricula " + autoevaluacion.getMatricula());
+                    throw new EntidadNoEncontradaExcepcion("No se encontró autoevaluación para actualizar con matricula " + autoevaluacion.getMatricula());
                 }
-            } catch (SQLException e) {
-                logger.log(Level.SEVERE, "Error SQL al actualizar datos de autoevaluacion", e);
-                throw new DAOExcepcion("Error al actualizar autoevaluación", e);
+            } catch (SQLException sqlException) {
+                REGISTRADOR.log(Level.SEVERE, "Error SQL al actualizar datos de autoevaluacion", sqlException);
+                throw new DAOExcepcion("Error al actualizar autoevaluación", sqlException);
             }
     }
 
     @Override
     public AutoevaluacionDTO buscarAutoevaluacionPorMatricula(String matricula) throws DAOExcepcion, EntidadNoEncontradaExcepcion {
-        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_SELECT_BY_MATRICULA)) {
-            preparedStatement.setString(1, matricula);
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
+        try (PreparedStatement sentenciaPreparada = conexion.prepareStatement(SQL_SELECT_BY_MATRICULA)) {
+            sentenciaPreparada.setString(1, matricula);
+            try (ResultSet conjuntoResultado = sentenciaPreparada.executeQuery()) {
+                if (conjuntoResultado.next()) {
                     return new AutoevaluacionDTO(
-                            resultSet.getInt("idAutoEvaluacion"),
-                            resultSet.getString("Matricula"),
-                            resultSet.getBigDecimal("Calificacion"),
-                            resultSet.getString("Comentarios")
+                            conjuntoResultado.getInt("idAutoEvaluacion"),
+                            conjuntoResultado.getString("Matricula"),
+                            conjuntoResultado.getBigDecimal("Calificacion"),
+                            conjuntoResultado.getString("Comentarios")
                     );
                 } else{
-                    logger.log(Level.WARNING, "No se encontró Autoevaluación con matricula: " + matricula);
-                    throw new EntidadNoEncontradaExcepcion("Autoevaluación no encontrada con matricula: " + matricula);
+                    REGISTRADOR.log(Level.WARNING, "No se encontró Autoevaluación con matricula " + matricula);
+                    throw new EntidadNoEncontradaExcepcion("Autoevaluación no encontrada con matricula " + matricula);
                 }
             }
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error SQL al buscar autoevaluacion por matricula", e);
-            throw new DAOExcepcion("Error al buscar autoevaluación por matrícula", e);
+        } catch (SQLException sqlException) {
+            REGISTRADOR.log(Level.SEVERE, "Error SQL al buscar autoevaluacion por matricula", sqlException);
+            throw new DAOExcepcion("Error al buscar autoevaluación por matrícula", sqlException);
         }
     }
 
     @Override
     public List<AutoevaluacionDTO> obtenerTodasLasAutoevaluaciones() throws DAOExcepcion {
         List<AutoevaluacionDTO> autoevaluaciones = new ArrayList<>();
-        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_SELECT_ALL);
-             ResultSet resultSet = preparedStatement.executeQuery()) {
-            while (resultSet.next()) {
+        try (PreparedStatement sentenciaPreparada = conexion.prepareStatement(SQL_SELECT_ALL);
+             ResultSet conjuntoResultado = sentenciaPreparada.executeQuery()) {
+            while (conjuntoResultado.next()) {
                 AutoevaluacionDTO autoevaluacion = new AutoevaluacionDTO(
-                        resultSet.getInt("idAutoEvaluacion"),
-                        resultSet.getString("Matricula"),
-                        resultSet.getBigDecimal("Calificacion"),
-                        resultSet.getString("Comentarios")
+                        conjuntoResultado.getInt("idAutoEvaluacion"),
+                        conjuntoResultado.getString("Matricula"),
+                        conjuntoResultado.getBigDecimal("Calificacion"),
+                        conjuntoResultado.getString("Comentarios")
                 );
                 autoevaluaciones.add(autoevaluacion);
             }
             return autoevaluaciones;
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error SQL al listar todas las autoevaluaciones", e);
-            throw new DAOExcepcion("Error al obtener todas las autoevaluaciones", e);
+        } catch (SQLException sqlException) {
+            REGISTRADOR.log(Level.SEVERE, "Error SQL al listar todas las autoevaluaciones", sqlException);
+            throw new DAOExcepcion("Error al obtener todas las autoevaluaciones", sqlException);
         }
     }
 }

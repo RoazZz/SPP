@@ -2,7 +2,7 @@ package logica.dao;
 
 import excepciones.DAOExcepcion;
 import excepciones.EntidadNoEncontradaExcepcion;
-import interfaces.BitacoraDAOInterfaz;
+import logica.interfaces.BitacoraDAOInterfaz;
 import accesodatos.ConexionBD;
 import logica.dto.BitacoraDTO;
 
@@ -19,86 +19,87 @@ import java.util.logging.Logger;
 
 public class BitacoraDAO implements BitacoraDAOInterfaz {
     private final Connection conexion;
-    private static final Logger logger = Logger.getLogger(BitacoraDAO.class.getName());
-    private static final String SQL_INSERT = "INSERT INTO Bitacora (Matricula, Fecha_Hora, TipoEvento, Descripcion) VALUES ( ?, ?, ?, ?)";
+    private static final Logger REGISTRADOR = Logger.getLogger(BitacoraDAO.class.getName());
+    private static final String SQL_INSERT = "INSERT INTO Bitacora (Matricula, Fecha_Hora, TipoEvento, Descripcion) " +
+            "VALUES ( ?, ?, ?, ?)";
     private static final String SQL_BUSCAR_POR_MATRICULA = "SELECT * FROM Bitacora WHERE Matricula = ?";
     private static final String SQL_SELECT_ALL = "SELECT * FROM Bitacora";
 
     public BitacoraDAO() throws DAOExcepcion {
         try{
         this.conexion = ConexionBD.obtenerInstancia().obtenerConexion();
-        } catch (IOException e){
-            logger.log(Level.SEVERE, "Error al leer archivo de configuración", e);
-            throw new DAOExcepcion("Error de configuracion", e);
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error de conexion SQL en BitacoraDAO", e);
-            throw new DAOExcepcion("Error de base de datos", e);
+        } catch (IOException ioException){
+            REGISTRADOR.log(Level.SEVERE, "Error al leer archivo de configuración", ioException);
+            throw new DAOExcepcion("Error de configuracion", ioException);
+        } catch (SQLException sqlException) {
+            REGISTRADOR.log(Level.SEVERE, "Error de conexion SQL en BitacoraDAO", sqlException);
+            throw new DAOExcepcion("Error de base de datos", sqlException);
         }
     }
 
     @Override
     public boolean agregarBitacora(BitacoraDTO bitacora) throws DAOExcepcion {
-        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
-            preparedStatement.setString(1, bitacora.getMatricula());
-            preparedStatement.setTimestamp(2, java.sql.Timestamp.valueOf(bitacora.getFechaHora()));
-            preparedStatement.setString(3, bitacora.getTipoEvento());
-            preparedStatement.setString(4, bitacora.getDescripcionEvento());
-            preparedStatement.executeUpdate();
-            try (ResultSet resultSet = preparedStatement.getGeneratedKeys()) {
-                if (resultSet.next()) {
-                    bitacora.setIdRegistro(resultSet.getInt(1));
+        try (PreparedStatement sentenciaPreparada = conexion.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
+            sentenciaPreparada.setString(1, bitacora.getMatricula());
+            sentenciaPreparada.setTimestamp(2, java.sql.Timestamp.valueOf(bitacora.getFechaHora()));
+            sentenciaPreparada.setString(3, bitacora.getTipoEvento());
+            sentenciaPreparada.setString(4, bitacora.getDescripcionEvento());
+            sentenciaPreparada.executeUpdate();
+            try (ResultSet conjuntoResultado = sentenciaPreparada.getGeneratedKeys()) {
+                if (conjuntoResultado.next()) {
+                    bitacora.setIdRegistro(conjuntoResultado.getInt(1));
                 }
             }
-            logger.log(Level.INFO, "Bitacora creada exitosamente: " + bitacora.getIdRegistro());
+            REGISTRADOR.log(Level.INFO, "Bitacora creada exitosamente: " + bitacora.getIdRegistro());
             return true;
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error al agregar bitacora", e);
-            throw new DAOExcepcion ("Error al agregar la bitacora: ", e);
+        } catch (SQLException sqlException) {
+            REGISTRADOR.log(Level.SEVERE, "Error al agregar bitacora", sqlException);
+            throw new DAOExcepcion ("Error al agregar la bitacora: ", sqlException);
         }
     }
 
     @Override
     public BitacoraDTO buscarBitacoraPorMatricula(String matricula) throws DAOExcepcion, EntidadNoEncontradaExcepcion {
-        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_BUSCAR_POR_MATRICULA)) {
-            preparedStatement.setString(1, matricula);
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
+        try (PreparedStatement sentenciaPreparada = conexion.prepareStatement(SQL_BUSCAR_POR_MATRICULA)) {
+            sentenciaPreparada.setString(1, matricula);
+            try (ResultSet conjuntoResultado = sentenciaPreparada.executeQuery()) {
+                if (conjuntoResultado.next()) {
                     return new BitacoraDTO(
-                            resultSet.getInt("idRegistro"),
-                            resultSet.getString("Matricula"),
-                            resultSet.getString("TipoEvento"),
-                            resultSet.getTimestamp("Fecha_Hora").toLocalDateTime(),
-                            resultSet.getString("Descripcion")
+                            conjuntoResultado.getInt("idRegistro"),
+                            conjuntoResultado.getString("Matricula"),
+                            conjuntoResultado.getString("TipoEvento"),
+                            conjuntoResultado.getTimestamp("Fecha_Hora").toLocalDateTime(),
+                            conjuntoResultado.getString("Descripcion")
                     );
                 } else{
-                    logger.log(Level.WARNING, "No se encontro alguna bitacora con Matricula : " + matricula);
-                    throw new EntidadNoEncontradaExcepcion("No existe bitacora con Matricula : " + matricula);
+                    REGISTRADOR.log(Level.WARNING, "No se encontro alguna bitacora con Matricula  " + matricula);
+                    throw new EntidadNoEncontradaExcepcion("No existe bitacora con Matricula  " + matricula);
                 }
             }
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error al buscar bitacora", e);
-            throw new DAOExcepcion("Error al buscar Bitacora por Matricula: ", e);
+        } catch (SQLException sqlException) {
+            REGISTRADOR.log(Level.SEVERE, "Error al buscar bitacora", sqlException);
+            throw new DAOExcepcion("Error al buscar Bitacora por Matricula: ", sqlException);
         }
     }
 
     @Override
     public List<BitacoraDTO> listarBitacoras() throws DAOExcepcion {
         List<BitacoraDTO> listaBitacora = new ArrayList<>();
-        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_SELECT_ALL);
-             ResultSet resultSet = preparedStatement.executeQuery()) {
-            while (resultSet.next()) {
+        try (PreparedStatement sentenciaPreparada = conexion.prepareStatement(SQL_SELECT_ALL);
+             ResultSet conjuntoResultado = sentenciaPreparada.executeQuery()) {
+            while (conjuntoResultado.next()) {
                 BitacoraDTO bitacora = new BitacoraDTO(
-                        resultSet.getInt("idRegistro"),
-                        resultSet.getString("Matricula"),
-                        resultSet.getString("TipoEvento"),
-                        resultSet.getTimestamp("Fecha_Hora").toLocalDateTime(),
-                        resultSet.getString("Descripcion")
+                        conjuntoResultado.getInt("idRegistro"),
+                        conjuntoResultado.getString("Matricula"),
+                        conjuntoResultado.getString("TipoEvento"),
+                        conjuntoResultado.getTimestamp("Fecha_Hora").toLocalDateTime(),
+                        conjuntoResultado.getString("Descripcion")
                 );
                 listaBitacora.add(bitacora);
             }
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error al buscar bitacora", e);
-            throw new DAOExcepcion("Error al listar las bitacoras: ", e);
+        } catch (SQLException sqlException) {
+            REGISTRADOR.log(Level.SEVERE, "Error al buscar bitacora", sqlException);
+            throw new DAOExcepcion("Error al listar las bitacoras: ", sqlException);
         }
         return listaBitacora;
     }

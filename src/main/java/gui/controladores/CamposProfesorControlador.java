@@ -1,6 +1,6 @@
 package gui.controladores;
 
-import interfaces.ControladorEspecialidadInterfaz;
+import logica.interfaces.ControladorEspecialidadInterfaz;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import logica.dto.ProfesorDTO;

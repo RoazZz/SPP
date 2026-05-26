@@ -1,7 +1,7 @@
 package gui.controladores;
 
 import excepciones.AutenticacionDeUsuarioExcepcion;
-import interfaces.Regresable;
+import logica.interfaces.Regresable;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;

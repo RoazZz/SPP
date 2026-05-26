@@ -1,6 +1,6 @@
 package gui.controladores;
 
-import interfaces.Regresable;
+import logica.interfaces.Regresable;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
