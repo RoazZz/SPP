@@ -1,9 +1,3 @@
-/*
- * AutoevaluacionGenerarControlador.java
- * Versión 1.0
- * Fecha: 18/05/26
- * Copyright (c) 2026
- */
 package gui.controladores;
 
 import com.itextpdf.kernel.pdf.PdfDocument;
@@ -11,22 +5,20 @@ import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Paragraph;
 import excepciones.DAOExcepcion;
+import javafx.event.ActionEvent;
 import logica.interfaces.Regresable;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
-import javafx.stage.Stage;
 import logica.dao.AutoevaluacionDAO;
 import logica.dto.AutoevaluacionDTO;
 import logica.dto.PracticanteDTO;
 import logica.utilidades.SesionUsuarioSingleton;
-
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -38,6 +30,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static gui.controladores.NavegacionControlador.regresar;
 
 public class AutoevaluacionGenerarControlador implements Regresable {
 
@@ -51,29 +45,26 @@ public class AutoevaluacionGenerarControlador implements Regresable {
     @FXML private ComboBox<Integer> cbAfirmacion8;
     @FXML private TextArea txtComentarios;
     @FXML private Label lblError;
-    @FXML private Button btnCancelar;
-    @FXML private Button btnGenerar;
 
     private Scene escenaAnterior;
 
-    private static final Logger LOGGER = Logger.getLogger(AutoevaluacionGenerarControlador.class.getName());
+    private static final Logger REGISTRADOR = Logger.getLogger(AutoevaluacionGenerarControlador.class.getName());
     private static final List<Integer> PUNTAJES = List.of(1, 2, 3, 4, 5);
-    private static final String[] AFIRMACIONES = {
-            "Cumplí con el horario y las actividades asignadas.",
-            "Apliqué los conocimientos adquiridos en la universidad.",
-            "Mostré responsabilidad y compromiso con la organización.",
-            "Me comuniqué de manera efectiva con mi equipo de trabajo.",
-            "Resolví problemas de manera autónoma durante las prácticas.",
-            "Entregué los reportes y documentos en tiempo y forma.",
-            "Mantuve una actitud profesional durante toda la práctica.",
-            "Aprendí nuevas habilidades durante el periodo de prácticas."
-    };
+    private static final List<String> AFIRMACIONES =
+            List.of(
+                    "Cumplí con el horario y las actividades asignadas.",
+                    "Apliqué los conocimientos adquiridos en la universidad.",
+                    "Mostré responsabilidad y compromiso con la organización.",
+                    "Me comuniqué de manera efectiva con mi equipo de trabajo.",
+                    "Resolví problemas de manera autónoma durante las prácticas.",
+                    "Entregué los reportes y documentos en tiempo y forma.",
+                    "Mantuve una actitud profesional durante toda la práctica.",
+                    "Aprendí nuevas habilidades durante el periodo de prácticas."
+            );
 
     @FXML
     public void initialize() {
         configurarComboBoxes();
-        btnGenerar.setOnAction(e -> manejarGenerar());
-        btnCancelar.setOnAction(e -> manejarCancelar());
     }
 
     private void configurarComboBoxes() {
@@ -116,39 +107,38 @@ public class AutoevaluacionGenerarControlador implements Regresable {
         }
 
         BigDecimal totalPosible = BigDecimal.valueOf((long) comboBoxes.size() * 5);
-        return suma.divide(totalPosible, 2, RoundingMode.HALF_UP)
-                .multiply(BigDecimal.TEN);
+        return suma.divide(totalPosible, 2, RoundingMode.HALF_UP).multiply(BigDecimal.TEN);
     }
 
-    private void generarPDF(String matricula, BigDecimal calificacion, Path rutaArchivo) throws IOException {
-        PdfWriter pdfWriter = new PdfWriter(rutaArchivo.toString());
-        PdfDocument pdfDocument = new PdfDocument(pdfWriter);
-        Document documento = new Document(pdfDocument);
+    private void generarDocumentoPDF(String matriculaPracticante, BigDecimal calificacionCalculada, Path rutaArchivoDestino) throws IOException {
+        try (
+                PdfWriter escritorPdf = new PdfWriter(rutaArchivoDestino.toString());
+                PdfDocument documentoPdf = new PdfDocument(escritorPdf);
+                Document documentoVisual = new Document(documentoPdf)
+        ) {
+            documentoVisual.add(new Paragraph("AUTOEVALUACIÓN DE PRÁCTICAS PROFESIONALES").setBold().setFontSize(16));
+            documentoVisual.add(new Paragraph("Matrícula: " + matriculaPracticante));
+            documentoVisual.add(new Paragraph("Fecha: " + LocalDate.now()));
+            documentoVisual.add(new Paragraph(" "));
+            documentoVisual.add(new Paragraph("AFIRMACIONES:").setBold());
 
-        documento.add(new Paragraph("AUTOEVALUACIÓN DE PRÁCTICAS PROFESIONALES")
-                .setBold().setFontSize(16));
-        documento.add(new Paragraph("Matrícula: " + matricula));
-        documento.add(new Paragraph("Fecha: " + LocalDate.now()));
-        documento.add(new Paragraph(" "));
-        documento.add(new Paragraph("AFIRMACIONES:").setBold());
+            List<ComboBox<Integer>> listaDeComboBoxes = obtenerComboBoxes();
 
-        List<ComboBox<Integer>> comboBoxes = obtenerComboBoxes();
-        for (int indice = 0; indice < AFIRMACIONES.length; indice++) {
-            documento.add(new Paragraph(
-                    (indice + 1) + ". " + AFIRMACIONES[indice] +
-                            " — Puntaje: " + comboBoxes.get(indice).getValue()
-            ));
+            for (int indiceCiclo = 0; indiceCiclo < AFIRMACIONES.size(); indiceCiclo++) {
+                documentoVisual.add(new Paragraph(
+                        (indiceCiclo + 1) + ". " + AFIRMACIONES.get(indiceCiclo) +
+                                " — Puntaje: " + listaDeComboBoxes.get(indiceCiclo).getValue()
+                ));
+            }
+
+            documentoVisual.add(new Paragraph(" "));
+            documentoVisual.add(new Paragraph("Calificación: " + calificacionCalculada.toPlainString()).setBold());
+            documentoVisual.add(new Paragraph(" "));
+            documentoVisual.add(new Paragraph("Comentarios:").setBold());
+            documentoVisual.add(new Paragraph(txtComentarios.getText().trim()));
+            documentoVisual.add(new Paragraph(" "));
+            documentoVisual.add(new Paragraph("Firma del Practicante: ____________________________"));
         }
-
-        documento.add(new Paragraph(" "));
-        documento.add(new Paragraph("Calificación: " + calificacion.toPlainString()).setBold());
-        documento.add(new Paragraph(" "));
-        documento.add(new Paragraph("Comentarios:").setBold());
-        documento.add(new Paragraph(txtComentarios.getText().trim()));
-        documento.add(new Paragraph(" "));
-        documento.add(new Paragraph("Firma del Practicante: ____________________________"));
-
-        documento.close();
     }
 
     private void guardarAutoevaluacion(String matricula, BigDecimal calificacion) throws DAOExcepcion {
@@ -159,7 +149,7 @@ public class AutoevaluacionGenerarControlador implements Regresable {
                 txtComentarios.getText().trim()
         );
         AutoevaluacionDAO autoevaluacionDAO = new AutoevaluacionDAO();
-        autoevaluacionDAO.agregarautoevaluacion(autoevaluacionDTO);
+        autoevaluacionDAO.agregarAutoevaluacion(autoevaluacionDTO);
     }
 
     private void procesarGeneracion() {
@@ -178,13 +168,13 @@ public class AutoevaluacionGenerarControlador implements Regresable {
             String nombreArchivo = "Autoevaluacion_" + matricula + "_" + System.currentTimeMillis() + ".pdf";
             Path rutaArchivo = carpetaDestino.resolve(nombreArchivo);
 
-            generarPDF(matricula, calificacion, rutaArchivo);
+            generarDocumentoPDF(matricula, calificacion, rutaArchivo);
             guardarAutoevaluacion(matricula, calificacion);
 
             mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Autoevaluación generada exitosamente.");
-            regresar();
+            regresar(lblError, escenaAnterior);
         } catch (IOException | DAOExcepcion e) {
-            LOGGER.log(Level.SEVERE, "Error al generar autoevaluación", e);
+            REGISTRADOR.log(Level.SEVERE, "Error al generar autoevaluación", e);
             manejarErrorGeneracion();
         }
     }
@@ -193,7 +183,8 @@ public class AutoevaluacionGenerarControlador implements Regresable {
         return ((PracticanteDTO) SesionUsuarioSingleton.obtenerInstancia().obtenerUsuarioActual()).getMatricula();
     }
 
-    private void manejarGenerar() {
+    @FXML
+    private void manejarGenerar(ActionEvent evento) {
         ocultarError();
 
         String errorValidacion = validarCampos();
@@ -209,11 +200,12 @@ public class AutoevaluacionGenerarControlador implements Regresable {
         }
     }
 
-    private void manejarCancelar() {
+    @FXML
+    private void manejarCancelar(ActionEvent evento) {
         Optional<ButtonType> respuesta = mostrarConfirmacion("¿Seguro que deseas cancelar?");
 
         if (respuesta.isPresent() && respuesta.get() == ButtonType.YES) {
-            regresar();
+            regresar(lblError, escenaAnterior);
         }
     }
 
@@ -259,15 +251,7 @@ public class AutoevaluacionGenerarControlador implements Regresable {
     }
 
     @Override
-    public void setEscenaAnterior(Scene escena) {
-        this.escenaAnterior = escena;
-    }
-
-    private void regresar() {
-        if (escenaAnterior != null) {
-            Stage escenario = (Stage) btnCancelar.getScene().getWindow();
-            escenario.setScene(escenaAnterior);
-            escenario.show();
-        }
+    public void setEscenaAnterior(Scene escenaGuardada) {
+        this.escenaAnterior = escenaGuardada;
     }
 }

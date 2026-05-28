@@ -97,7 +97,7 @@
                 <Label styleClass="label-seccion" stylesheets="@/estilos.css" text="Practicantes" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER" />
                 <Label styleClass="label-seccion" stylesheets="@/estilos.css" text="Reporte de Indicadores" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER" />
 
-                <Button fx:id="btnCerrarSesion" mnemonicParsing="false" text="Cerrar Sesión" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
+                <Button fx:id="btnCerrarSesion" onAction="#manejarCerrarSesion" mnemonicParsing="false" text="Cerrar Sesión" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
             </children>
         </GridPane>
     </center>

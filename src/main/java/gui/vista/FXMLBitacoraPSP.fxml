@@ -31,7 +31,7 @@
                     <Separator />
                     <HBox alignment="CENTER_RIGHT" spacing="20">
                         <padding><Insets top="10" /></padding>
-                        <Button onAction="#manejarCancelar" styleClass="btn-cancelar" text="CANCELAR" />
+                        <Button fx:id="btnCancelar" onAction="#manejarClicCancelar" styleClass="btn-cancelar" text="CANCELAR" />
                         <Label fx:id="lblError" maxWidth="300.0" styleClass="label-error" wrapText="true" />
                         <Button fx:id="btnGuardar" onAction="#manejarGuardar" styleClass="btn-guardar" text="GUARDAR BITÁCORA" />
                     </HBox>

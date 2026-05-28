@@ -85,7 +85,7 @@
                 <Label styleClass="label-seccion" stylesheets="@/estilos.css" text="Formato de Presentación" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
                 <Label styleClass="label-seccion" stylesheets="@/estilos.css" text="Reportes" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
 
-                <Button fx:id="btnCerrarSesion" mnemonicParsing="false" text="Cerrar Sesión" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
+                <Button fx:id="btnCerrarSesion" onAction="#manejarCerrarSesion" mnemonicParsing="false" text="Cerrar Sesión" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
             </children>
         </GridPane>
     </center>

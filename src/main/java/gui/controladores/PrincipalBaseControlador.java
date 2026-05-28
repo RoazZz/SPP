@@ -1,29 +1,23 @@
 package gui.controladores;
 
-import logica.interfaces.Regresable;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.stage.Stage;
 import logica.dto.UsuarioDTO;
 import logica.utilidades.SesionUsuarioSingleton;
-
-import java.io.IOException;
+import javafx.event.ActionEvent;
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.util.logging.Logger;
+
+import static gui.controladores.NavegacionControlador.abrirVentana;
 
 public abstract class PrincipalBaseControlador implements Initializable {
-    private static final Logger logger = Logger.getLogger(PrincipalBaseControlador.class.getName());
 
     @FXML private Label lblNombre;
     @FXML private Button btnConfiguracion;
     @FXML private Button btnBuzon;
-    @FXML private Button btnCerrarSesion;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -31,34 +25,17 @@ public abstract class PrincipalBaseControlador implements Initializable {
         if (usuario != null) {
             lblNombre.setText(usuario.getNombre());
         }
-        btnConfiguracion.setOnAction(e -> abrirVentana("/gui/vista/FXMLConfiguracionPerfil.fxml"));
-        btnBuzon.setOnAction(e -> abrirVentana("/gui/vista/FXMLBuzon.fxml"));
-        btnCerrarSesion.setOnAction(e -> cerrarSesion());
+        btnConfiguracion.setOnAction(evento -> abrirVentana("/gui/vista/FXMLConfiguracionPerfil.fxml", btnConfiguracion));
+        btnBuzon.setOnAction(evento -> abrirVentana("/gui/vista/FXMLBuzon.fxml", btnBuzon));
         inicializarBotonesEspecificos();
     }
 
     protected abstract void inicializarBotonesEspecificos();
 
-    protected void abrirVentana(String rutaFXML) {
-        try {
-            FXMLLoader cargador = new FXMLLoader(getClass().getResource(rutaFXML));
-            Parent vista = cargador.load();
-            Stage escenario = (Stage) btnCerrarSesion.getScene().getWindow();
-
-            Object controlador = cargador.getController();
-            if (controlador instanceof Regresable regresable){
-                regresable.setEscenaAnterior(escenario.getScene());
-            }
-
-            escenario.setScene(new Scene(vista));
-            escenario.show();
-        } catch (IOException e) {
-            logger.severe("Error al abrir la ventana: " + e.getMessage());
-        }
-    }
-
-    private void cerrarSesion() {
+    @FXML
+    private void manejarCerrarSesion(ActionEvent evento) {
         SesionUsuarioSingleton.obtenerInstancia().cerrarSesion();
-        abrirVentana("/gui/vista/FXMLInicioSesion.fxml");
+        NavegacionControlador.abrirVentana("/gui/vista/FXMLInicioSesion.fxml", (Node) evento.getSource());
     }
+
 }

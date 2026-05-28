@@ -1,49 +1,40 @@
-
-
 package gui.controladores;
 
+import excepciones.DAOExcepcion;
 import excepciones.ReglaDeNegocioExcepcion;
-import logica.interfaces.Regresable;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.stage.Stage;
-import logica.dao.UsuarioDAO;
-import logica.dto.ProfesorDTO;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
 import logica.dto.UsuarioDTO;
-import logica.enums.TipoTurno;
-import logica.utilidades.CifradorContraseña;
-import excepciones.DAOExcepcion;
 import logica.utilidades.SesionUsuarioSingleton;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class ConfiguracionPerfilControlador implements Initializable, Regresable {
+public class ConfiguracionPerfilControlador implements Initializable {
+
+    private static final Logger REGISTRADOR = Logger.getLogger(ConfiguracionPerfilControlador.class.getName());
+
     @FXML private TextField txtNombre;
     @FXML private TextField txtApellidoP;
     @FXML private TextField txtApellidoM;
-    @FXML private PasswordField txtContraseniaActual;
-    @FXML private PasswordField txtContraseniaNueva;
-    @FXML private Button btnGuardar;
     @FXML private Button btnCancelar;
 
-    @FXML private TextField txtNumeroPersonal;
-    @FXML private ComboBox<TipoTurno> cbTipoTurno;
-
-    private Scene  escenaAnterior;
-    private UsuarioDTO usuarioSesion = SesionUsuarioSingleton.obtenerInstancia().obtenerUsuarioActual();
+    private UsuarioDTO usuarioSesion;
 
     @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
+    public void initialize(URL urlRecibida, ResourceBundle recursoRecibido) {
+        this.usuarioSesion = SesionUsuarioSingleton.obtenerInstancia().obtenerUsuarioActual();
         cargarDatosUsuario();
-        btnGuardar.setOnAction(e -> manejarGuardarCambios());
-        btnCancelar.setOnAction(e -> regresar());
-
     }
 
-    @FXML
     private void cargarDatosUsuario() {
         if (usuarioSesion != null) {
             txtNombre.setText(usuarioSesion.getNombre());
@@ -52,74 +43,45 @@ public class ConfiguracionPerfilControlador implements Initializable, Regresable
         }
     }
 
-    private boolean validarFormulario() {
-        if (txtNombre.getText().trim().isEmpty() || txtContraseniaActual.getText().isEmpty()) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Campos Faltantes",
-                    "El nombre y la contraseña actual son obligatorios para confirmar cambios.");
-            return false;
-        }
-
-        if (!CifradorContraseña.verificarContrasenia(txtContraseniaActual.getText(), usuarioSesion.getContrasenia())) {
-            mostrarAlerta(Alert.AlertType.ERROR, "Error de Seguridad", "La contraseña actual es incorrecta.");
-            return false;
-        }
-
-        return validarSegunEspecialidad();
-    }
-
-    private boolean validarSegunEspecialidad() {
-        String tipo = usuarioSesion.getTipoDeUsuario().toString();
-
-        try{
-            switch (tipo) {
-                case "PRACTICANTE":
-                    // Llamada al método de validacion - Jared
-                    return true;
-                case "PROFESOR":
-                    ProfesorControlador.validarCamposProfesor(
-                            txtNumeroPersonal.getText(),
-                            cbTipoTurno.getValue()
-                    );
-                    return true;
-                case "COORDINADOR":
-                    // Llamada al método de validacion - Jared
-                default:
-                    return true;
-            }
-        } catch (ReglaDeNegocioExcepcion e){
-            mostrarAlerta(Alert.AlertType.WARNING, "Dato Inválido", e.getMessage());
-            return false;
-        } catch (Exception e) {
-            mostrarAlerta(Alert.AlertType.ERROR, "Error", "Ocurrió un error al validar los datos.");
-            return false;
+    @FXML
+    private void manejarGuardarCambios(ActionEvent eventoClic) {
+        if (validarCampos()) {
+            actualizarInformacion();
         }
     }
 
-    private void ejecutarActualizacion() {
+    @FXML
+    private void manejarCancelar(ActionEvent eventoClic) {
+        btnCancelar.getScene().getWindow().hide();
+    }
+
+    private boolean validarCampos() {
+        boolean esValido = false;
         try {
-            UsuarioDAO usuarioDAO = new UsuarioDAO();
-            usuarioSesion.setNombre(txtNombre.getText());
-            usuarioSesion.setApellidoPaterno(txtApellidoP.getText());
-            usuarioSesion.setApellidoMaterno(txtApellidoM.getText());
+            String nombre = txtNombre.getText().trim();
+            String paterno = txtApellidoP.getText().trim();
+            String materno = txtApellidoM.getText().trim();
 
-            if (usuarioSesion instanceof ProfesorDTO) {
-                ProfesorDTO profe = (ProfesorDTO) usuarioSesion;
-                profe.setNumeroDePersonal(txtNumeroPersonal.getText().trim());
-                profe.setTurno(cbTipoTurno.getValue());
+            if (nombre.isEmpty() || paterno.isEmpty()) {
+                mostrarAlerta(Alert.AlertType.WARNING, "Campos Vacíos", "El nombre y apellido paterno son obligatorios.");
+            } else {
+                esValido = true;
             }
+        } catch (Exception excepcionCapturada) {
+            REGISTRADOR.log(Level.SEVERE, "Error validación", excepcionCapturada);
+        }
+        return esValido;
+    }
 
-            if (!txtContraseniaNueva.getText().trim().isEmpty()) {
-                String nuevoHash = CifradorContraseña.cifrarContraseña(txtContraseniaNueva.getText());
-                usuarioSesion.setContrasenia(nuevoHash);
-            }
+    private void actualizarInformacion() {
+        try {
+            usuarioSesion.setNombre(txtNombre.getText().trim());
+            usuarioSesion.setApellidoPaterno(txtApellidoP.getText().trim());
+            usuarioSesion.setApellidoMaterno(txtApellidoM.getText().trim());
 
-            usuarioDAO.actualizarUsuario(usuarioSesion);
-
-            mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Perfil actualizado correctamente.");
-            txtContraseniaActual.clear();
-            txtContraseniaNueva.clear();
-        } catch (DAOExcepcion e) {
-            mostrarAlerta(Alert.AlertType.ERROR, "Error de Sistema", "No se pudo conectar con la base de datos.");
+            mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Perfil actualizado.");
+        } catch (Exception excepcionCapturada) {
+            REGISTRADOR.log(Level.SEVERE, "Error actualización", excepcionCapturada);
         }
     }
 
@@ -129,25 +91,5 @@ public class ConfiguracionPerfilControlador implements Initializable, Regresable
         alerta.setHeaderText(null);
         alerta.setContentText(mensaje);
         alerta.showAndWait();
-    }
-
-    @FXML
-    public void manejarGuardarCambios() {
-        if (validarFormulario()) {
-            ejecutarActualizacion();
-        }
-    }
-
-    @Override
-    public void setEscenaAnterior(Scene escena) {
-        this.escenaAnterior = escena;
-    }
-
-    private void regresar() {
-        if (escenaAnterior != null) {
-            Stage escenario = (Stage) btnCancelar.getScene().getWindow();
-            escenario.setScene(escenaAnterior);
-            escenario.show();
-        }
     }
 }

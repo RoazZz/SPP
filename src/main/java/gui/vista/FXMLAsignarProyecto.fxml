@@ -7,6 +7,7 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
@@ -29,25 +30,37 @@
                     <Button onAction="#manejarBuscar" styleClass="btn-guardar" text="BUSCAR" />
                     <Button onAction="#manejarLimpiar" styleClass="btn-cancelar" text="LIMPIAR" />
                 </HBox>
-                <TableView fx:id="tablaSolicitudes" prefHeight="400.0" VBox.vgrow="ALWAYS">
+                <TableView fx:id="tvSolicitudes" prefHeight="400.0" VBox.vgrow="ALWAYS">
                     <columns>
-                        <TableColumn fx:id="colMatricula" prefWidth="89.59996795654297" text="Matrícula" />
-                        <TableColumn fx:id="colIdProyecto" prefWidth="97.60000610351562" text="Nombre" />
-                        <TableColumn fx:id="colPeriodo" prefWidth="112.79998779296875" text="Apellido Paterno" />
-                        <TableColumn fx:id="colEstado" prefWidth="122.4000244140625" text="Apellido Materno" />
-                        <TableColumn fx:id="colAsignar" prefWidth="121.5999755859375" sortable="false" text="Id Proyecto" />
-                  <TableColumn prefWidth="97.60003662109375" text="Proyecto" />
-                  <TableColumn prefWidth="83.20001220703125" text="Descripción" />
-                  <TableColumn prefWidth="75.0" text="Estado Solicitud" />
-                  <TableColumn prefWidth="75.0" text="Accion" />
+                        <TableColumn fx:id="colMatricula" prefWidth="120.0" text="Matrícula">
+                            <cellValueFactory>
+                                <PropertyValueFactory property="matricula" />
+                            </cellValueFactory>
+                        </TableColumn>
+                        <TableColumn fx:id="colIdProyecto" prefWidth="100.0" text="ID Proyecto">
+                            <cellValueFactory>
+                                <PropertyValueFactory property="idProyecto" />
+                            </cellValueFactory>
+                        </TableColumn>
+                        <TableColumn fx:id="colPeriodo" prefWidth="250.0" text="Periodo">
+                            <cellValueFactory>
+                                <PropertyValueFactory property="periodo" />
+                            </cellValueFactory>
+                        </TableColumn>
+                        <TableColumn fx:id="colEstado" prefWidth="150.0" text="Estado">
+                            <cellValueFactory>
+                                <PropertyValueFactory property="tipoEstadoSolicitud" />
+                            </cellValueFactory>
+                        </TableColumn>
+                        <TableColumn fx:id="colAsignar" prefWidth="120.0" sortable="false" text="Acción" />
                     </columns>
                 </TableView>
             </VBox>
             <Separator />
             <HBox alignment="CENTER_RIGHT" spacing="20">
-                <Label fx:id="lblMensaje" maxWidth="400.0" styleClass="label-error" wrapText="true" />
+                <Label fx:id="lblMensaje" maxWidth="400.0" styleClass="label-error" wrapText="true" visible="false" />
                 <Region HBox.hgrow="ALWAYS" />
-                <Button fx:id="btnSalir" onAction="#manejarSalir" styleClass="btn-cancelar" text="SALIR" />
+                <Button onAction="#manejarSalir" styleClass="btn-cancelar" text="SALIR" />
             </HBox>
         </VBox>
     </center>

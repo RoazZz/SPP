@@ -2,20 +2,21 @@ package gui.controladores;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import static gui.controladores.NavegacionControlador.abrirVentana;
 
-public class PrincipalCoordinadorControlador extends PrincipalBaseControlador{
-    @FXML Button btnProyectos;
-    @FXML Button btnReportes;
-    @FXML Button btnPracticantes;
-    @FXML Button btnReporteIndicadores;
+public class PrincipalCoordinadorControlador extends PrincipalBaseControlador {
+    @FXML private Button btnProyectos;
+    @FXML private Button btnReportes;
+    @FXML private Button btnPracticantes;
+    @FXML private Button btnReporteIndicadores;
 
 
     @Override
     protected void inicializarBotonesEspecificos() {
-        btnProyectos.setOnAction(e -> abrirVentana("/gui/vista/FXMLProyectos.fxml"));
-        btnReportes.setOnAction(e -> abrirVentana("/gui/vista/FXMLReportes.fxml"));
-        btnPracticantes.setOnAction(e -> abrirVentana("/gui/vista/FXMLListaUsuarios.fxml"));
-        btnReporteIndicadores.setOnAction(e -> abrirVentana("/gui/vista/FXMLReporteIndicadores.fxml"));
+        btnProyectos.setOnAction(evento -> abrirVentana("/gui/vista/FXMLProyectos.fxml", btnProyectos));
+        btnReportes.setOnAction(evento -> abrirVentana("/gui/vista/FXMLReportes.fxml", btnReportes));
+        btnPracticantes.setOnAction(evento -> abrirVentana("/gui/vista/FXMLListaUsuarios.fxml", btnPracticantes));
+        btnReporteIndicadores.setOnAction(evento -> abrirVentana("/gui/vista/FXMLReporteIndicadores.fxml", btnReporteIndicadores));
 
     }
 }

@@ -15,7 +15,7 @@ import java.util.logging.Logger;
 
 public class NavegacionControlador {
 
-    private static final Logger logger = Logger.getLogger(NavegacionControlador.class.getName());
+    private static final Logger REGISTRADOR = Logger.getLogger(NavegacionControlador.class.getName());
 
     public void navegarSegunRol(TipoDeUsuario tipoDeUsuario, Stage stage) throws AutenticacionDeUsuarioExcepcion {
         String ruta = obtenerRutaSegunRol(tipoDeUsuario);
@@ -36,34 +36,57 @@ public class NavegacionControlador {
 
             escenario.setScene(new Scene(vista));
             escenario.show();
-        } catch (IOException e) {
-            logger.log(Level.SEVERE, "Error al abrir ventana: " + rutaFXML, e);
+        } catch (IOException ioException) {
+            REGISTRADOR.log(Level.SEVERE, "Error al abrir ventana: " + rutaFXML, ioException);
         }
     }
 
-    private String obtenerRutaSegunRol(TipoDeUsuario tipoDeUsuario) throws AutenticacionDeUsuarioExcepcion {
-        return switch (tipoDeUsuario) {
-            case PRACTICANTE -> "/gui/vista/FXMLPrincipalPracticante.fxml";
-            case PROFESOR    -> "/gui/vista/FXMLPrincipalProfesor.fxml";
-            case COORDINADOR -> "/gui/vista/FXMLPrincipalCoordinador.fxml";
-            case ADMIN -> "/gui/vista/FXMLPrincipalAdministrador.fxml";
-            default -> throw new AutenticacionDeUsuarioExcepcion("Tipo de usuario no reconocido");
-        };
+    private String obtenerRutaSegunRol(
+            TipoDeUsuario tipoDeUsuario)
+            throws AutenticacionDeUsuarioExcepcion {
+        String ruta;
+        switch (tipoDeUsuario) {
+            case PRACTICANTE:
+                ruta = "/gui/vista/FXMLPrincipalPracticante.fxml";
+                break;
+            case PROFESOR:
+                ruta = "/gui/vista/FXMLPrincipalProfesor.fxml";
+                break;
+            case COORDINADOR:
+                ruta = "/gui/vista/FXMLPrincipalCoordinador.fxml";
+                break;
+            case ADMIN:
+                ruta = "/gui/vista/FXMLPrincipalAdministrador.fxml";
+                break;
+            default:
+                throw new AutenticacionDeUsuarioExcepcion("Tipo de usuario no reconocido");
+        }
+        return ruta;
     }
+
 
     private void cargarPantalla(String ruta, Stage stage) throws AutenticacionDeUsuarioExcepcion {
         try {
             if (getClass().getResource(ruta) == null) {
-                logger.log(Level.SEVERE, "Pantalla no encontrada");
+                REGISTRADOR.log(Level.SEVERE, "Pantalla no encontrada");
                 throw new AutenticacionDeUsuarioExcepcion("No se encontró la pantalla: " + ruta);
             }
             FXMLLoader loader = new FXMLLoader(getClass().getResource(ruta));
             Parent root = loader.load();
             stage.setScene(new Scene(root));
             stage.show();
-        } catch (IOException e) {
-            logger.log(Level.SEVERE, "Error al cargar la pantalla", e);
+        } catch (IOException ioException) {
+            REGISTRADOR.log(Level.SEVERE, "Error al cargar la pantalla", ioException);
             throw new AutenticacionDeUsuarioExcepcion("Error al cargar la pantalla");
+        }
+    }
+
+    public static void regresar(Node nodoActual, Scene escenaAnterior) {
+        if (escenaAnterior != null) {
+            Stage escenario = (Stage) nodoActual.getScene().getWindow();
+            escenario.setScene(escenaAnterior);
+        } else {
+            REGISTRADOR.log(Level.WARNING, "Se intentó regresar, pero la escena anterior es null.");
         }
     }
 }

@@ -68,7 +68,7 @@ public class PruebaAutoevaluacionDAO {
 
     @Test
     public void pruebaAgregarAutoevaluacionExitoso() throws Exception {
-        AutoevaluacionDTO resultado = autoevaluacionDAO.agregarautoevaluacion(autoevalaucionValida);
+        AutoevaluacionDTO resultado = autoevaluacionDAO.agregarAutoevaluacion(autoevalaucionValida);
         assertTrue(resultado.getIdAutoevaluacion() > 0);
     }
 
@@ -80,7 +80,7 @@ public class PruebaAutoevaluacionDAO {
 
     @Test
     public void pruebaAgregarAutoevaluacionErrorMatriculaNula() {
-        assertThrows(DAOExcepcion.class, () -> autoevaluacionDAO.agregarautoevaluacion(autoevaluacionInvalidaMatriculaNula));
+        assertThrows(DAOExcepcion.class, () -> autoevaluacionDAO.agregarAutoevaluacion(autoevaluacionInvalidaMatriculaNula));
     }
 
     @Test

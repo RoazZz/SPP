@@ -2,15 +2,15 @@ package gui.controladores;
 
 import excepciones.DAOExcepcion;
 import excepciones.ReglaDeNegocioExcepcion;
+import javafx.event.ActionEvent;
 import logica.interfaces.Regresable;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.stage.Stage;
 import logica.dto.ProyectoDTO;
 
 import java.net.URL;
@@ -18,55 +18,62 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static gui.controladores.NavegacionControlador.regresar;
+
 public class FormularioProyectoControlador implements Initializable, Regresable {
 
-    private static final Logger logger = Logger.getLogger(FormularioProyectoControlador.class.getName());
+    private static final Logger REGISTRADOR = Logger.getLogger(FormularioProyectoControlador.class.getName());
 
     @FXML private Label lblTitulo;
     @FXML private TextField txtIdOrganizacionVinculada;
     @FXML private TextField txtNumeroDePersonal;
     @FXML private TextField txtNombre;
-    @FXML private TextArea  txtDescripcion;
-    @FXML private Label     lblMensaje;
-    @FXML private Button    btnSalir;
-    @FXML private Button    btnGuardar;
+    @FXML private TextArea txtDescripcion;
+    @FXML private Label lblMensaje;
 
     private Scene escenaAnterior;
     private ProyectoControlador proyectoControlador;
     private ProyectoDTO proyectoEnEdicion = null;
     private ProyectosControlador controladorPadre;
 
-
     @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
+    public void initialize(URL urlRecibida, ResourceBundle recursoRecibido) {
         try {
             proyectoControlador = new ProyectoControlador();
-        } catch (DAOExcepcion e) {
-            logger.log(Level.SEVERE, "Error al inicializar ProyectoControlador", e);
-            lblMensaje.setText("Error al conectar con la base de datos.");
+        } catch (DAOExcepcion excepcionCapturada) {
+            REGISTRADOR.log(Level.SEVERE, "Error al inicializar ProyectoControlador", excepcionCapturada);
+            mostrarMensaje("Error al conectar con la base de datos.", false);
         }
     }
 
-    public void cargarProyecto(ProyectoDTO proyecto) {
-        this.proyectoEnEdicion = proyecto;
-        txtIdOrganizacionVinculada.setText(proyecto.getIdOrganizacion());
+    public void cargarProyecto(ProyectoDTO proyectoRecibido) {
+        this.proyectoEnEdicion = proyectoRecibido;
+        txtIdOrganizacionVinculada.setText(proyectoRecibido.getIdOrganizacion());
         txtIdOrganizacionVinculada.setEditable(false);
-        txtNumeroDePersonal.setText(proyecto.getNumeroDePersonal());
+        txtNumeroDePersonal.setText(proyectoRecibido.getNumeroDePersonal());
         txtNumeroDePersonal.setEditable(false);
-        txtNombre.setText(proyecto.getNombre());
-        txtDescripcion.setText(proyecto.getDescripcion());
+        txtNombre.setText(proyectoRecibido.getNombre());
+        txtDescripcion.setText(proyectoRecibido.getDescripcion());
     }
 
     @FXML
-    private void manejarGuardarProyecto() {
-        if (!validarCamposVacios()) {
-            return;
+    private void manejarGuardar(ActionEvent eventoClic) {
+        if (validarCamposVacios()) {
+            procesarGuardado();
         }
-        try {
-            boolean modoEdicion = proyectoEnEdicion != null;
-            int idProyecto = modoEdicion ? proyectoEnEdicion.getIdProyecto() : 0;
+    }
 
-            ProyectoDTO proyectoDTO = new ProyectoDTO(
+    private void procesarGuardado() {
+        try {
+            boolean modoEdicion = false;
+            int idProyecto = 0;
+
+            if (proyectoEnEdicion != null) {
+                modoEdicion = true;
+                idProyecto = proyectoEnEdicion.getIdProyecto();
+            }
+
+            ProyectoDTO proyectoValidado = new ProyectoDTO(
                     idProyecto,
                     txtIdOrganizacionVinculada.getText().trim(),
                     txtNumeroDePersonal.getText().trim(),
@@ -74,26 +81,30 @@ public class FormularioProyectoControlador implements Initializable, Regresable 
                     txtDescripcion.getText().trim()
             );
 
-            proyectoControlador.procesarGuardadoProyecto(proyectoDTO, modoEdicion);
-            lblMensaje.setStyle("-fx-text-fill: green;");
-            lblMensaje.setText(modoEdicion
-                    ? "Proyecto actualizado con éxito."
-                    : "Proyecto guardado con éxito.");
+            proyectoControlador.procesarGuardadoProyecto(proyectoValidado, modoEdicion);
+
+            String mensajeExito = "Proyecto guardado con éxito.";
+            if (modoEdicion) {
+                mensajeExito = "Proyecto actualizado con éxito.";
+            }
+
+            mostrarMensaje(mensajeExito, true);
+
             if (!modoEdicion) {
                 limpiarCampos();
             }
-            logger.log(Level.INFO, "Proyecto guardado correctamente");
+
+            REGISTRADOR.log(Level.INFO, "Proyecto guardado correctamente");
+
             if (controladorPadre != null) {
                 controladorPadre.cargarProyectos();
             }
-        } catch (ReglaDeNegocioExcepcion e) {
-            logger.log(Level.WARNING, "Regla de negocio violada al guardar proyecto", e);
-            lblMensaje.setStyle("-fx-text-fill: red;");
-            lblMensaje.setText(e.getMessage());
-        } catch (DAOExcepcion e) {
-            logger.log(Level.SEVERE, "Error de base de datos al guardar proyecto", e);
-            lblMensaje.setStyle("-fx-text-fill: red;");
-            lblMensaje.setText("Error al guardar el proyecto. Intente de nuevo.");
+        } catch (ReglaDeNegocioExcepcion excepcionCapturada) {
+            REGISTRADOR.log(Level.WARNING, "Regla de negocio violada al guardar proyecto", excepcionCapturada);
+            mostrarMensaje(excepcionCapturada.getMessage(), false);
+        } catch (DAOExcepcion excepcionCapturada) {
+            REGISTRADOR.log(Level.SEVERE, "Error de base de datos al guardar proyecto", excepcionCapturada);
+            mostrarMensaje("Error al guardar el proyecto. Intente de nuevo.", false);
         }
     }
 
@@ -111,13 +122,15 @@ public class FormularioProyectoControlador implements Initializable, Regresable 
         if (txtDescripcion.getText().trim().isEmpty()) {
             camposVacios.append("Descripción es obligatoria.\n");
         }
-        if (!camposVacios.isEmpty()) {
-            lblMensaje.setStyle("-fx-text-fill: red;");
-            lblMensaje.setText(camposVacios.toString());
-            return false;
+
+        boolean esValido = true;
+        if (camposVacios.length() > 0) {
+            mostrarMensaje(camposVacios.toString(), false);
+            esValido = false;
+        } else {
+            lblMensaje.setText("");
         }
-        lblMensaje.setText("");
-        return true;
+        return esValido;
     }
 
     private void limpiarCampos() {
@@ -128,28 +141,36 @@ public class FormularioProyectoControlador implements Initializable, Regresable 
         proyectoEnEdicion = null;
     }
 
-    public void setControladorPadre(ProyectosControlador controlador) {
-        this.controladorPadre = controlador;
+    private void mostrarMensaje(String mensajeParaMostrar, boolean esExitoso) {
+        lblMensaje.setText(mensajeParaMostrar);
+        lblMensaje.getStyleClass().removeAll("label-exito", "label-error");
+
+        if (esExitoso) {
+            lblMensaje.getStyleClass().add("label-exito");
+        } else {
+            lblMensaje.getStyleClass().add("label-error");
+        }
     }
 
-    public void configurarTitulo(String titulo) {
-        lblTitulo.setText(titulo);
+    public void setControladorPadre(ProyectosControlador controladorRecibido) {
+        this.controladorPadre = controladorRecibido;
+    }
+
+    public void configurarTitulo(String tituloNuevo) {
+        lblTitulo.setText(tituloNuevo);
     }
 
     @Override
-    public void setEscenaAnterior(Scene escena) {
-        this.escenaAnterior = escena;
+    public void setEscenaAnterior(Scene escenaGuardada) {
+        this.escenaAnterior = escenaGuardada;
     }
 
     @FXML
-    private void salir() {
-        if (escenaAnterior != null) {
-            if (controladorPadre != null) {
-                controladorPadre.cargarProyectos();
-            }
-            Stage escenario = (Stage) txtNombre.getScene().getWindow();
-            escenario.setScene(escenaAnterior);
-            escenario.show();
+    private void manejarSalir(ActionEvent eventoClic) {
+        if (controladorPadre != null) {
+            controladorPadre.cargarProyectos();
         }
+        Node nodoOrigen = (Node) eventoClic.getSource();
+        regresar(nodoOrigen, this.escenaAnterior);
     }
 }

@@ -47,8 +47,8 @@
                 <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
             </padding>
             <children>
-                <Button fx:id="btnCancelar" styleClass="btn-cancelar" text="Cancelar" />
-                <Button fx:id="btnGuardar" disable="true"  styleClass="btn-guardar" text="Subir Documento" />
+                <Button fx:id="btnCancelar" onAction="#manejarSalir" styleClass="btn-cancelar" text="Cancelar" />
+                <Button fx:id="btnGuardar" onAction="#guardarHorario" disable="true"  styleClass="btn-guardar" text="Subir Documento" />
             </children>
         </HBox>
     </bottom>

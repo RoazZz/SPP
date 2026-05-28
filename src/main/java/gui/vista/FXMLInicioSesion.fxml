@@ -33,7 +33,7 @@
                                 <Label alignment="TOP_CENTER" contentDisplay="TOP" prefHeight="38.0" prefWidth="210.0" styleClass="titulo-seccion" stylesheets="@/estilos.css" text="Inicio de Sesión" textAlignment="CENTER" />
                                 <TextField fx:id="txtUsuario" alignment="TOP_LEFT" prefHeight="26.0" prefWidth="338.0" promptText="Usuario" />
                                 <PasswordField fx:id="pswContrasenia" promptText="Contraseña" />
-                                <Button onAction="#manejarInicioDeSesion" alignment="BOTTOM_CENTER" contentDisplay="RIGHT" mnemonicParsing="false" styleClass="btn-guardar" stylesheets="@/estilos.css" text="Iniciar Sesión" />
+                                <Button fx:id="btnIniciarSesion" onAction="#manejarInicioDeSesion" alignment="BOTTOM_CENTER" contentDisplay="RIGHT" mnemonicParsing="false" styleClass="btn-guardar" stylesheets="@/estilos.css" text="Iniciar Sesión" />
                                 <Label fx:id="lblMensaje" alignment="CENTER" prefWidth="338.0" styleClass="label-error"/>
                             </children>
                         </VBox>

@@ -1,8 +1,10 @@
 package gui.controladores;
 
 import logica.interfaces.Regresable;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -12,7 +14,6 @@ import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import logica.dto.PracticanteDTO;
-import logica.dto.UsuarioDTO;
 import logica.utilidades.SesionUsuarioSingleton;
 
 import java.awt.Desktop;
@@ -20,6 +21,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -28,75 +31,63 @@ import java.util.logging.Logger;
 
 public class PlanDeActividadesControlador implements Initializable, Regresable {
 
-    private static final Logger LOGGER = Logger.getLogger(PlanDeActividadesControlador.class.getName());
+    private static final Logger REGISTRADOR = Logger.getLogger(PlanDeActividadesControlador.class.getName());
+    private static final Path RUTA_BASE_PLANES = Paths.get(System.getProperty("user.dir"), "PlanesDeActividades");
 
     @FXML private Label lblNombreArchivo;
     @FXML private Label lblValidacionArchivo;
     @FXML private HBox hboxValidacionArchivo;
-    @FXML private Button btnExaminarArchivos;
     @FXML private Button btnVistaPrevia;
     @FXML private Button btnGuardar;
-    @FXML private Button btnCancelar;
 
     private Scene escenaAnterior;
     private File archivoSeleccionado;
     private PracticanteDTO practicanteLogueado;
-    private static final String RUTA_BASE_PLANES = "/Java/SPP-Project";
 
     @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-        UsuarioDTO usuarioBase = SesionUsuarioSingleton.obtenerInstancia().obtenerUsuarioActual();
-
-        if (usuarioBase instanceof PracticanteDTO) {
-            this.practicanteLogueado = (PracticanteDTO) usuarioBase;
-            configurarEventos();
+    public void initialize(URL urlRecibida, ResourceBundle recursoRecibido) {
+        if (SesionUsuarioSingleton.obtenerInstancia().obtenerUsuarioActual() instanceof PracticanteDTO practicanteActivo) {
+            this.practicanteLogueado = practicanteActivo;
         } else {
             manejarAccesoDenegado("El usuario no es un Practicante.", Level.SEVERE);
         }
-
-        configurarEventos();
     }
 
-    private void manejarAccesoDenegado(String mensaje, Level nivelLog) {
-        LOGGER.log(nivelLog, "Acceso denegado en controlador: " + mensaje);
-        mostrarAlerta(Alert.AlertType.ERROR, "Error de Permisos", mensaje);
-        regresar();
+    private void manejarAccesoDenegado(String mensajeError, Level nivelRegistro) {
+        REGISTRADOR.log(nivelRegistro, "Acceso denegado en controlador: " + mensajeError);
+        mostrarAlerta(Alert.AlertType.ERROR, "Error de Permisos", mensajeError);
     }
 
-    private void configurarEventos() {
-        btnExaminarArchivos.setOnAction(event -> manejarSeleccionArchivo());
-        btnGuardar.setOnAction(event -> manejarGuardar());
-        btnCancelar.setOnAction(event -> regresar());
-        btnVistaPrevia.setOnAction(event -> manejarVistaPrevia());
-    }
-
-    private void manejarSeleccionArchivo() {
+    @FXML
+    private void manejarSeleccionArchivo(ActionEvent eventoClic) {
         FileChooser selectorArchivos = new FileChooser();
         selectorArchivos.setTitle("Seleccionar Plan de Actividades");
-        selectorArchivos.getExtensionFilters().add( new FileChooser.ExtensionFilter("Archivos PDF", "*.pdf"));
+        selectorArchivos.getExtensionFilters().add(new FileChooser.ExtensionFilter("Archivos PDF", "*.pdf"));
 
-        Stage escenario = (Stage) btnExaminarArchivos.getScene().getWindow();
-        File archivo = selectorArchivos.showOpenDialog(escenario);
-        if (archivo != null) {
-            archivoSeleccionado = archivo;
-            lblNombreArchivo.setText(archivo.getName());
-            actualizarEstadoUI(true);
+        Stage escenarioActual = (Stage) ((Node) eventoClic.getSource()).getScene().getWindow();
+        File archivoEscogido = selectorArchivos.showOpenDialog(escenarioActual);
+
+        if (archivoEscogido != null) {
+            archivoSeleccionado = archivoEscogido;
+            lblNombreArchivo.setText(archivoEscogido.getName());
+            actualizarEstadoInterfaz(true);
         }
     }
 
-    private void actualizarEstadoUI(boolean archivoCargado) {
+    private void actualizarEstadoInterfaz(boolean archivoCargado) {
         btnGuardar.setDisable(!archivoCargado);
         btnVistaPrevia.setVisible(archivoCargado);
         btnVistaPrevia.setManaged(archivoCargado);
         hboxValidacionArchivo.setVisible(archivoCargado);
         hboxValidacionArchivo.setManaged(archivoCargado);
+
         if (archivoCargado) {
             lblValidacionArchivo.setText("Plan de Actividades listo para subir");
         }
     }
 
     @FXML
-    private void manejarGuardar() {
+    private void manejarGuardar(ActionEvent eventoClic) {
         if (archivoSeleccionado == null || practicanteLogueado == null) {
             return;
         }
@@ -117,71 +108,77 @@ public class PlanDeActividadesControlador implements Initializable, Regresable {
         try {
             Files.copy(archivoSeleccionado.toPath(), archivoDestino.toPath(), StandardCopyOption.REPLACE_EXISTING);
             mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "El Plan de Actividades se ha subido correctamente.");
-            regresar();
-        } catch (IOException ex) {
-            LOGGER.log(Level.SEVERE, "Error crítico de E/S al copiar el archivo para la matrícula: " + practicanteLogueado.getMatricula(), ex);
+            regresar(eventoClic);
+        } catch (IOException excepcionCapturada) {
+            REGISTRADOR.log(Level.SEVERE, "Error crítico de E/S al copiar el archivo para la matrícula: " + practicanteLogueado.getMatricula(), excepcionCapturada);
             mostrarAlerta(Alert.AlertType.ERROR, "Error de Escritura", "Ocurrió un problema físico al guardar el archivo.");
         }
     }
 
     private File obtenerDirectorioAlmacenamiento() {
         String nombreFormateado = practicanteLogueado.getNombre().trim().replace(" ", "_");
-        String matricula = practicanteLogueado.getMatricula().trim();
-        String carpetaPracticante = nombreFormateado + "_" + matricula;
-        return new File(RUTA_BASE_PLANES, carpetaPracticante);
+        String matriculaFormateada = practicanteLogueado.getMatricula().trim();
+        String carpetaPracticante = nombreFormateado + "_" + matriculaFormateada;
+        return new File(RUTA_BASE_PLANES.toFile(), carpetaPracticante);
     }
 
-    private boolean asegurarExistenciaDeDirectorio(File directorio) {
-        if (!directorio.exists()) {
-            return directorio.mkdirs();
+    private boolean asegurarExistenciaDeDirectorio(File directorioObjetivo) {
+        boolean existeDirectorio = true;
+        if (!directorioObjetivo.exists()) {
+            existeDirectorio = directorioObjetivo.mkdirs();
         }
-        return true;
+        return existeDirectorio;
     }
 
-    private boolean confirmarReemplazo(String nombreArchivo) {
-        return mostrarAlertaConfirmacion("Archivo duplicado", "El archivo '" + nombreArchivo + "' ya existe en tu carpeta.\n\n¿Deseas reemplazarlo por el nuevo?");
+    private boolean confirmarReemplazo(String nombreArchivoNuevo) {
+        return mostrarAlertaConfirmacion("Archivo duplicado", "El archivo '" + nombreArchivoNuevo + "' ya existe en tu carpeta.\n\n¿Deseas reemplazarlo por el nuevo?");
     }
 
-    private boolean mostrarAlertaConfirmacion(String titulo, String mensaje) {
-        Alert alerta = new Alert(Alert.AlertType.CONFIRMATION);
-        alerta.setTitle(titulo);
-        alerta.setHeaderText(null);
-        alerta.setContentText(mensaje);
+    private boolean mostrarAlertaConfirmacion(String tituloAlerta, String mensajeAlerta) {
+        Alert alertaConfirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+        alertaConfirmacion.setTitle(tituloAlerta);
+        alertaConfirmacion.setHeaderText(null);
+        alertaConfirmacion.setContentText(mensajeAlerta);
 
-        Optional<ButtonType> resultado = alerta.showAndWait();
-        return resultado.isPresent() && resultado.get() == ButtonType.OK;
+        Optional<ButtonType> resultadoUsuario = alertaConfirmacion.showAndWait();
+        boolean fueConfirmado = false;
+        if (resultadoUsuario.isPresent() && resultadoUsuario.get() == ButtonType.OK) {
+            fueConfirmado = true;
+        }
+        return fueConfirmado;
     }
 
-    private void mostrarAlerta(Alert.AlertType tipo, String titulo, String mensaje) {
-        Alert alerta = new Alert(tipo);
-        alerta.setTitle(titulo);
-        alerta.setHeaderText(null);
-        alerta.setContentText(mensaje);
-        alerta.showAndWait();
+    private void mostrarAlerta(Alert.AlertType tipoAlerta, String tituloAlerta, String mensajeAlerta) {
+        Alert ventanaAlerta = new Alert(tipoAlerta);
+        ventanaAlerta.setTitle(tituloAlerta);
+        ventanaAlerta.setHeaderText(null);
+        ventanaAlerta.setContentText(mensajeAlerta);
+        ventanaAlerta.showAndWait();
     }
 
     @FXML
-    private void manejarVistaPrevia() {
-        if (archivoSeleccionado == null) return;
+    private void manejarVistaPrevia(ActionEvent eventoClic) {
+        if (archivoSeleccionado == null) {
+            return;
+        }
         try {
             Desktop.getDesktop().open(archivoSeleccionado);
-        } catch (IOException e) {
-            LOGGER.log(Level.WARNING, "No se pudo abrir la vista previa del PDF", e);
+        } catch (IOException excepcionCapturada) {
+            REGISTRADOR.log(Level.WARNING, "No se pudo abrir la vista previa del PDF", excepcionCapturada);
             mostrarAlerta(Alert.AlertType.WARNING, "Vista previa no disponible", "No se pudo abrir el visor de PDF predeterminado.");
         }
     }
 
-
     @Override
-    public void setEscenaAnterior(Scene escena) {
-        this.escenaAnterior = escena;
+    public void setEscenaAnterior(Scene escenaGuardada) {
+        this.escenaAnterior = escenaGuardada;
     }
 
-    private void regresar() {
+    @FXML
+    private void regresar(ActionEvent eventoClic) {
         if (escenaAnterior != null) {
-            Stage escenario = (Stage) btnCancelar.getScene().getWindow();
-            escenario.setScene(escenaAnterior);
+            Stage escenarioActual = (Stage) ((Node) eventoClic.getSource()).getScene().getWindow();
+            escenarioActual.setScene(escenaAnterior);
         }
     }
-
 }

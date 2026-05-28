@@ -24,8 +24,8 @@
                 <HBox alignment="CENTER_LEFT" spacing="15">
                     <TextField fx:id="txtBuscar" promptText="Buscar por nombre o apellido..." HBox.hgrow="ALWAYS" />
                     <ComboBox fx:id="cbFiltroTipo" prefWidth="200" promptText="Filtrar por tipo" />
-                    <Button onAction="#manejarLimpiarFiltros" styleClass="btn-cancelar" text="LIMPIAR FILTROS" />
-               <Button fx:id="btnAñadirUsuario" mnemonicParsing="false" styleClass="btn-guardar" text="AÑADIR USUARIO" />
+                    <Button fx:id="btnLimpiarFiltros" onAction="#manejarLimpiarFiltros" styleClass="btn-cancelar" text="LIMPIAR FILTROS" />
+               <Button fx:id="btnAnadirUsuario" mnemonicParsing="false" styleClass="btn-guardar" text="AÑADIR USUARIO" />
                 </HBox>
                 <TableView fx:id="tablaUsuarios" VBox.vgrow="ALWAYS">
                     <columns>
@@ -40,7 +40,7 @@
                 <HBox alignment="CENTER_RIGHT" spacing="15">
                     <Label fx:id="lblContador" styleClass="label-seccion" text="0 usuarios" />
                     <Region HBox.hgrow="ALWAYS" />
-                    <Button fx:id="btnCerrar" onAction="#manejarCerrar" styleClass="btn-cancelar" text="CERRAR" />
+                    <Button fx:id="btnCerrar" onAction="#manejarClicCancelar" styleClass="btn-cancelar" text="CERRAR" />
                 </HBox>
             </VBox>
         </VBox>

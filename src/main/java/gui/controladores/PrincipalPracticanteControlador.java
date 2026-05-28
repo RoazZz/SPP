@@ -2,8 +2,9 @@ package gui.controladores;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import static gui.controladores.NavegacionControlador.abrirVentana;
 
-public class PrincipalPracticanteControlador extends PrincipalBaseControlador{
+public class PrincipalPracticanteControlador extends PrincipalBaseControlador {
     @FXML private Button btnProyectos;
     @FXML private Button btnHorario;
     @FXML private Button btnReportes;
@@ -16,13 +17,12 @@ public class PrincipalPracticanteControlador extends PrincipalBaseControlador{
 
     @Override
     protected void inicializarBotonesEspecificos() {
-        btnProyectos.setOnAction(e -> abrirVentana("/gui/vista/FXMLSolicitarProyecto.fxml"));
-        btnHorario.setOnAction(e -> abrirVentana("/gui/vista/FXMLHorario.fxml"));
-        btnReportes.setOnAction(e -> abrirVentana("/gui/vista/FXMLReporteSeleccion.fxml"));
-        btnAutoevaluacion.setOnAction(e -> abrirVentana("/gui/vista/FXMLAutoevaluacionSeleccion.fxml"));
-        btnActividades.setOnAction(e -> abrirVentana("/gui/vista/FXMLActividades.fxml"));
-        btnBitacoraPSP.setOnAction(e -> abrirVentana("/gui/vista/FXMLBitacoraPSP.fxml"));
-        btnPlanDeActividades.setOnAction(e -> abrirVentana("/gui/vista/FXMLPlanDeActividades.fxml"));
-        btnCerrarSesion.setOnAction(e -> abrirVentana("/gui/vista/FXMLInicioSesion.fxml"));
+        btnProyectos.setOnAction(evento -> abrirVentana("/gui/vista/FXMLSolicitarProyecto.fxml", btnProyectos));
+        btnHorario.setOnAction(evento -> abrirVentana("/gui/vista/FXMLHorario.fxml", btnHorario));
+        btnReportes.setOnAction(evento -> abrirVentana("/gui/vista/FXMLReporteSeleccion.fxml", btnReportes));
+        btnAutoevaluacion.setOnAction(evento -> abrirVentana("/gui/vista/FXMLAutoevaluacionSeleccion.fxml", btnAutoevaluacion));
+        btnActividades.setOnAction(evento -> abrirVentana("/gui/vista/FXMLActividades.fxml", btnActividades));
+        btnBitacoraPSP.setOnAction(evento -> abrirVentana("/gui/vista/FXMLBitacoraPSP.fxml", btnBitacoraPSP));
+        btnPlanDeActividades.setOnAction(evento -> abrirVentana("/gui/vista/FXMLPlanDeActividades.fxml", btnPlanDeActividades));
     }
 }

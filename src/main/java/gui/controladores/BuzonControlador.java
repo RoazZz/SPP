@@ -3,18 +3,22 @@ package gui.controladores;
 import excepciones.DAOExcepcion;
 import excepciones.EntidadNoEncontradaExcepcion;
 import logica.interfaces.Regresable;
-import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import logica.dao.BuzonDAO;
 import logica.dao.MensajeDAO;
@@ -29,125 +33,111 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static gui.controladores.NavegacionControlador.regresar;
+
 public class BuzonControlador implements Initializable, Regresable {
 
-    private static final Logger logger = Logger.getLogger(BuzonControlador.class.getName());
+    private static final Logger REGISTRADOR = Logger.getLogger(BuzonControlador.class.getName());
 
-    @FXML private TableView<MensajeDTO>           tablaMensajes;
+    @FXML private TableView<MensajeDTO> tablaMensajes;
     @FXML private TableColumn<MensajeDTO, String> colRemitente;
     @FXML private TableColumn<MensajeDTO, String> colAsunto;
     @FXML private TableColumn<MensajeDTO, String> colFecha;
-    @FXML private Label    lblRemitente;
-    @FXML private Label    lblAsunto;
-    @FXML private Label    lblFecha;
+    @FXML private Label lblRemitente;
+    @FXML private Label lblAsunto;
+    @FXML private Label lblFecha;
     @FXML private TextArea txtContenido;
-    @FXML private Label    lblError;
+    @FXML private Label lblError;
 
     private Scene escenaAnterior;
 
     @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
+    public void initialize(URL urlRecibida, ResourceBundle recursoRecibido) {
         tablaMensajes.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        configurarColumnas();
+        colRemitente.setCellValueFactory(new PropertyValueFactory<>("nombreRemitente"));
+        colAsunto.setCellValueFactory(new PropertyValueFactory<>("asunto"));
+        colFecha.setCellValueFactory(new PropertyValueFactory<>("fecha"));
+
         configurarSeleccion();
         cargarMensajes();
         limpiarVistaPrevia();
     }
 
-    private void configurarColumnas() {
-        colRemitente.setCellValueFactory(dato ->
-                new SimpleStringProperty(dato.getValue().getNombreRemitente() != null
-                        ? dato.getValue().getNombreRemitente()
-                        : "Buzón #" + dato.getValue().getIdBuzonOrigen()));
-        colAsunto.setCellValueFactory(dato ->
-                new SimpleStringProperty(dato.getValue().getAsunto()));
-        colFecha.setCellValueFactory(dato ->
-                new SimpleStringProperty(dato.getValue().getFecha() != null
-                        ? dato.getValue().getFecha().toLocalDate().toString()
-                        : "Sin fecha"));
-    }
-
     private void configurarSeleccion() {
-        tablaMensajes.getSelectionModel().selectedItemProperty().addListener(
-                (observable, anterior, seleccionado) -> {
-                    if (seleccionado != null) {
-                        mostrarVistaPrevia(seleccionado);
-                    } else {
-                        limpiarVistaPrevia();
-                    }
+        tablaMensajes.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<MensajeDTO>() {
+            @Override
+            public void changed(ObservableValue<? extends MensajeDTO> observable, MensajeDTO anterior, MensajeDTO seleccionado) {
+                if (seleccionado != null) {
+                    mostrarVistaPrevia(seleccionado);
+                } else {
+                    limpiarVistaPrevia();
                 }
-        );
+            }
+        });
     }
 
     private void mostrarVistaPrevia(MensajeDTO mensaje) {
-        lblRemitente.setText(mensaje.getNombreRemitente() != null
-                ? mensaje.getNombreRemitente()
-                : "Buzón #" + mensaje.getIdBuzonOrigen());
+        String remitente = "Buzón #" + mensaje.getIdBuzonOrigen();
+        if (mensaje.getNombreRemitente() != null) {
+            remitente = mensaje.getNombreRemitente();
+        }
+        lblRemitente.setText(remitente);
         lblAsunto.setText(mensaje.getAsunto());
-        lblFecha.setText(mensaje.getFecha() != null
-                ? mensaje.getFecha().toLocalDate().toString()
-                : "Sin fecha");
+
+        String fechaTexto = "Sin fecha";
+        if (mensaje.getFecha() != null) {
+            fechaTexto = mensaje.getFecha().toLocalDate().toString();
+        }
+        lblFecha.setText(fechaTexto);
         txtContenido.setText(mensaje.getContenido());
     }
 
     private void limpiarVistaPrevia() {
-        lblRemitente.setText("Selecciona un mensaje para ver el detalle");
+        lblRemitente.setText("Selecciona un mensaje");
         lblAsunto.setText("-");
         lblFecha.setText("-");
         txtContenido.setText("");
-        txtContenido.setPromptText("El contenido del mensaje aparecerá aquí");
     }
 
     private void cargarMensajes() {
         try {
-            int idUsuario = SesionUsuarioSingleton.obtenerInstancia()
-                    .obtenerUsuarioActual().getIdUsuario();
-
-            BuzonDAO buzonDAO = new BuzonDAO();
-            BuzonDTO buzon = buzonDAO.obtenerBuzonPorIdUsuario(idUsuario);
-
-            MensajeDAO mensajeDAO = new MensajeDAO();
-            List<MensajeDTO> mensajes = mensajeDAO.obtenerMensajesConRemitente(buzon.getIdBuzon());
-
-            ObservableList<MensajeDTO> listaMensajes = FXCollections.observableArrayList(mensajes);
-            tablaMensajes.setItems(listaMensajes);
-
-            logger.log(Level.INFO, "Mensajes cargados correctamente para idUsuario: " + idUsuario);
-        } catch (DAOExcepcion e) {
-            logger.log(Level.SEVERE, "Error al cargar los mensajes del buzón", e);
-            lblError.setText("Error al cargar los mensajes.");
-        } catch (EntidadNoEncontradaExcepcion e) {
-            logger.log(Level.WARNING, "No se encontró buzón para el usuario en sesión", e);
-            lblError.setText("No se encontró un buzón asociado a tu cuenta.");
+            int idUsuario = SesionUsuarioSingleton.obtenerInstancia().obtenerUsuarioActual().getIdUsuario();
+            BuzonDTO buzon = new BuzonDAO().obtenerBuzonPorIdUsuario(idUsuario);
+            List<MensajeDTO> mensajes = new MensajeDAO().obtenerMensajesConRemitente(buzon.getIdBuzon());
+            tablaMensajes.setItems(FXCollections.observableArrayList(mensajes));
+        } catch (DAOExcepcion | EntidadNoEncontradaExcepcion excepcionCapturada) {
+            REGISTRADOR.log(Level.SEVERE, "Error carga buzón", excepcionCapturada);
+            lblError.setText("Error al cargar mensajes.");
         }
     }
 
     @FXML
-    private void abrirEnviarMensaje() {
+    private void abrirEnviarMensaje(ActionEvent eventoClic) {
         try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/gui/vista/FXMLEnviarMensaje.fxml"));
-            Parent vista = loader.load();
+            FXMLLoader cargador = new FXMLLoader(getClass().getResource("/gui/vista/FXMLEnviarMensaje.fxml"));
+            Parent vista = cargador.load();
             Stage escenario = new Stage();
             escenario.setScene(new Scene(vista));
             escenario.setTitle("Enviar Mensaje");
             escenario.show();
-        } catch (IOException e) {
-            logger.log(Level.SEVERE, "Error al abrir la ventana de enviar mensaje", e);
-            lblError.setText("No se pudo abrir la ventana de enviar mensaje.");
+        } catch (IOException excepcionCapturada) {
+            REGISTRADOR.log(Level.SEVERE, "Error ventana", excepcionCapturada);
         }
-    }
-
-    @Override
-    public void setEscenaAnterior(Scene escena) {
-        this.escenaAnterior = escena;
     }
 
     @FXML
-    private void salir() {
-        if (escenaAnterior != null) {
-            Stage escenario = (Stage) tablaMensajes.getScene().getWindow();
-            escenario.setScene(escenaAnterior);
-        }
+    private void salir(ActionEvent eventoClic) {
+        Node nodo = (Node) eventoClic.getSource();
+        nodo.getScene().getWindow().hide();
+    }
+
+    @Override
+    public void setEscenaAnterior(Scene escenaGuardada) {
+        this.escenaAnterior = escenaGuardada;
+    }
+
+    @FXML
+    private void manejarClicCancelar(ActionEvent eventoBoton) {
+        regresar((Node) eventoBoton.getSource(), this.escenaAnterior);
     }
 }

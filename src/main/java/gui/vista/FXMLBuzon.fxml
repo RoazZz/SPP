@@ -8,6 +8,7 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
@@ -37,9 +38,21 @@
                         <Label styleClass="label-seccion" text="Mensajes recibidos" />
                         <TableView fx:id="tablaMensajes" prefHeight="220">
                             <columns>
-                                <TableColumn fx:id="colRemitente" text="Remitente" prefWidth="200" />
-                                <TableColumn fx:id="colAsunto"    text="Asunto"    prefWidth="380" />
-                                <TableColumn fx:id="colFecha"     text="Fecha"     prefWidth="160" />
+                                <TableColumn fx:id="colRemitente" text="Remitente" prefWidth="200">
+                                    <cellValueFactory>
+                                        <PropertyValueFactory property="nombreRemitente" />
+                                    </cellValueFactory>
+                                </TableColumn>
+                                <TableColumn fx:id="colAsunto" text="Asunto" prefWidth="380">
+                                    <cellValueFactory>
+                                        <PropertyValueFactory property="asunto" />
+                                    </cellValueFactory>
+                                </TableColumn>
+                                <TableColumn fx:id="colFecha" text="Fecha" prefWidth="160">
+                                    <cellValueFactory>
+                                        <PropertyValueFactory property="fecha" />
+                                    </cellValueFactory>
+                                </TableColumn>
                             </columns>
                         </TableView>
                     </VBox>

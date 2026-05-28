@@ -7,31 +7,42 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.stage.Stage;
 import logica.dao.UsuarioDAO;
 import logica.dto.UsuarioDTO;
 import logica.enums.TipoDeUsuario;
-import logica.enums.TipoEstado;
+import logica.enums.TipoEstadoUsuario;
 import javafx.scene.layout.HBox;
 import logica.utilidades.PermisosRol;
 import logica.utilidades.SesionUsuarioSingleton;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ListaUsuariosControlador implements Regresable{
-    private static final Logger logger = Logger.getLogger(ListaUsuariosControlador.class.getName());
+import static gui.controladores.NavegacionControlador.abrirVentana;
+import static gui.controladores.NavegacionControlador.regresar;
+
+public class ListaUsuariosControlador implements Regresable {
+
+    private static final Logger REGISTRADOR = Logger.getLogger(ListaUsuariosControlador.class.getName());
     private static final String TODOS = "TODOS";
 
-    @FXML
-    private TextField txtBuscar;
+    @FXML private TextField txtBuscar;
     @FXML private ComboBox<String> cbFiltroTipo;
     @FXML private TableView<UsuarioDTO> tablaUsuarios;
     @FXML private TableColumn<UsuarioDTO, String> colNombre;
@@ -41,10 +52,9 @@ public class ListaUsuariosControlador implements Regresable{
     @FXML private TableColumn<UsuarioDTO, String> colEstado;
     @FXML private TableColumn<UsuarioDTO, Void> colAcciones;
     @FXML private Label lblContador;
-    @FXML private Button btnAñadirUsuario;
-    @FXML private Button btnCerrar;
-    private Scene escenaAnterior;
+    @FXML private Button btnAnadirUsuario;
 
+    private Scene escenaAnterior;
     private ObservableList<UsuarioDTO> listaCompleta;
     private FilteredList<UsuarioDTO> listaFiltrada;
 
@@ -56,70 +66,68 @@ public class ListaUsuariosControlador implements Regresable{
         cargarUsuarios();
         configurarBusquedaReactiva();
         cargarTiposPermitidos();
-        btnCerrar.setOnAction(accion -> regresar());
-        btnAñadirUsuario.setOnAction(accion -> NavegacionControlador.abrirVentana("/gui/vista/FXMLFormularioUsuario.fxml", btnAñadirUsuario));
+        btnAnadirUsuario.setOnAction(eventoClic -> abrirVentana("/gui/vista/FXMLFormularioUsuario.fxml", btnAnadirUsuario));
     }
 
     private void cargarTiposPermitidos() {
-        TipoDeUsuario rol = SesionUsuarioSingleton.obtenerInstancia().obtenerUsuarioActual().getTipoDeUsuario();
-        PermisosRol permisos = new PermisosRol(rol);
-        btnAñadirUsuario.setVisible(permisos.puedeAgregarUsuario());
-        btnAñadirUsuario.setManaged(permisos.puedeAgregarUsuario());
+        TipoDeUsuario rolActual = SesionUsuarioSingleton.obtenerInstancia().obtenerUsuarioActual().getTipoDeUsuario();
+        PermisosRol permisosUsuario = new PermisosRol(rolActual);
+        btnAnadirUsuario.setVisible(permisosUsuario.puedeAgregarUsuario());
+        btnAnadirUsuario.setManaged(permisosUsuario.puedeAgregarUsuario());
     }
 
-
-
-    private void configurarColumnas(){
+    private void configurarColumnas() {
         colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
         colApellidoP.setCellValueFactory(new PropertyValueFactory<>("apellidoPaterno"));
         colApellidoM.setCellValueFactory(new PropertyValueFactory<>("apellidoMaterno"));
-        colTipo.setCellValueFactory(
-                celda->new SimpleStringProperty(
-                        celda.getValue().getTipoDeUsuario() != null ? celda.getValue().getTipoDeUsuario().name() : ""
-                )
-        );
 
-        colEstado.setCellValueFactory(
-                celda -> new SimpleStringProperty(
-                        celda.getValue().getTipoEstado() != null
-                                ? celda.getValue().getTipoEstado().name() : ""
-                )
-        );
+        colTipo.setCellValueFactory(celdaTabla -> {
+            String valorCelda = "";
+            if (celdaTabla.getValue().getTipoDeUsuario() != null) {
+                valorCelda = celdaTabla.getValue().getTipoDeUsuario().name();
+            }
+            return new SimpleStringProperty(valorCelda);
+        });
+
+        colEstado.setCellValueFactory(celdaTabla -> {
+            String valorCelda = "";
+            if (celdaTabla.getValue().getTipoEstado() != null) {
+                valorCelda = celdaTabla.getValue().getTipoEstado().name();
+            }
+            return new SimpleStringProperty(valorCelda);
+        });
     }
 
     private void configurarColumnaAcciones() {
-        colAcciones.setCellFactory(columna -> new TableCell<>() {
+        colAcciones.setCellFactory(parametroColumna -> new TableCell<UsuarioDTO, Void>() {
             private final Button btnInactivar = new Button("INACTIVAR");
-            private final HBox contenedor = new HBox(btnInactivar);
+            private final HBox contenedorBotones = new HBox(btnInactivar);
 
             {
                 btnInactivar.getStyleClass().add("btn-cancelar");
-                contenedor.setAlignment(Pos.CENTER);
-                btnInactivar.setOnAction(accion -> {
-                    UsuarioDTO usuarioDTO = getTableView().getItems().get(getIndex());
-                    manejarInactivar(usuarioDTO);
+                contenedorBotones.setAlignment(Pos.CENTER);
+                btnInactivar.setOnAction(eventoClic -> {
+                    UsuarioDTO usuarioSeleccionado = getTableView().getItems().get(getIndex());
+                    manejarInactivar(usuarioSeleccionado);
                 });
             }
 
             @Override
-            protected void updateItem(Void item, boolean vacio) {
-                super.updateItem(item, vacio);
+            protected void updateItem(Void elementoCelda, boolean estaVacio) {
+                super.updateItem(elementoCelda, estaVacio);
 
-                if (vacio || getIndex() >= getTableView().getItems().size()) {
+                if (estaVacio || getIndex() >= getTableView().getItems().size()) {
                     setGraphic(null);
                     return;
                 }
 
-                TipoDeUsuario rol = SesionUsuarioSingleton.obtenerInstancia()
-                        .obtenerUsuarioActual()
-                        .getTipoDeUsuario();
-                PermisosRol permisos = new PermisosRol(rol);
+                TipoDeUsuario rolActual = SesionUsuarioSingleton.obtenerInstancia().obtenerUsuarioActual().getTipoDeUsuario();
+                PermisosRol permisosUsuario = new PermisosRol(rolActual);
+                UsuarioDTO usuarioEnFila = getTableView().getItems().get(getIndex());
 
-                UsuarioDTO usuarioDTO = getTableView().getItems().get(getIndex());
-
-                if (permisos.peudeInactivarUsuario() && usuarioDTO.getTipoEstado() == TipoEstado.ACTIVO) {
+                if (permisosUsuario.peudeInactivarUsuario() && usuarioEnFila.getTipoEstado() == TipoEstadoUsuario.ACTIVO) {
                     btnInactivar.setVisible(true);
-                    setGraphic(contenedor);
+                    setGraphic(contenedorBotones);
                 } else {
                     setGraphic(null);
                 }
@@ -128,60 +136,70 @@ public class ListaUsuariosControlador implements Regresable{
     }
 
     private void configurarFiltroTipo() {
-        TipoDeUsuario rol = SesionUsuarioSingleton.obtenerInstancia().obtenerUsuarioActual().getTipoDeUsuario();
-        PermisosRol permisos = new PermisosRol(rol);
-        List<TipoDeUsuario> tiposPermitidos = permisos.tiposVisibles();
+        TipoDeUsuario rolActual = SesionUsuarioSingleton.obtenerInstancia().obtenerUsuarioActual().getTipoDeUsuario();
+        PermisosRol permisosUsuario = new PermisosRol(rolActual);
+        List<TipoDeUsuario> tiposPermitidos = permisosUsuario.tiposVisibles();
 
         cbFiltroTipo.getItems().add(TODOS);
-        for (TipoDeUsuario tipo : tiposPermitidos) {
-            cbFiltroTipo.getItems().add(tipo.name());
+        for (int i = 0; i < tiposPermitidos.size(); i++) {
+            TipoDeUsuario tipoActual = tiposPermitidos.get(i);
+            cbFiltroTipo.getItems().add(tipoActual.name());
         }
         cbFiltroTipo.setValue(TODOS);
-        cbFiltroTipo.valueProperty().addListener((observable, viejo, nuevo) -> aplicarFiltros());
+        cbFiltroTipo.valueProperty().addListener((observadorPropiedad, valorAnterior, valorNuevo) -> aplicarFiltros());
     }
 
     private void cargarUsuarios() {
         try {
-            UsuarioDAO usuario = new UsuarioDAO();
-            List<UsuarioDTO> usuarios = usuario.listarUsuarios();
+            UsuarioDAO usuarioObjetoDeAcceso = new UsuarioDAO();
+            List<UsuarioDTO> usuariosRecuperados = usuarioObjetoDeAcceso.listarUsuarios();
 
-            listaCompleta = FXCollections.observableArrayList(usuarios);
-            listaFiltrada = new FilteredList<>(listaCompleta, usuarioDTO -> true);
+            listaCompleta = FXCollections.observableArrayList(usuariosRecuperados);
+            listaFiltrada = new FilteredList<>(listaCompleta, usuarioFiltro -> true);
 
             SortedList<UsuarioDTO> listaOrdenada = new SortedList<>(listaFiltrada);
             listaOrdenada.comparatorProperty().bind(tablaUsuarios.comparatorProperty());
 
             tablaUsuarios.setItems(listaOrdenada);
             actualizarContador();
-        } catch (DAOExcepcion e) {
-            logger.log(Level.SEVERE, "Error al cargar la lista de usuarios", e);
+        } catch (DAOExcepcion excepcionCapturada) {
+            REGISTRADOR.log(Level.SEVERE, "Error al cargar la lista de usuarios", excepcionCapturada);
             mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudieron cargar los usuarios.");
         }
     }
 
     private void configurarBusquedaReactiva() {
-        txtBuscar.textProperty().addListener((observable, viejo, nuevo) -> aplicarFiltros());
+        txtBuscar.textProperty().addListener((observadorPropiedad, valorAnterior, valorNuevo) -> aplicarFiltros());
     }
 
     private void aplicarFiltros() {
-        if (listaFiltrada == null) return;
+        if (listaFiltrada == null) {
+            return;
+        }
 
-        String texto = txtBuscar.getText() == null ? "" : txtBuscar.getText().trim().toLowerCase();
+        String textoBusqueda = "";
+        if (txtBuscar.getText() != null) {
+            textoBusqueda = txtBuscar.getText().trim().toLowerCase();
+        }
+
         String tipoSeleccionado = cbFiltroTipo.getValue();
+        final String textoFinalBusqueda = textoBusqueda;
 
-        listaFiltrada.setPredicate(usuarioDTO -> {
+        listaFiltrada.setPredicate(usuarioParaFiltrar -> {
             if (tipoSeleccionado != null && !TODOS.equals(tipoSeleccionado)) {
-                if (usuarioDTO.getTipoDeUsuario() == null
-                        || !usuarioDTO.getTipoDeUsuario().name().equals(tipoSeleccionado)) {
+                if (usuarioParaFiltrar.getTipoDeUsuario() == null || !usuarioParaFiltrar.getTipoDeUsuario().name().equals(tipoSeleccionado)) {
                     return false;
                 }
             }
 
-            if (!texto.isEmpty()) {
-                String nombre = lowerSafe(usuarioDTO.getNombre());
-                String apellidoPaterno = lowerSafe(usuarioDTO.getApellidoPaterno());
-                String apellidoMaterno = lowerSafe(usuarioDTO.getApellidoMaterno());
-                return nombre.contains(texto) || apellidoPaterno.contains(texto) || apellidoMaterno.contains(texto);
+            if (!textoFinalBusqueda.isEmpty()) {
+                String nombreTransformado = convertirMinusculasSeguro(usuarioParaFiltrar.getNombre());
+                String apellidoPaternoTransformado = convertirMinusculasSeguro(usuarioParaFiltrar.getApellidoPaterno());
+                String apellidoMaternoTransformado = convertirMinusculasSeguro(usuarioParaFiltrar.getApellidoMaterno());
+
+                return nombreTransformado.contains(textoFinalBusqueda) ||
+                        apellidoPaternoTransformado.contains(textoFinalBusqueda) ||
+                        apellidoMaternoTransformado.contains(textoFinalBusqueda);
             }
 
             return true;
@@ -190,44 +208,63 @@ public class ListaUsuariosControlador implements Regresable{
         actualizarContador();
     }
 
-    private void manejarInactivar(UsuarioDTO usuario) {
-        if (!mostrarConfirmacion("¿Está seguro de inactivar al usuario " + usuario.getNombre() + "?")) {
+    private void manejarInactivar(UsuarioDTO usuarioObjetivo) {
+        if (!mostrarConfirmacion("¿Está seguro de inactivar al usuario " + usuarioObjetivo.getNombre() + "?")) {
             return;
         }
         try {
-            inactivarUsuario(usuario);
+            inactivarUsuario(usuarioObjetivo);
             tablaUsuarios.refresh();
             mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Usuario inactivado.");
-        } catch (DAOExcepcion e) {
-            logger.log(Level.SEVERE, "Error al inactivar usuario", e);
-            usuario.setTipoEstado(TipoEstado.ACTIVO);
+        } catch (DAOExcepcion excepcionCapturada) {
+            REGISTRADOR.log(Level.SEVERE, "Error al inactivar usuario", excepcionCapturada);
+            usuarioObjetivo.setTipoEstado(TipoEstadoUsuario.ACTIVO);
             tablaUsuarios.refresh();
             mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudo completar la acción.");
         }
     }
 
-    private void inactivarUsuario(UsuarioDTO usuario) throws DAOExcepcion {
-        usuario.setTipoEstado(TipoEstado.INACTIVO);
-        new UsuarioDAO().actualizarUsuario(usuario);
+    private void inactivarUsuario(UsuarioDTO usuarioObjetivo) throws DAOExcepcion {
+        usuarioObjetivo.setTipoEstado(TipoEstadoUsuario.INACTIVO);
+        new UsuarioDAO().actualizarUsuario(usuarioObjetivo);
     }
 
-    private boolean mostrarConfirmacion(String mensaje) {
-        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmacion.setTitle("Confirmar acción");
-        confirmacion.setHeaderText(null);
-        confirmacion.setContentText(mensaje);
+    private boolean mostrarConfirmacion(String mensajeConfirmacion) {
+        Alert ventanaConfirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+        ventanaConfirmacion.setTitle("Confirmar acción");
+        ventanaConfirmacion.setHeaderText(null);
+        ventanaConfirmacion.setContentText(mensajeConfirmacion);
 
-        Optional<ButtonType> respuesta = confirmacion.showAndWait();
-        return respuesta.isPresent() && respuesta.get() == ButtonType.OK;
+        Optional<ButtonType> respuestaUsuario = ventanaConfirmacion.showAndWait();
+        boolean fueConfirmado = false;
+
+        if (respuestaUsuario.isPresent() && respuestaUsuario.get() == ButtonType.OK) {
+            fueConfirmado = true;
+        }
+
+        return fueConfirmado;
     }
 
-    private String lowerSafe(String texto) {
-        return texto == null ? "" : texto.toLowerCase();
+    private String convertirMinusculasSeguro(String textoOriginal) {
+        String textoTransformado = "";
+        if (textoOriginal != null) {
+            textoTransformado = textoOriginal.toLowerCase();
+        }
+        return textoTransformado;
     }
 
     private void actualizarContador() {
-        int total = listaFiltrada == null ? 0 : listaFiltrada.size();
-        lblContador.setText(total + (total == 1 ? " usuario" : " usuarios"));
+        int totalUsuarios = 0;
+        if (listaFiltrada != null) {
+            totalUsuarios = listaFiltrada.size();
+        }
+
+        String sufijoTexto = " usuarios";
+        if (totalUsuarios == 1) {
+            sufijoTexto = " usuario";
+        }
+
+        lblContador.setText(totalUsuarios + sufijoTexto);
     }
 
     @FXML
@@ -236,17 +273,12 @@ public class ListaUsuariosControlador implements Regresable{
         cbFiltroTipo.setValue(TODOS);
     }
 
-    @FXML
-    private void manejarCerrar() {
-        ((Stage) tablaUsuarios.getScene().getWindow()).close();
-    }
-
-    private void mostrarAlerta(Alert.AlertType tipo, String titulo, String mensaje) {
-        Alert alert = new Alert(tipo);
-        alert.setTitle(titulo);
-        alert.setHeaderText(null);
-        alert.setContentText(mensaje);
-        alert.showAndWait();
+    private void mostrarAlerta(Alert.AlertType tipoAlerta, String tituloAlerta, String mensajeAlerta) {
+        Alert ventanaAlerta = new Alert(tipoAlerta);
+        ventanaAlerta.setTitle(tituloAlerta);
+        ventanaAlerta.setHeaderText(null);
+        ventanaAlerta.setContentText(mensajeAlerta);
+        ventanaAlerta.showAndWait();
     }
 
     public void recargar() {
@@ -254,15 +286,13 @@ public class ListaUsuariosControlador implements Regresable{
     }
 
     @Override
-    public void setEscenaAnterior(Scene escena) {
-        this.escenaAnterior = escena;
+    public void setEscenaAnterior(Scene escenaGuardada) {
+        this.escenaAnterior = escenaGuardada;
     }
 
-    private void regresar() {
-        if (escenaAnterior != null) {
-            Stage escenario = (Stage) tablaUsuarios.getScene().getWindow();
-            escenario.setScene(escenaAnterior);
-            escenario.show();
-        }
+    @FXML
+    private void manejarClicCancelar(ActionEvent eventoBoton) {
+        Node nodoOrigenDeAtras = (Node) eventoBoton.getSource();
+        regresar(nodoOrigenDeAtras, this.escenaAnterior);
     }
 }

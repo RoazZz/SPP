@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.chart.BarChart?>
 <?import javafx.scene.chart.CategoryAxis?>
@@ -8,6 +9,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
@@ -15,60 +17,54 @@
 <BorderPane prefHeight="600.0" prefWidth="720.0" stylesheets="@/estilos.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.controladores.ReporteIndicadoresControlador">
     <top>
         <HBox alignment="CENTER_LEFT" styleClass="header-container">
-            <Label text="Reporte de Indicadores de Practicantes"
-                   styleClass="titulo-ventana"/>
+            <padding>
+                <Insets bottom="15" left="25" right="25" top="15" />
+            </padding>
+            <Label styleClass="titulo-ventana" text="Reporte de Indicadores de Practicantes" />
         </HBox>
     </top>
 
     <center>
         <VBox alignment="TOP_CENTER" spacing="20">
             <padding>
-                <Insets top="30" right="40" bottom="30" left="40"/>
+                <Insets bottom="30" left="40" right="40" top="30" />
             </padding>
 
-            <VBox styleClass="panel-formulario" spacing="15">
-
-                <HBox spacing="15" alignment="CENTER_LEFT">
-                    <Label text="Analizar por:" styleClass="label-seccion"/>
-                    <ComboBox fx:id="cmbFiltroIndicador"
-                    promptText="Selecciona un filtro"
-                              prefWidth="280"/>
-                    <Button fx:id="btnGenerarReportePdf"
-                            text="Generar Reporte PDF"
-                            styleClass="btn-guardar"
-                            disable="true"/>
+            <VBox spacing="15" styleClass="panel-formulario">
+                <HBox alignment="CENTER_LEFT" spacing="15">
+                    <Label styleClass="label-seccion" text="Analizar por:" />
+                    <ComboBox fx:id="cbFiltroIndicador" prefWidth="280" promptText="Selecciona un filtro" />
+                    <Button fx:id="btnGenerarReportePdf" disable="true" onAction="#manejarGenerarReportePdf" styleClass="btn-guardar" text="Generar Reporte PDF" />
                 </HBox>
 
-                <Label text="Distribución gráfica" styleClass="label-seccion"/>
+                <Label styleClass="label-seccion" text="Distribución gráfica" />
 
-                <BarChart fx:id="graficaIndicadores"
-                          prefHeight="320"
-                          animated="false"
-                          legendVisible="false">
+                <BarChart fx:id="bcIndicadores" animated="false" legendVisible="false" prefHeight="320">
                     <xAxis>
-                        <CategoryAxis fx:id="ejeCategorias" label="Categoría"/>
+                        <CategoryAxis label="Categoría" />
                     </xAxis>
                     <yAxis>
-                        <NumberAxis fx:id="ejeTotales"
-                                    label="Cantidad de practicantes"/>
+                        <NumberAxis label="Cantidad de practicantes" />
                     </yAxis>
                 </BarChart>
 
-                <Label text="Detalle de información" styleClass="label-seccion"/>
+                <Label styleClass="label-seccion" text="Detalle de información" />
 
-                <TableView fx:id="tablaIndicadores" prefHeight="220">
+                <TableView fx:id="tvIndicadores" prefHeight="220">
                     <columns>
-                        <TableColumn fx:id="columnaCategoria"
-                                     text="Categoría"
-                                     prefWidth="320"/>
-                        <TableColumn fx:id="columnaTotal"
-                                     text="Total"
-                                     prefWidth="140"/>
+                        <TableColumn fx:id="colCategoria" prefWidth="320" text="Categoría">
+                            <cellValueFactory>
+                                <PropertyValueFactory property="categoria" />
+                            </cellValueFactory>
+                        </TableColumn>
+                        <TableColumn fx:id="colTotal" prefWidth="140" text="Total">
+                            <cellValueFactory>
+                                <PropertyValueFactory property="total" />
+                            </cellValueFactory>
+                        </TableColumn>
                     </columns>
                 </TableView>
-
             </VBox>
         </VBox>
     </center>
-
 </BorderPane>

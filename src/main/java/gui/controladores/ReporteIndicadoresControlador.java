@@ -2,10 +2,11 @@ package gui.controladores;
 
 import excepciones.ConsultaIndicadoresExcepcion;
 import excepciones.EntidadNoCreadaExcepcion;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.XYChart;
@@ -42,12 +43,12 @@ public class ReporteIndicadoresControlador {
     private static final String PREFIJO_CARPETA_FILTRO = "Reporte Indicadores ";
     private static final String FORMATO_FECHA_HORA = "_yyyyMMdd_HHmmss";
 
-    @FXML private ComboBox<FiltrosIndicadores> cmbFiltroIndicador;
+    @FXML private ComboBox<FiltrosIndicadores> cbFiltroIndicador;
     @FXML private Button btnGenerarReportePdf;
-    @FXML private BarChart<String, Number> graficaIndicadores;
-    @FXML private TableView<ReporteIndicadoresDTO> tablaIndicadores;
-    @FXML private TableColumn<ReporteIndicadoresDTO, String> columnaCategoria;
-    @FXML private TableColumn<ReporteIndicadoresDTO, Number> columnaTotal;
+    @FXML private BarChart<String, Number> bcIndicadores;
+    @FXML private TableView<ReporteIndicadoresDTO> tvIndicadores;
+    @FXML private TableColumn<ReporteIndicadoresDTO, String> colCategoria;
+    @FXML private TableColumn<ReporteIndicadoresDTO, Number> colTotal;
 
     private ReporteIndicadoresDAO reporteIndicadoresDao;
     private ExportadorIndicadoresPDF exportadorPdf;
@@ -59,21 +60,21 @@ public class ReporteIndicadoresControlador {
         exportadorPdf = new ExportadorIndicadoresPDF();
 
         configurarComboFiltros();
-        configurarColumnasTabla();
         registrarEventos();
     }
 
     private void configurarComboFiltros() {
         ObservableList<FiltrosIndicadores> filtrosDisponibles = FXCollections.observableArrayList(FiltrosIndicadores.values());
-        cmbFiltroIndicador.setItems(filtrosDisponibles);
+        cbFiltroIndicador.setItems(filtrosDisponibles);
 
-        cmbFiltroIndicador.setConverter(new StringConverter<FiltrosIndicadores>() {
+        cbFiltroIndicador.setConverter(new StringConverter<FiltrosIndicadores>() {
             @Override
-            public String toString(FiltrosIndicadores filtro) {
-                if (filtro == null) {
-                    return "";
+            public String toString(FiltrosIndicadores filtroRecibido) {
+                String etiquetaFiltro = "";
+                if (filtroRecibido != null) {
+                    etiquetaFiltro = obtenerEtiquetaUi(filtroRecibido);
                 }
-                return obtenerEtiquetaUi(filtro);
+                return etiquetaFiltro;
             }
 
             @Override
@@ -83,20 +84,22 @@ public class ReporteIndicadoresControlador {
         });
     }
 
-    private void configurarColumnasTabla() {
-        columnaCategoria.setCellValueFactory(celda -> new SimpleStringProperty(celda.getValue().getCategoria()));
-        columnaTotal.setCellValueFactory(celda -> new SimpleIntegerProperty(celda.getValue().getTotal()));
+    private void registrarEventos() {
+        cbFiltroIndicador.valueProperty().addListener(new ChangeListener<FiltrosIndicadores>() {
+            @Override
+            public void changed(ObservableValue<? extends FiltrosIndicadores> observable,
+                                FiltrosIndicadores valorAnterior,
+                                FiltrosIndicadores valorNuevo) {
+                if (valorNuevo != null) {
+                    actualizarVisualizacion(valorNuevo);
+                }
+            }
+        });
     }
 
-    private void registrarEventos() {
-        cmbFiltroIndicador.valueProperty().addListener(
-                (observable, valorAnterior, valorNuevo) -> {
-                    if (valorNuevo != null) {
-                        actualizarVisualizacion(valorNuevo);
-                    }
-                });
-
-        btnGenerarReportePdf.setOnAction(eventoClic -> exportarReporteAPdf());
+    @FXML
+    private void manejarGenerarReportePdf(ActionEvent eventoClic) {
+        exportarReporteAPdf();
     }
 
     private void actualizarVisualizacion(FiltrosIndicadores filtroSeleccionado) {
@@ -104,75 +107,76 @@ public class ReporteIndicadoresControlador {
             datosActuales = reporteIndicadoresDao.contarPracticantesPor(filtroSeleccionado);
             llenarGrafica(filtroSeleccionado, datosActuales);
             llenarTabla(datosActuales);
-            btnGenerarReportePdf.setDisable(datosActuales.isEmpty());
 
-        } catch (ConsultaIndicadoresExcepcion consultaExcepcion) {
-            REGISTRADOR.log(Level.WARNING, "Fallo al consultar indicadores", consultaExcepcion);
+            boolean hayDatos = !datosActuales.isEmpty();
+            btnGenerarReportePdf.setDisable(!hayDatos);
+
+        } catch (ConsultaIndicadoresExcepcion excepcionCapturada) {
+            REGISTRADOR.log(Level.WARNING, "Fallo al consultar indicadores", excepcionCapturada);
             mostrarAlerta(AlertType.ERROR, "No se pudieron obtener los datos del indicador seleccionado.");
         }
     }
 
-    private void llenarGrafica(FiltrosIndicadores filtro, List<ReporteIndicadoresDTO> datos) {
-        graficaIndicadores.getData().clear();
-        graficaIndicadores.setTitle(obtenerTituloGrafica(filtro));
+    private void llenarGrafica(FiltrosIndicadores filtroRecibido, List<ReporteIndicadoresDTO> datosRecibidos) {
+        bcIndicadores.getData().clear();
+        bcIndicadores.setTitle(obtenerTituloGrafica(filtroRecibido));
 
         XYChart.Series<String, Number> serieDatos = new XYChart.Series<>();
-        serieDatos.setName(obtenerEtiquetaUi(filtro));
+        serieDatos.setName(obtenerEtiquetaUi(filtroRecibido));
 
-        for (ReporteIndicadoresDTO indicador : datos) {
-            serieDatos.getData().add(new XYChart.Data<>(indicador.getCategoria(), indicador.getTotal()));
+        for (ReporteIndicadoresDTO indicadorActual : datosRecibidos) {
+            serieDatos.getData().add(new XYChart.Data<>(
+                    indicadorActual.getCategoria(),
+                    indicadorActual.getTotal()
+            ));
         }
 
-        graficaIndicadores.getData().add(serieDatos);
+        bcIndicadores.getData().add(serieDatos);
     }
 
-    private void llenarTabla(List<ReporteIndicadoresDTO> datos) {
-        ObservableList<ReporteIndicadoresDTO> filasTabla = FXCollections.observableArrayList(datos);
-        tablaIndicadores.setItems(filasTabla);
+    private void llenarTabla(List<ReporteIndicadoresDTO> datosRecibidos) {
+        ObservableList<ReporteIndicadoresDTO> filasTabla = FXCollections.observableArrayList(datosRecibidos);
+        tvIndicadores.setItems(filasTabla);
     }
 
     private void exportarReporteAPdf() {
-        FiltrosIndicadores filtroSeleccionado = cmbFiltroIndicador.getValue();
+        FiltrosIndicadores filtroSeleccionado = cbFiltroIndicador.getValue();
         if (filtroSeleccionado == null || datosActuales == null) {
             return;
         }
 
         UsuarioDTO usuarioEnSesion = SesionUsuarioSingleton.obtenerInstancia().obtenerUsuarioActual();
 
-        if (!(usuarioEnSesion instanceof CoordinadorDTO)) {
+        if (usuarioEnSesion instanceof CoordinadorDTO coordinadorActivo) {
+            String numeroPersonal = coordinadorActivo.getNumeroPersonal();
+            File archivoDestino = construirRutaArchivoPdf(numeroPersonal, filtroSeleccionado);
+
+            if (archivoDestino.exists() && !confirmarReemplazoArchivo(archivoDestino)) {
+                return;
+            }
+
+            try {
+                prepararCarpetaDestino(archivoDestino);
+                exportadorPdf.exportar(
+                        archivoDestino,
+                        obtenerTituloGrafica(filtroSeleccionado),
+                        datosActuales,
+                        bcIndicadores);
+
+                mostrarAlerta(AlertType.INFORMATION, "El reporte se exportó correctamente.");
+
+            } catch (EntidadNoCreadaExcepcion excepcionCapturada) {
+                REGISTRADOR.log(Level.WARNING, "Fallo al exportar el PDF", excepcionCapturada);
+                mostrarAlerta(AlertType.ERROR, "No se pudo generar el archivo PDF.");
+            }
+        } else {
             mostrarAlerta(AlertType.ERROR, "Solo los coordinadores pueden generar este reporte.");
-            return;
-        }
-
-        CoordinadorDTO coordinador = (CoordinadorDTO) usuarioEnSesion;
-        String numeroPersonal = coordinador.getNumeroPersonal();
-
-        File archivoDestino = construirRutaArchivoPdf(numeroPersonal, filtroSeleccionado);
-
-        if (archivoDestino.exists() && !confirmarReemplazoArchivo(archivoDestino)) {
-            return;
-        }
-
-        try {
-            prepararCarpetaDestino(archivoDestino);
-            exportadorPdf.exportar(
-                    archivoDestino,
-                    obtenerTituloGrafica(filtroSeleccionado),
-                    datosActuales,
-                    graficaIndicadores);
-
-            mostrarAlerta(AlertType.INFORMATION, "El reporte se exportó correctamente en:\n" + archivoDestino.getAbsolutePath());
-
-        } catch (EntidadNoCreadaExcepcion entidadNoCreadaExcepcion) {
-            REGISTRADOR.log(Level.WARNING, "Fallo al exportar el PDF", entidadNoCreadaExcepcion);
-            mostrarAlerta(AlertType.ERROR, "No se pudo generar el archivo PDF.");
         }
     }
 
-    private File construirRutaArchivoPdf(String numeroPersonal,
-                                         FiltrosIndicadores filtro) {
+    private File construirRutaArchivoPdf(String numeroPersonalRecibido, FiltrosIndicadores filtroRecibido) {
         String rutaProyecto = System.getProperty("user.dir");
-        String etiquetaFiltro = obtenerEtiquetaUi(filtro);
+        String etiquetaFiltro = obtenerEtiquetaUi(filtroRecibido);
         String nombreCarpetaFiltro = PREFIJO_CARPETA_FILTRO + etiquetaFiltro;
 
         LocalDateTime momentoActual = LocalDateTime.now();
@@ -184,17 +188,16 @@ public class ReporteIndicadoresControlador {
         return new File(rutaProyecto + File.separator
                 + CARPETA_RAIZ_REPORTES + File.separator
                 + nombreCarpetaFiltro + File.separator
-                + numeroPersonal + File.separator
+                + numeroPersonalRecibido + File.separator
                 + nombreArchivoPdf);
     }
 
-    private void prepararCarpetaDestino(File archivoDestino)
-            throws EntidadNoCreadaExcepcion {
+    private void prepararCarpetaDestino(File archivoDestino) throws EntidadNoCreadaExcepcion {
         File carpetaContenedora = archivoDestino.getParentFile();
-        if (!carpetaContenedora.exists() && !carpetaContenedora.mkdirs()) {
-            throw new EntidadNoCreadaExcepcion(
-                    "No se pudo crear la carpeta de destino: "
-                            + carpetaContenedora.getAbsolutePath());
+        if (!carpetaContenedora.exists()) {
+            if (!carpetaContenedora.mkdirs()) {
+                throw new EntidadNoCreadaExcepcion("No se pudo crear la carpeta de destino.");
+            }
         }
     }
 
@@ -202,50 +205,57 @@ public class ReporteIndicadoresControlador {
         Alert dialogoConfirmacion = new Alert(AlertType.CONFIRMATION);
         dialogoConfirmacion.setTitle("Archivo existente");
         dialogoConfirmacion.setHeaderText("Ya existe un reporte con ese nombre");
-        dialogoConfirmacion.setContentText(
-                "El archivo \"" + archivoExistente.getName()
-                        + "\" ya existe en la carpeta de reportes.\n¿Deseas reemplazarlo?");
+        dialogoConfirmacion.setContentText("¿Deseas reemplazarlo?");
 
         Optional<ButtonType> respuestaUsuario = dialogoConfirmacion.showAndWait();
-        return respuestaUsuario.isPresent()
-                && respuestaUsuario.get() == ButtonType.OK;
+        return respuestaUsuario.isPresent() && respuestaUsuario.get() == ButtonType.OK;
     }
 
-    private void mostrarAlerta(AlertType tipoAlerta, String mensaje) {
-        Alert alerta = new Alert(tipoAlerta);
-        alerta.setContentText(mensaje);
-        alerta.showAndWait();
+    private void mostrarAlerta(AlertType tipoAlerta, String mensajeAlerta) {
+        Alert ventanaAlerta = new Alert(tipoAlerta);
+        ventanaAlerta.setContentText(mensajeAlerta);
+        ventanaAlerta.showAndWait();
     }
 
-    private String obtenerEtiquetaUi(FiltrosIndicadores filtro) {
-        switch (filtro) {
+    private String obtenerEtiquetaUi(FiltrosIndicadores filtroRecibido) {
+        String etiquetaFiltro;
+        switch (filtroRecibido) {
             case GENERO:
-                return "Género";
+                etiquetaFiltro = "Género";
+                break;
             case EDAD:
-                return "Edad";
+                etiquetaFiltro = "Edad";
+                break;
             case SEMESTRE:
-                return "Semestre";
+                etiquetaFiltro = "Semestre";
+                break;
             case LENGUA_INDIGENA:
-                return "Lengua Indígena";
+                etiquetaFiltro = "Lengua Indígena";
+                break;
             default:
-                throw new IllegalArgumentException(
-                        "Filtro no soportado: " + filtro);
+                throw new IllegalArgumentException("Filtro no soportado: " + filtroRecibido);
         }
+        return etiquetaFiltro;
     }
 
-    private String obtenerTituloGrafica(FiltrosIndicadores filtro) {
-        switch (filtro) {
+    private String obtenerTituloGrafica(FiltrosIndicadores filtroRecibido) {
+        String tituloGrafica;
+        switch (filtroRecibido) {
             case GENERO:
-                return "Practicantes por Género";
+                tituloGrafica = "Practicantes por Género";
+                break;
             case EDAD:
-                return "Practicantes por Edad";
+                tituloGrafica = "Practicantes por Edad";
+                break;
             case SEMESTRE:
-                return "Practicantes por Semestre";
+                tituloGrafica = "Practicantes por Semestre";
+                break;
             case LENGUA_INDIGENA:
-                return "Practicantes con Lengua Indígena";
+                tituloGrafica = "Practicantes con Lengua Indígena";
+                break;
             default:
-                throw new IllegalArgumentException(
-                        "Filtro no soportado: " + filtro);
+                throw new IllegalArgumentException("Filtro no soportado: " + filtroRecibido);
         }
+        return tituloGrafica;
     }
 }

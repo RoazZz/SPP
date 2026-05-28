@@ -72,9 +72,8 @@
 
                     <HBox alignment="CENTER_RIGHT" spacing="15">
                         <padding><Insets top="5" /></padding>
-                        <Button fx:id="btnCancelar" styleClass="btn-cancelar" text="CANCELAR" />
-                        <Button fx:id="btnGenerar" styleClass="btn-guardar"
-                                text="GENERAR AUTOEVALUACIÓN" />
+                        <Button fx:id="btnCancelar" onAction="#manejarCancelar" styleClass="btn-cancelar" text="CANCELAR" />
+                        <Button fx:id="btnGenerar"  onAction="#manejarGenerar" styleClass="btn-guardar" text="GENERAR AUTOEVALUACIÓN" />
                     </HBox>
 
                 </VBox>

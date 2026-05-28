@@ -39,8 +39,9 @@
                   <Separator />
                   <HBox alignment="CENTER_RIGHT" spacing="20" style="-fx-padding: 10 0 0 0;">
                      <children>
-                        <Button onAction="#manejarCancelar" styleClass="btn-cancelar" stylesheets="@../../../recursos/estilos.css" text="SALIR" />
-                        <Button onAction="#manejarGuardar" styleClass="btn-guardar" stylesheets="@../../../recursos/estilos.css" text="GUARDAR DATOS" />
+                        //faltan onaction en formualrio organizaicon vinculada, analizar si se ncesitan
+                        <Button  styleClass="btn-cancelar" stylesheets="@../../../recursos/estilos.css" text="SALIR" />
+                        <Button  styleClass="btn-guardar" stylesheets="@../../../recursos/estilos.css" text="GUARDAR DATOS" />
                      </children>
                   </HBox>
                   <VBox fx:id="contenedorDinamico" spacing="15" />

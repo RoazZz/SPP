@@ -1,8 +1,12 @@
 package gui.controladores;
 
 import excepciones.DAOExcepcion;
+import logica.interfaces.Regresable;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
@@ -10,7 +14,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 import logica.dao.BitacoraPSPDAO;
 import logica.dto.BitacoraPSPDTO;
 
@@ -25,7 +28,9 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class BitacoraPSPControlador implements Initializable {
+import static gui.controladores.NavegacionControlador.regresar;
+
+public class BitacoraPSPControlador implements Initializable, Regresable {
 
     private static final Logger LOGGER = Logger.getLogger(BitacoraPSPControlador.class.getName());
 
@@ -35,6 +40,7 @@ public class BitacoraPSPControlador implements Initializable {
     @FXML private Label lblError;
     @FXML private Button btnGuardar;
 
+    private Scene escenaAnterior;
     private File archivoSeleccionado = null;
 
     @Override
@@ -85,7 +91,7 @@ public class BitacoraPSPControlador implements Initializable {
             BitacoraPSPDAO bitacoraPSPDAO = new BitacoraPSPDAO();
             bitacoraPSPDAO.agregarBitacoraPSP(bitacoraPSPDTO);
 
-            cerrarVentana();
+            regresar(lblError, escenaAnterior);
 
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Error al copiar archivo de bitácora", e);
@@ -100,11 +106,6 @@ public class BitacoraPSPControlador implements Initializable {
             alerta.getButtonTypes().setAll(ButtonType.OK);
             alerta.showAndWait();
         }
-    }
-
-    @FXML
-    private void manejarCancelar() {
-        cerrarVentana();
     }
 
     private String validarCampos() {
@@ -124,7 +125,14 @@ public class BitacoraPSPControlador implements Initializable {
         return hayErrores ? errores.toString() : null;
     }
 
-    private void cerrarVentana() {
-        ((Stage) btnGuardar.getScene().getWindow()).close();
+    @Override
+    public void setEscenaAnterior(Scene escenaGuardada) {
+        this.escenaAnterior = escenaGuardada;
+    }
+
+    @FXML
+    private void manejarClicCancelar(ActionEvent eventoBoton) {
+        Node nodoOrigenDeAtras = (Node) eventoBoton.getSource();
+        regresar(nodoOrigenDeAtras, this.escenaAnterior);
     }
 }

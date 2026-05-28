@@ -7,8 +7,11 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -31,30 +34,25 @@ import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ListaReportesControlador implements Regresable {
 
+    private static final Logger REGISTRADOR = Logger.getLogger(ListaReportesControlador.class.getName());
+
     @FXML private ComboBox<String> cbFiltroTipo;
     @FXML private TableView<ReporteDTO> tablaReportes;
-    @FXML private TableColumn<ReporteDTO, String> colIdReporte;
-    @FXML private TableColumn<ReporteDTO, String> colIdUsuario;
-    @FXML private TableColumn<ReporteDTO, String> colTipoReporte;
-    @FXML private TableColumn<ReporteDTO, String> colFecha;
-    @FXML private TableColumn<ReporteDTO, String> colEstado;
     @FXML private TableColumn<ReporteDTO, String> colMes;
     @FXML private TableColumn<ReporteDTO, Void> colAcciones;
     @FXML private Label lblContador;
-    @FXML private Button btnLimpiarFiltro;
-    @FXML private Button btnCerrar;
 
     private ObservableList<ReporteDTO> listaCompleta;
     private FilteredList<ReporteDTO> listaFiltrada;
 
     private Scene escenaAnterior;
-
-    private static final Logger LOGGER = Logger.getLogger(ListaReportesControlador.class.getName());
 
     @FXML
     public void initialize() {
@@ -62,175 +60,178 @@ public class ListaReportesControlador implements Regresable {
         configurarColumnaAcciones();
         configurarFiltroPorTipo();
         cargarReportes();
-        btnLimpiarFiltro.setOnAction(e -> cbFiltroTipo.setValue("TODOS"));
-        btnCerrar.setOnAction(e -> regresar());
     }
 
     private void configurarColumnas() {
-        colIdReporte.setCellValueFactory(
-                celda -> new SimpleStringProperty(String.valueOf(celda.getValue().getIdReporte()))
-        );
-        colIdUsuario.setCellValueFactory(
-                celda -> new SimpleStringProperty(String.valueOf(celda.getValue().getIdUsuario()))
-        );
-        colTipoReporte.setCellValueFactory(
-                celda -> new SimpleStringProperty(celda.getValue().getTipoReporte().name())
-        );
-        colFecha.setCellValueFactory(
-                celda -> new SimpleStringProperty(celda.getValue().getFecha().toString())
-        );
-        colEstado.setCellValueFactory(
-                celda -> new SimpleStringProperty(celda.getValue().getEstado().name())
-        );
-        colMes.setCellValueFactory(celda -> {
-            String mes = celda.getValue().getMes();
-            return new SimpleStringProperty(mes != null ? mes : "—");
+        colMes.setCellValueFactory(celdaTabla -> {
+            String mesExtraido = celdaTabla.getValue().getMes();
+            String valorCelda = "—";
+            if (mesExtraido != null) {
+                valorCelda = mesExtraido;
+            }
+            return new SimpleStringProperty(valorCelda);
         });
     }
 
     private void configurarColumnaAcciones() {
-        colAcciones.setCellFactory(columna -> new TableCell<>() {
-            private final Button btnVerReporte = new Button("VER");
-            private final Button btnEvaluar = new Button("EVALUAR");
-            private final HBox contenedor = new HBox(10, btnVerReporte, btnEvaluar);
+        colAcciones.setCellFactory(columnaRecibida -> new CeldaBotonesReporte(
+                reporteClicVer -> abrirArchivo(reporteClicVer),
+                reporteClicEvaluar -> manejarEvaluar(reporteClicEvaluar)
+        ));
+    }
 
-            {
-                btnVerReporte.getStyleClass().add("btn-cancelar");
-                btnEvaluar.getStyleClass().add("btn-guardar");
+    private static class CeldaBotonesReporte extends TableCell<ReporteDTO, Void> {
+        private final HBox contenedorBotones;
+        private final Button btnVerArchivo;
+        private final Button btnEvaluarReporte;
 
-                btnVerReporte.setOnAction(evento -> {
-                    ReporteDTO reporte = getTableView().getItems().get(getIndex());
-                    abrirArchivo(reporte);
-                });
+        public CeldaBotonesReporte(Consumer<ReporteDTO> accionVer, Consumer<ReporteDTO> accionEvaluar) {
+            this.btnVerArchivo = new Button("VER");
+            this.btnEvaluarReporte = new Button("EVALUAR");
+            this.btnVerArchivo.getStyleClass().add("btn-cancelar");
+            this.btnEvaluarReporte.getStyleClass().add("btn-guardar");
+            this.contenedorBotones = new HBox(10, btnVerArchivo, btnEvaluarReporte);
 
-                btnEvaluar.setOnAction(evento -> {
-                    ReporteDTO reporte = getTableView().getItems().get(getIndex());
-                    manejarEvaluar(reporte);
-                });
-            }
-
-            @Override
-            protected void updateItem(Void elemento, boolean empty) {
-                super.updateItem(elemento, empty);
-
-                if (empty) {
-                    setGraphic(null);
-                } else {
-                    ReporteDTO reporte = getTableView().getItems().get(getIndex());
-                    btnEvaluar.setDisable(reporte.getEstado().name().equals("CALIFICADO"));
-                    setGraphic(contenedor);
+            this.btnVerArchivo.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent eventoClic) {
+                    ReporteDTO reporteBuscado = getTableView().getItems().get(getIndex());
+                    accionVer.accept(reporteBuscado);
                 }
+            });
+
+            this.btnEvaluarReporte.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent eventoClic) {
+                    ReporteDTO reporteAValidar = getTableView().getItems().get(getIndex());
+                    accionEvaluar.accept(reporteAValidar);
+                }
+            });
+        }
+
+        @Override
+        protected void updateItem(Void elementoVacio, boolean estaVacio) {
+            super.updateItem(elementoVacio, estaVacio);
+            if (estaVacio) {
+                setGraphic(null);
+            } else {
+                ReporteDTO reporteFila = getTableView().getItems().get(getIndex());
+                btnEvaluarReporte.setDisable(reporteFila.getEstado().name().equals("CALIFICADO"));
+                setGraphic(contenedorBotones);
             }
-        });
+        }
     }
 
     private void configurarFiltroPorTipo() {
         cbFiltroTipo.setItems(FXCollections.observableArrayList("TODOS", "PARCIAL", "MENSUAL"));
         cbFiltroTipo.setValue("TODOS");
-        cbFiltroTipo.valueProperty().addListener(
-                (observable, valorAnterior, valorNuevo) -> aplicarFiltro(valorNuevo)
-        );
+        cbFiltroTipo.valueProperty().addListener((observableValor, valorAnterior, valorNuevo) -> aplicarFiltro(valorNuevo));
     }
 
     private void cargarReportes() {
         try {
-            ProfesorDTO profesor = (ProfesorDTO) SesionUsuarioSingleton.obtenerInstancia()
-                    .obtenerUsuarioActual();
+            if (SesionUsuarioSingleton.obtenerInstancia().obtenerUsuarioActual() instanceof ProfesorDTO profesorActivo) {
+                ProfesorDAO profesorDAO = new ProfesorDAO();
+                ProfesorDTO profesorCompleto = profesorDAO.buscarProfesorPorNumPersonal(profesorActivo.getNumeroDePersonal());
+                ReporteDAO reporteDAO = new ReporteDAO();
+                List<ReporteDTO> reportesEncontrados = reporteDAO.listarReportesPorSeccion(profesorCompleto.getIdSeccion());
 
-            ProfesorDAO profesorDAO = new ProfesorDAO();
-            ProfesorDTO profesorCompleto = profesorDAO.buscarProfesorPorNumPersonal(
-                    profesor.getNumeroDePersonal()
-            );
-
-            ReporteDAO reporteDAO = new ReporteDAO();
-            List<ReporteDTO> reportes = reporteDAO.listarReportesPorSeccion(
-                    profesorCompleto.getIdSeccion()
-            );
-
-            listaCompleta = FXCollections.observableArrayList(reportes);
-            listaFiltrada = new FilteredList<>(listaCompleta, r -> true);
-            tablaReportes.setItems(listaFiltrada);
-            actualizarContador();
-        } catch (DAOExcepcion | EntidadNoEncontradaExcepcion e) {
-            LOGGER.log(Level.SEVERE, "Error al cargar reportes", e);
+                listaCompleta = FXCollections.observableArrayList(reportesEncontrados);
+                listaFiltrada = new FilteredList<>(listaCompleta, reporteElemento -> true);
+                tablaReportes.setItems(listaFiltrada);
+                actualizarContador();
+            }
+        } catch (DAOExcepcion | EntidadNoEncontradaExcepcion excepcionCapturada) {
+            REGISTRADOR.log(Level.SEVERE, "Error al cargar reportes", excepcionCapturada);
             mostrarAlerta(Alert.AlertType.ERROR, "Error", "Imposible acceder. Intente más tarde.");
         }
     }
 
-    private void aplicarFiltro(String tipo) {
-        if (listaFiltrada == null) {
-            return;
-        }
-
-        if (tipo == null || tipo.equals("TODOS")) {
-            listaFiltrada.setPredicate(reporte -> true);
-        } else {
-            listaFiltrada.setPredicate(reporte -> reporte.getTipoReporte().name().equals(tipo));
-        }
-
-        actualizarContador();
+    @FXML
+    private void manejarLimpiarFiltro(ActionEvent eventoClic) {
+        cbFiltroTipo.setValue("TODOS");
     }
 
-    private void abrirArchivo(ReporteDTO reporte) {
-        try {
-            File archivo = new File(reporte.getRuta());
-
-            if (!archivo.exists()) {
-                mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se encontró el archivo del reporte.");
-                return;
+    private void aplicarFiltro(String tipoSeleccionado) {
+        if (listaFiltrada != null) {
+            if (tipoSeleccionado == null || tipoSeleccionado.equals("TODOS")) {
+                listaFiltrada.setPredicate(new Predicate<ReporteDTO>() {
+                    @Override
+                    public boolean test(ReporteDTO reporteElemento) {
+                        return true;
+                    }
+                });
+            } else {
+                listaFiltrada.setPredicate(new Predicate<ReporteDTO>() {
+                    @Override
+                    public boolean test(ReporteDTO reporteElemento) {
+                        return reporteElemento.getTipoReporte().name().equals(tipoSeleccionado);
+                    }
+                });
             }
+            actualizarContador();
+        }
+    }
 
-            Desktop.getDesktop().open(archivo);
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Error al abrir archivo del reporte", e);
+    private void abrirArchivo(ReporteDTO reporteObjetivo) {
+        try {
+            File archivoSistema = new File(reporteObjetivo.getRuta());
+            if (!archivoSistema.exists()) {
+                mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se encontró el archivo del reporte.");
+            } else {
+                Desktop.getDesktop().open(archivoSistema);
+            }
+        } catch (IOException excepcionCapturada) {
+            REGISTRADOR.log(Level.SEVERE, "Error al abrir archivo del reporte", excepcionCapturada);
             mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudo abrir el archivo.");
         }
     }
 
-    private void manejarEvaluar(ReporteDTO reporte) {
+    private void manejarEvaluar(ReporteDTO reporteObjetivo) {
         try {
-            FXMLLoader cargador = new FXMLLoader(
-                    getClass().getResource("/gui/vista/FXMLEvaluarReporte.fxml")
-            );
-            Parent vista = cargador.load();
+            FXMLLoader cargadorVista = new FXMLLoader(getClass().getResource("/gui/vista/FXMLEvaluarReporte.fxml"));
+            Parent vistaCargada = cargadorVista.load();
+            EvaluarReporteControlador controladorEvaluacion = cargadorVista.getController();
+            controladorEvaluacion.cargarReporte(reporteObjetivo);
 
-            EvaluarReporteControlador controlador = cargador.getController();
-            controlador.cargarReporte(reporte);
-
-            Stage escenario = new Stage();
-            escenario.setScene(new Scene(vista));
-            escenario.initOwner(btnCerrar.getScene().getWindow());
-            escenario.showAndWait();
+            Stage escenarioEmergente = new Stage();
+            escenarioEmergente.setScene(new Scene(vistaCargada));
+            escenarioEmergente.showAndWait();
 
             cargarReportes();
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Error al abrir vista de evaluación", e);
+        } catch (IOException excepcionCapturada) {
+            REGISTRADOR.log(Level.SEVERE, "Error al abrir vista de evaluación", excepcionCapturada);
             mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudo abrir la evaluación. Intente más tarde.");
         }
     }
 
     private void actualizarContador() {
-        int total = listaFiltrada != null ? listaFiltrada.size() : 0;
-        lblContador.setText(total + " reportes");
+        int totalReportes = 0;
+        if (listaFiltrada != null) {
+            totalReportes = listaFiltrada.size();
+        }
+        lblContador.setText(totalReportes + " reportes");
     }
 
-    private void mostrarAlerta(Alert.AlertType tipo, String titulo, String mensaje) {
-        Alert alerta = new Alert(tipo, mensaje, ButtonType.OK);
-        alerta.setTitle(titulo);
-        alerta.setHeaderText(null);
-        alerta.showAndWait();
+    private void mostrarAlerta(Alert.AlertType tipoAlerta, String tituloAlerta, String mensajeAlerta) {
+        Alert ventanaAlerta = new Alert(tipoAlerta);
+        ventanaAlerta.setTitle(tituloAlerta);
+        ventanaAlerta.setHeaderText(null);
+        ventanaAlerta.setContentText(mensajeAlerta);
+        ventanaAlerta.showAndWait();
     }
 
     @Override
-    public void setEscenaAnterior(Scene escena) {
-        this.escenaAnterior = escena;
+    public void setEscenaAnterior(Scene escenaGuardada) {
+        this.escenaAnterior = escenaGuardada;
     }
 
-    private void regresar() {
+    @FXML
+    private void manejarRegresar(ActionEvent eventoClic) {
         if (escenaAnterior != null) {
-            Stage escenario = (Stage) btnCerrar.getScene().getWindow();
-            escenario.setScene(escenaAnterior);
-            escenario.show();
+            Stage escenarioActual = (Stage) ((Node) eventoClic.getSource()).getScene().getWindow();
+            escenarioActual.setScene(escenaAnterior);
+            escenarioActual.show();
         }
     }
 }

@@ -47,8 +47,8 @@
             <HBox alignment="CENTER_RIGHT" spacing="15">
                <Label fx:id="lblMensaje" styleClass="label-error" wrapText="true" maxWidth="400.0" />
                <Region HBox.hgrow="ALWAYS" />
-               <Button fx:id="btnLimpiar" onAction="#limpiar" styleClass="btn-cancelar" text="LIMPIAR" />
-               <Button fx:id="btnEnviar"  onAction="#enviar"  styleClass="btn-guardar"  text="ENVIAR" />
+               <Button fx:id="btnLimpiar" onAction="#manejarLimpiar" styleClass="btn-cancelar" text="LIMPIAR" />
+               <Button fx:id="btnEnviar"  onAction="#manejarEnviar"  styleClass="btn-guardar"  text="ENVIAR" />
             </HBox>
          </VBox>
 
@@ -56,7 +56,7 @@
 
          <HBox alignment="CENTER_RIGHT" spacing="20">
             <Region HBox.hgrow="ALWAYS" />
-            <Button fx:id="btnSalir" onAction="#salir" styleClass="btn-cancelar" text="SALIR" />
+            <Button fx:id="btnSalir" onAction="#manejarCancelar" styleClass="btn-cancelar" text="SALIR" />
          </HBox>
 
       </VBox>

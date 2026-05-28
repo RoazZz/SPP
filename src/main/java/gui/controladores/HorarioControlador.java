@@ -12,6 +12,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
+import javafx.event.ActionEvent;
+import javafx.scene.Node;
 import logica.interfaces.Regresable;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
@@ -23,14 +25,15 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
-import javafx.stage.Stage;
 
 import logica.dto.PracticanteDTO;
 import logica.utilidades.SesionUsuarioSingleton;
 
+import static gui.controladores.NavegacionControlador.regresar;
+
 public class HorarioControlador implements Regresable {
 
-    private static final Logger LOGGER = Logger.getLogger(HorarioControlador.class.getName());
+    private static final Logger REGISTRADOR = Logger.getLogger(HorarioControlador.class.getName());
 
     private static final String NOMBRE_CARPETA_RAIZ = "Horarios";
     private static final String EXTENSION_PDF = ".pdf";
@@ -39,12 +42,9 @@ public class HorarioControlador implements Regresable {
 
     @FXML private Button btnSeleccionar;
     @FXML private Button btnVistaPrevia;
-    @FXML private Button btnGuardar;
-    @FXML private Button btnCancelar;
-
     @FXML private Label lblNombreArchivo;
     @FXML private Label lblValidacionArchivo;
-
+    @FXML private Button btnGuardar;
     @FXML private HBox hboxValidacionArchivo;
 
     private File archivoPdfSeleccionado;
@@ -52,10 +52,8 @@ public class HorarioControlador implements Regresable {
 
     @FXML
     public void initialize() {
-        btnSeleccionar.setOnAction(evento -> seleccionarArchivoPdf());
-        btnVistaPrevia.setOnAction(evento -> mostrarVistaPreviaPdf());
-        btnGuardar.setOnAction(evento -> guardarHorario());
-        btnCancelar.setOnAction(evento -> regresar());
+        btnSeleccionar.setOnAction(eventoClic -> seleccionarArchivoPdf());
+        btnVistaPrevia.setOnAction(eventoClic -> mostrarVistaPreviaPdf());
 
         restablecerEstadoInicial();
     }
@@ -71,8 +69,7 @@ public class HorarioControlador implements Regresable {
     private void seleccionarArchivoPdf() {
         FileChooser selectorArchivo = new FileChooser();
         selectorArchivo.setTitle("Seleccionar Horario");
-        selectorArchivo.getExtensionFilters().add(
-                new ExtensionFilter(FILTRO_PDF_DESCRIPCION, FILTRO_PDF_PATRON));
+        selectorArchivo.getExtensionFilters().add(new ExtensionFilter(FILTRO_PDF_DESCRIPCION, FILTRO_PDF_PATRON));
 
         File archivoElegido = selectorArchivo.showOpenDialog(
                 lblNombreArchivo.getScene().getWindow());
@@ -96,36 +93,38 @@ public class HorarioControlador implements Regresable {
         btnGuardar.setDisable(false);
     }
 
-    private boolean esArchivoPdfValido(File archivo) {
-        return archivo.exists()
-                && archivo.isFile()
-                && archivo.getName().toLowerCase().endsWith(EXTENSION_PDF);
+    private boolean esArchivoPdfValido(File archivoRecibido) {
+        boolean esValido = false;
+        if (archivoRecibido.exists() && archivoRecibido.isFile()) {
+            if (archivoRecibido.getName().toLowerCase().endsWith(EXTENSION_PDF)) {
+                esValido = true;
+            }
+        }
+        return esValido;
     }
 
     private void mostrarVistaPreviaPdf() {
-        if (archivoPdfSeleccionado == null) {
-            return;
-        }
-        try {
-            Desktop.getDesktop().open(archivoPdfSeleccionado);
-        } catch (IOException excepcion) {
-            LOGGER.log(Level.WARNING, "No se pudo abrir la vista previa del PDF", excepcion);
-            mostrarAlerta(AlertType.WARNING,
-                    "Vista previa no disponible",
-                    "No se pudo abrir el visor de PDF predeterminado.");
+        if (archivoPdfSeleccionado != null) {
+            try {
+                Desktop.getDesktop().open(archivoPdfSeleccionado);
+            } catch (IOException excepcionCapturada) {
+                REGISTRADOR.log(Level.WARNING, "No se pudo abrir la vista previa del PDF", excepcionCapturada);
+                mostrarAlerta(AlertType.WARNING,
+                        "Vista previa no disponible",
+                        "No se pudo abrir el visor de PDF predeterminado.");
+            }
         }
     }
 
-    private void guardarHorario() {
+    @FXML
+    private void guardarHorario(ActionEvent eventoClic) {
         if (archivoPdfSeleccionado == null) {
             return;
         }
 
         String matriculaUsuario = obtenerMatriculaUsuarioActual();
         if (matriculaUsuario == null || matriculaUsuario.isBlank()) {
-            mostrarAlerta(AlertType.ERROR,
-                    "Sesión no válida",
-                    "No se pudo obtener la matrícula del usuario actual.");
+            mostrarAlerta(AlertType.ERROR, "Sesión no válida", "No se pudo obtener la matrícula del usuario actual.");
             return;
         }
 
@@ -142,50 +141,49 @@ public class HorarioControlador implements Regresable {
 
             Path rutaArchivoGuardado = copiarHorarioACarpetaDestino(carpetaMatricula);
 
-            mostrarAlerta(AlertType.INFORMATION,
-                    "Éxito",
-                    "Horario guardado correctamente en:\n" + rutaArchivoGuardado);
-            regresar();
+            mostrarAlerta(AlertType.INFORMATION, "Éxito", "Horario guardado correctamente.");
+            regresar(lblNombreArchivo, escenaAnterior);
 
-        } catch (IOException excepcion) {
-            LOGGER.log(Level.SEVERE, "Error al guardar el horario en disco", excepcion);
-            mostrarAlerta(AlertType.ERROR,
-                    "Error al guardar",
-                    "No se pudo guardar el horario en el servidor local.");
+        } catch (IOException excepcionCapturada) {
+            REGISTRADOR.log(Level.SEVERE, "Error al guardar el horario en disco", excepcionCapturada);
+            mostrarAlerta(AlertType.ERROR, "Error al guardar", "No se pudo guardar el horario en el servidor local.");
         }
     }
 
     private String obtenerMatriculaUsuarioActual() {
-        Object usuarioActual = SesionUsuarioSingleton
-                .obtenerInstancia()
-                .obtenerUsuarioActual();
+        Object usuarioActual = SesionUsuarioSingleton.obtenerInstancia().obtenerUsuarioActual();
+        String matriculaEncontrada = null;
 
-        if (!(usuarioActual instanceof PracticanteDTO practicanteActual)) {
-            LOGGER.log(Level.WARNING,
-                    "El usuario en sesión no es un Practicante: {0}",
-                    usuarioActual != null ? usuarioActual.getClass().getName() : "null");
-            return null;
+        if (usuarioActual instanceof PracticanteDTO practicanteActual) {
+            matriculaEncontrada = practicanteActual.getMatricula();
+        } else {
+            String tipoUsuarioDetectado = "null";
+            if (usuarioActual != null) {
+                tipoUsuarioDetectado = usuarioActual.getClass().getName();
+            }
+            REGISTRADOR.log(Level.WARNING, "El usuario en sesión no es un Practicante: " + tipoUsuarioDetectado);
         }
 
-        return practicanteActual.getMatricula();
+        return matriculaEncontrada;
     }
 
-    private Path construirRutaCarpetaMatricula(String matricula) {
-        return Paths.get(System.getProperty("user.dir"), NOMBRE_CARPETA_RAIZ, matricula);
+    private Path construirRutaCarpetaMatricula(String matriculaRecibida) {
+        return Paths.get(System.getProperty("user.dir"), NOMBRE_CARPETA_RAIZ, matriculaRecibida);
     }
 
     private boolean existeHorarioPrevio(Path carpetaMatricula) throws IOException {
-        if (!Files.exists(carpetaMatricula)) {
-            return false;
+        boolean existeHorario = false;
+        if (Files.exists(carpetaMatricula)) {
+            try (Stream<Path> flujoDeArchivos = Files.list(carpetaMatricula)) {
+                existeHorario = flujoDeArchivos.anyMatch(this::esArchivoPdf);
+            }
         }
-        try (Stream<Path> archivos = Files.list(carpetaMatricula)) {
-            return archivos.anyMatch(this::esArchivoPdf);
-        }
+        return existeHorario;
     }
 
-    private boolean esArchivoPdf(Path ruta) {
-        return Files.isRegularFile(ruta)
-                && ruta.getFileName().toString().toLowerCase().endsWith(EXTENSION_PDF);
+    private boolean esArchivoPdf(Path rutaRecibida) {
+        return Files.isRegularFile(rutaRecibida)
+                && rutaRecibida.getFileName().toString().toLowerCase().endsWith(EXTENSION_PDF);
     }
 
     private boolean confirmarReemplazoHorarioExistente() {
@@ -197,8 +195,12 @@ public class HorarioControlador implements Regresable {
         alertaReemplazo.setHeaderText("Horario existente");
         alertaReemplazo.setTitle("Horario ya registrado");
 
-        Optional<ButtonType> respuesta = alertaReemplazo.showAndWait();
-        return respuesta.isPresent() && respuesta.get() == ButtonType.YES;
+        Optional<ButtonType> respuestaAlerta = alertaReemplazo.showAndWait();
+        boolean fueConfirmado = false;
+        if (respuestaAlerta.isPresent() && respuestaAlerta.get() == ButtonType.YES) {
+            fueConfirmado = true;
+        }
+        return fueConfirmado;
     }
 
     private boolean confirmarSubidaHorario() {
@@ -208,8 +210,12 @@ public class HorarioControlador implements Regresable {
         alertaConfirmacion.setHeaderText(null);
         alertaConfirmacion.setTitle("Confirmar subida");
 
-        Optional<ButtonType> respuesta = alertaConfirmacion.showAndWait();
-        return respuesta.isPresent() && respuesta.get() == ButtonType.YES;
+        Optional<ButtonType> respuestaAlerta = alertaConfirmacion.showAndWait();
+        boolean fueConfirmado = false;
+        if (respuestaAlerta.isPresent() && respuestaAlerta.get() == ButtonType.YES) {
+            fueConfirmado = true;
+        }
+        return fueConfirmado;
     }
 
     private Path copiarHorarioACarpetaDestino(Path carpetaMatricula) throws IOException {
@@ -219,47 +225,51 @@ public class HorarioControlador implements Regresable {
             eliminarHorariosPreviosEnCarpeta(carpetaMatricula);
         }
 
-        Path archivoDestino = carpetaMatricula.resolve(archivoPdfSeleccionado.getName());
-        Files.copy(archivoPdfSeleccionado.toPath(), archivoDestino,
-                StandardCopyOption.REPLACE_EXISTING);
-        return archivoDestino;
+        Path rutaArchivoDestino = carpetaMatricula.resolve(archivoPdfSeleccionado.getName());
+        Files.copy(archivoPdfSeleccionado.toPath(), rutaArchivoDestino, StandardCopyOption.REPLACE_EXISTING);
+        return rutaArchivoDestino;
     }
 
     private void eliminarHorariosPreviosEnCarpeta(Path carpetaMatricula) throws IOException {
-        try (Stream<Path> archivos = Files.list(carpetaMatricula)) {
-            for (Path archivo : archivos.filter(this::esArchivoPdf).toList()) {
-                Files.deleteIfExists(archivo);
-            }
+        try (Stream<Path> flujoDeArchivos = Files.list(carpetaMatricula)) {
+            flujoDeArchivos
+                    .filter(this::esArchivoPdf)
+                    .forEach(archivoParaEliminar -> {
+                        try {
+                            Files.deleteIfExists(archivoParaEliminar);
+                        } catch (IOException excepcionCapturada) {
+                            REGISTRADOR.log(Level.SEVERE, "Error al eliminar archivo previo", excepcionCapturada);
+                        }
+                    });
         }
     }
 
     @Override
-    public void setEscenaAnterior(Scene escena) {
-        this.escenaAnterior = escena;
+    public void setEscenaAnterior(Scene escenaGuardada) {
+        this.escenaAnterior = escenaGuardada;
     }
 
-    private void regresar() {
-        if (escenaAnterior != null) {
-            Stage escenario = (Stage) btnCancelar.getScene().getWindow();
-            escenario.setScene(escenaAnterior);
-            escenario.show();
-        }
-    }
-    private void mostrarAlerta(AlertType tipo, String titulo, String mensaje) {
-        Alert alerta = new Alert(tipo);
-        alerta.setTitle(titulo);
-        alerta.setHeaderText(null);
-        alerta.setContentText(mensaje);
-        alerta.showAndWait();
+    @FXML
+    private void manejarSalir(ActionEvent eventoBoton) {
+        Node nodoOrigenDeAtras = (Node) eventoBoton.getSource();
+        regresar(nodoOrigenDeAtras, this.escenaAnterior);
     }
 
-    private void mostrarElemento(javafx.scene.Node nodo) {
-        nodo.setVisible(true);
-        nodo.setManaged(true);
+    private void mostrarAlerta(AlertType tipoAlerta, String tituloAlerta, String mensajeAlerta) {
+        Alert ventanaAlerta = new Alert(tipoAlerta);
+        ventanaAlerta.setTitle(tituloAlerta);
+        ventanaAlerta.setHeaderText(null);
+        ventanaAlerta.setContentText(mensajeAlerta);
+        ventanaAlerta.showAndWait();
     }
 
-    private void ocultarElemento(javafx.scene.Node nodo) {
-        nodo.setVisible(false);
-        nodo.setManaged(false);
+    private void mostrarElemento(Node nodoRecibido) {
+        nodoRecibido.setVisible(true);
+        nodoRecibido.setManaged(true);
+    }
+
+    private void ocultarElemento(Node nodoRecibido) {
+        nodoRecibido.setVisible(false);
+        nodoRecibido.setManaged(false);
     }
 }

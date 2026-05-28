@@ -37,7 +37,7 @@ public class AutoevaluacionDAO implements AutoevaluacionDAOInterfaz {
     }
 
     @Override
-    public AutoevaluacionDTO agregarautoevaluacion(AutoevaluacionDTO autoevaluacion) throws DAOExcepcion {
+    public AutoevaluacionDTO agregarAutoevaluacion(AutoevaluacionDTO autoevaluacion) throws DAOExcepcion {
         try(PreparedStatement sentenciaPreparada = conexion.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)){
             sentenciaPreparada.setString(1, autoevaluacion.getMatricula());
             sentenciaPreparada.setBigDecimal(2, autoevaluacion.getCalificacion());

@@ -2,17 +2,16 @@ package gui.controladores;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import logica.utilidades.SesionUsuarioSingleton;
+import static gui.controladores.NavegacionControlador.abrirVentana;
 
 public class PrincipalAdministradorControlador extends PrincipalBaseControlador{
 
     @FXML private Button btnUsuarios;
-    @FXML private Button btnCerrarSesion;
 
 
     @Override
     protected void inicializarBotonesEspecificos() {
-        btnUsuarios.setOnAction(e -> abrirVentana("/gui/vista/FXMLListaUsuarios.fxml"));
+        btnUsuarios.setOnAction(evento -> abrirVentana("/gui/vista/FXMLListaUsuarios.fxml", btnUsuarios));
     }
 
 }

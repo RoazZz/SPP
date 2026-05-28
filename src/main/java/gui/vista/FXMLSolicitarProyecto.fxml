@@ -57,8 +57,8 @@
                 <HBox alignment="CENTER_RIGHT" spacing="20">
                     <Label fx:id="lblError" maxWidth="350.0" styleClass="label-error" wrapText="true" />
                     <Region HBox.hgrow="ALWAYS" />
-                    <Button fx:id="btnCancelar" styleClass="btn-cancelar" text="CANCELAR" />
-                    <Button fx:id="btnEnviar" styleClass="btn-guardar" text="ENVIAR SOLICITUDES" />
+                    <Button fx:id="btnCancelar" onAction="#manejarSalir" styleClass="btn-cancelar" text="CANCELAR" />
+                    <Button fx:id="btnEnviar" onAction="#manejarEnviarSolicitud" styleClass="btn-guardar" text="ENVIAR SOLICITUDES" />
                 </HBox>
             </VBox>
         </VBox>

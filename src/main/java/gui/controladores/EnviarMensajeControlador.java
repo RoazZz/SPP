@@ -2,16 +2,21 @@ package gui.controladores;
 
 import excepciones.DAOExcepcion;
 import excepciones.EntidadNoEncontradaExcepcion;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 import logica.dao.AdministradorDAO;
 import logica.dao.BuzonDAO;
 import logica.dao.CoordinadorDAO;
@@ -28,24 +33,25 @@ import logica.dto.UsuarioDTO;
 import logica.utilidades.SesionUsuarioSingleton;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class EnviarMensajeControlador implements Initializable {
 
-    private static final Logger logger = Logger.getLogger(EnviarMensajeControlador.class.getName());
+    private static final Logger REGISTRADOR = Logger.getLogger(EnviarMensajeControlador.class.getName());
 
     @FXML private TextField txtBuscarDestinatario;
     @FXML private ComboBox<UsuarioDTO> cbDestinatario;
     @FXML private TextField txtAsunto;
-    @FXML private TextArea  txtMensaje;
-    @FXML private Label     lblMensaje;
+    @FXML private TextArea txtMensaje;
+    @FXML private Label lblMensaje;
 
     private ObservableList<UsuarioDTO> todosLosDestinatarios = FXCollections.observableArrayList();
 
     @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
+    public void initialize(URL urlRecibida, ResourceBundle recursoRecibido) {
         cargarDestinatarios();
         configurarComboBox();
         configurarBusqueda();
@@ -53,163 +59,161 @@ public class EnviarMensajeControlador implements Initializable {
 
     private void cargarDestinatarios() {
         try {
-            int idUsuarioActual = SesionUsuarioSingleton.obtenerInstancia()
-                    .obtenerUsuarioActual().getIdUsuario();
+            int idUsuarioActual = SesionUsuarioSingleton.obtenerInstancia().obtenerUsuarioActual().getIdUsuario();
 
             PracticanteDAO practicanteDAO = new PracticanteDAO();
-            for (PracticanteDTO practicante : practicanteDAO.listarPracticantes()) {
+            List<PracticanteDTO> listaPracticantes = practicanteDAO.listarPracticantes();
+            for (int indice = 0; indice < listaPracticantes.size(); indice++) {
+                PracticanteDTO practicante = listaPracticantes.get(indice);
                 if (practicante.getIdUsuario() != idUsuarioActual) {
                     todosLosDestinatarios.add(practicante);
                 }
             }
 
             CoordinadorDAO coordinadorDAO = new CoordinadorDAO();
-            for (CoordinadorDTO coordinador : coordinadorDAO.listarCoordinador()) {
+            List<CoordinadorDTO> listaCoordinadores = coordinadorDAO.listarCoordinador();
+            for (int indice = 0; indice < listaCoordinadores.size(); indice++) {
+                CoordinadorDTO coordinador = listaCoordinadores.get(indice);
                 if (coordinador.getIdUsuario() != idUsuarioActual) {
                     todosLosDestinatarios.add(coordinador);
                 }
             }
 
             ProfesorDAO profesorDAO = new ProfesorDAO();
-            for (ProfesorDTO profesor : profesorDAO.listarProfesores()) {
+            List<ProfesorDTO> listaProfesores = profesorDAO.listarProfesores();
+            for (int indice = 0; indice < listaProfesores.size(); indice++) {
+                ProfesorDTO profesor = listaProfesores.get(indice);
                 if (profesor.getIdUsuario() != idUsuarioActual) {
                     todosLosDestinatarios.add(profesor);
                 }
             }
 
             AdministradorDAO administradorDAO = new AdministradorDAO();
-            for (AdministradorDTO administrador : administradorDAO.listarAdministradores()) {
+            List<AdministradorDTO> listaAdministradores = administradorDAO.listarAdministradores();
+            for (int indice = 0; indice < listaAdministradores.size(); indice++) {
+                AdministradorDTO administrador = listaAdministradores.get(indice);
                 if (administrador.getIdUsuario() != idUsuarioActual) {
                     todosLosDestinatarios.add(administrador);
                 }
             }
 
             cbDestinatario.setItems(todosLosDestinatarios);
-            logger.log(Level.INFO, "Destinatarios cargados correctamente");
-        } catch (DAOExcepcion e) {
-            logger.log(Level.SEVERE, "Error al cargar destinatarios", e);
+        } catch (DAOExcepcion excepcionCapturada) {
+            REGISTRADOR.log(Level.SEVERE, "Error al cargar destinatarios", excepcionCapturada);
+            lblMensaje.getStyleClass().add("label-error");
             lblMensaje.setText("Error al cargar la lista de destinatarios.");
         }
     }
 
     private void configurarComboBox() {
-        cbDestinatario.setCellFactory(lista -> new ListCell<>() {
+        Callback<ListView<UsuarioDTO>, ListCell<UsuarioDTO>> factoryCelda = new Callback<>() {
             @Override
-            protected void updateItem(UsuarioDTO usuario, boolean vacio) {
-                super.updateItem(usuario, vacio);
-                if (vacio || usuario == null) {
-                    setText(null);
-                } else {
-                    setText(obtenerEtiqueta(usuario));
-                }
+            public ListCell<UsuarioDTO> call(ListView<UsuarioDTO> lista) {
+                return new ListCell<>() {
+                    @Override
+                    protected void updateItem(UsuarioDTO usuario, boolean vacio) {
+                        super.updateItem(usuario, vacio);
+                        if (vacio || usuario == null) {
+                            setText(null);
+                        } else {
+                            setText(obtenerEtiqueta(usuario));
+                        }
+                    }
+                };
             }
-        });
-
-        cbDestinatario.setButtonCell(new ListCell<>() {
-            @Override
-            protected void updateItem(UsuarioDTO usuario, boolean vacio) {
-                super.updateItem(usuario, vacio);
-                if (vacio || usuario == null) {
-                    setText(null);
-                } else {
-                    setText(obtenerEtiqueta(usuario));
-                }
-            }
-        });
+        };
+        cbDestinatario.setCellFactory(factoryCelda);
+        cbDestinatario.setButtonCell(factoryCelda.call(null));
     }
 
     private void configurarBusqueda() {
-        txtBuscarDestinatario.textProperty().addListener((observable, anterior, nuevo) -> {
-            if (nuevo == null || nuevo.isBlank()) {
-                cbDestinatario.setItems(todosLosDestinatarios);
-            } else {
-                String busqueda = nuevo.toLowerCase();
-                ObservableList<UsuarioDTO> filtrados = FXCollections.observableArrayList();
-                for (UsuarioDTO usuario : todosLosDestinatarios) {
-                    if (obtenerEtiqueta(usuario).toLowerCase().contains(busqueda)) {
-                        filtrados.add(usuario);
+        txtBuscarDestinatario.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String anterior, String nuevo) {
+                if (nuevo == null || nuevo.isBlank()) {
+                    cbDestinatario.setItems(todosLosDestinatarios);
+                } else {
+                    String busqueda = nuevo.toLowerCase();
+                    ObservableList<UsuarioDTO> filtrados = FXCollections.observableArrayList();
+                    for (int indice = 0; indice < todosLosDestinatarios.size(); indice++) {
+                        UsuarioDTO usuario = todosLosDestinatarios.get(indice);
+                        if (obtenerEtiqueta(usuario).toLowerCase().contains(busqueda)) {
+                            filtrados.add(usuario);
+                        }
                     }
+                    cbDestinatario.setItems(filtrados);
                 }
-                cbDestinatario.setItems(filtrados);
             }
         });
     }
 
     private String obtenerEtiqueta(UsuarioDTO usuario) {
-        String nombreCompleto = usuario.getNombre() + " "
-                + usuario.getApellidoPaterno() + " "
-                + usuario.getApellidoMaterno();
-
-        if (usuario instanceof PracticanteDTO) {
-            return nombreCompleto + " - " + ((PracticanteDTO) usuario).getMatricula() + " (Practicante)";
-        } else if (usuario instanceof CoordinadorDTO) {
-            return nombreCompleto + " - " + ((CoordinadorDTO) usuario).getNumeroPersonal() + " (Coordinador)";
-        } else if (usuario instanceof ProfesorDTO) {
-            return nombreCompleto + " - " + ((ProfesorDTO) usuario).getNumeroDePersonal() + " (Profesor)";
-        } else if (usuario instanceof AdministradorDTO) {
-            return nombreCompleto + " - " + ((AdministradorDTO) usuario).getIdAdministrador() + " (Administrador)";
+        String nombreCompleto = usuario.getNombre() + " " + usuario.getApellidoPaterno() + " " + usuario.getApellidoMaterno();
+        String etiqueta = nombreCompleto;
+        if (usuario instanceof PracticanteDTO practicante) {
+            etiqueta = nombreCompleto + " - " + practicante.getMatricula() + " (Practicante)";
+        } else if (usuario instanceof CoordinadorDTO coordinador) {
+            etiqueta = nombreCompleto + " - " + coordinador.getNumeroPersonal() + " (Coordinador)";
+        } else if (usuario instanceof ProfesorDTO profesor) {
+            etiqueta = nombreCompleto + " - " + profesor.getNumeroDePersonal() + " (Profesor)";
+        } else if (usuario instanceof AdministradorDTO administrador) {
+            etiqueta = nombreCompleto + " - " + administrador.getIdAdministrador() + " (Administrador)";
         }
-        return nombreCompleto;
+        return etiqueta;
     }
 
     @FXML
-    private void enviar() {
+    private void manejarEnviar(ActionEvent eventoClic) {
         UsuarioDTO destinatario = cbDestinatario.getValue();
-
         if (destinatario == null) {
+            lblMensaje.getStyleClass().add("label-error");
             lblMensaje.setText("Selecciona un destinatario.");
             return;
         }
         if (txtAsunto.getText().isBlank()) {
+            lblMensaje.getStyleClass().add("label-error");
             lblMensaje.setText("El asunto no puede estar vacío.");
             return;
         }
         if (txtMensaje.getText().isBlank()) {
+            lblMensaje.getStyleClass().add("label-error");
             lblMensaje.setText("El mensaje no puede estar vacío.");
             return;
         }
-
         try {
-            int idUsuarioOrigen = SesionUsuarioSingleton.obtenerInstancia()
-                    .obtenerUsuarioActual().getIdUsuario();
-
+            int idUsuarioOrigen = SesionUsuarioSingleton.obtenerInstancia().obtenerUsuarioActual().getIdUsuario();
             BuzonDAO buzonDAO = new BuzonDAO();
             BuzonDTO buzonOrigen = buzonDAO.obtenerBuzonPorIdUsuario(idUsuarioOrigen);
             BuzonDTO buzonDestino = buzonDAO.obtenerBuzonPorIdUsuario(destinatario.getIdUsuario());
-
-            MensajeDTO mensaje = new MensajeDTO(
-                    buzonOrigen.getIdBuzon(),
-                    buzonDestino.getIdBuzon(),
-                    txtAsunto.getText().trim(),
-                    txtMensaje.getText().trim()
-            );
-
-            MensajeDAO mensajeDAO = new MensajeDAO();
-            mensajeDAO.insertarMensaje(mensaje);
-
-            lblMensaje.setStyle("-fx-text-fill: green;");
+            MensajeDTO mensaje = new MensajeDTO(buzonOrigen.getIdBuzon(), buzonDestino.getIdBuzon(), txtAsunto.getText().trim(), txtMensaje.getText().trim());
+            new MensajeDAO().insertarMensaje(mensaje);
+            lblMensaje.getStyleClass().remove("label-error");
+            lblMensaje.getStyleClass().add("label-exito");
             lblMensaje.setText("Mensaje enviado correctamente.");
-            limpiar();
-            logger.log(Level.INFO, "Mensaje enviado correctamente");
-        } catch (DAOExcepcion | EntidadNoEncontradaExcepcion e) {
-            logger.log(Level.SEVERE, "Error al enviar el mensaje", e);
+            manejarLimpiar(null);
+        } catch (DAOExcepcion | EntidadNoEncontradaExcepcion excepcion) {
+            REGISTRADOR.log(Level.SEVERE, "Error al enviar mensaje", excepcion);
+            lblMensaje.getStyleClass().add("label-error");
             lblMensaje.setText("Error al enviar el mensaje.");
         }
     }
 
     @FXML
-    private void limpiar() {
+    private void manejarLimpiar(ActionEvent eventoClic) {
         txtBuscarDestinatario.clear();
         cbDestinatario.setItems(todosLosDestinatarios);
         cbDestinatario.setValue(null);
         txtAsunto.clear();
         txtMensaje.clear();
-        lblMensaje.setText("");
-        lblMensaje.setStyle("");
+        if (eventoClic != null) {
+            lblMensaje.setText("");
+            lblMensaje.getStyleClass().removeAll("label-exito", "label-error");
+        }
     }
 
     @FXML
-    private void salir() {
-        ((Stage) txtAsunto.getScene().getWindow()).close();
+    private void manejarCancelar(ActionEvent eventoClic) {
+        Stage escenario = (Stage) txtAsunto.getScene().getWindow();
+        escenario.close();
     }
 }

@@ -5,14 +5,13 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="650.0" prefWidth="1000.0" stylesheets="@/estilos.css"
-            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="gui.controladores.ListaReportesControlador">
+<BorderPane prefHeight="650.0" prefWidth="1000.0" stylesheets="@/estilos.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.controladores.ListaReportesControlador">
     <top>
         <VBox alignment="CENTER" styleClass="header-container">
             <Label styleClass="titulo-ventana" text="REPORTES" />
@@ -20,21 +19,40 @@
     </top>
     <center>
         <VBox alignment="TOP_CENTER" spacing="20" style="-fx-padding: 30 40 30 40;">
-            <VBox maxWidth="876.0" prefWidth="876.0" spacing="15" styleClass="panel-formulario"
-                  style="-fx-max-width: 876px;">
+            <VBox maxWidth="876.0" prefWidth="876.0" spacing="15" styleClass="panel-formulario" style="-fx-max-width: 876px;">
                 <Label styleClass="label-seccion" text="Reportes de Practicantes" />
                 <HBox alignment="CENTER_LEFT" spacing="15">
                     <ComboBox fx:id="cbFiltroTipo" prefWidth="200" promptText="Filtrar por tipo" />
                     <Region HBox.hgrow="ALWAYS" />
-                    <Button fx:id="btnLimpiarFiltro" styleClass="btn-cancelar" text="LIMPIAR FILTRO" />
+                    <Button onAction="#manejarLimpiarFiltro" styleClass="btn-cancelar" text="LIMPIAR FILTRO" />
                 </HBox>
                 <TableView fx:id="tablaReportes" VBox.vgrow="ALWAYS">
                     <columns>
-                        <TableColumn fx:id="colIdReporte" prefWidth="80" text="ID" />
-                        <TableColumn fx:id="colIdUsuario" prefWidth="100" text="ID Practicante" />
-                        <TableColumn fx:id="colTipoReporte" prefWidth="120" text="Tipo" />
-                        <TableColumn fx:id="colFecha" prefWidth="120" text="Fecha" />
-                        <TableColumn fx:id="colEstado" prefWidth="120" text="Estado" />
+                        <TableColumn fx:id="colIdReporte" prefWidth="80" text="ID">
+                            <cellValueFactory>
+                                <PropertyValueFactory property="idReporte" />
+                            </cellValueFactory>
+                        </TableColumn>
+                        <TableColumn fx:id="colIdUsuario" prefWidth="100" text="ID Practicante">
+                            <cellValueFactory>
+                                <PropertyValueFactory property="idUsuario" />
+                            </cellValueFactory>
+                        </TableColumn>
+                        <TableColumn fx:id="colTipoReporte" prefWidth="120" text="Tipo">
+                            <cellValueFactory>
+                                <PropertyValueFactory property="tipoReporte" />
+                            </cellValueFactory>
+                        </TableColumn>
+                        <TableColumn fx:id="colFecha" prefWidth="120" text="Fecha">
+                            <cellValueFactory>
+                                <PropertyValueFactory property="fecha" />
+                            </cellValueFactory>
+                        </TableColumn>
+                        <TableColumn fx:id="colEstado" prefWidth="120" text="Estado">
+                            <cellValueFactory>
+                                <PropertyValueFactory property="estado" />
+                            </cellValueFactory>
+                        </TableColumn>
                         <TableColumn fx:id="colMes" prefWidth="100" text="Mes" />
                         <TableColumn fx:id="colAcciones" prefWidth="220" sortable="false" text="Acciones" />
                     </columns>
@@ -42,7 +60,7 @@
                 <HBox alignment="CENTER_RIGHT" spacing="15">
                     <Label fx:id="lblContador" styleClass="label-seccion" text="0 reportes" />
                     <Region HBox.hgrow="ALWAYS" />
-                    <Button fx:id="btnCerrar" styleClass="btn-cancelar" text="CERRAR" />
+                    <Button onAction="#manejarRegresar" styleClass="btn-cancelar" text="CERRAR" />
                 </HBox>
             </VBox>
         </VBox>

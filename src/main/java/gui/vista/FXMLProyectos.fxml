@@ -43,9 +43,9 @@
             <HBox alignment="CENTER_RIGHT" spacing="15">
                 <Label fx:id="lblMensaje" styleClass="label-error" wrapText="true" maxWidth="400.0" />
                 <Region HBox.hgrow="ALWAYS" />
-                <Button fx:id="btnAnadir"  onAction="#abrirAnadirProyecto" styleClass="btn-guardar"  text="AÑADIR" />
-                <Button fx:id="btnEditar"  onAction="#abrirEditarProyecto" styleClass="btn-guardar"  text="EDITAR" />
-                <Button fx:id="btnSalir"   onAction="#salir"               styleClass="btn-cancelar" text="SALIR" />
+                <Button onAction="#manejarAgregar" styleClass="btn-guardar"  text="AÑADIR" />
+                <Button onAction="#manejarEditar"  styleClass="btn-guardar"  text="EDITAR" />
+                <Button onAction="#manejarSalir"   styleClass="btn-cancelar" text="SALIR" />
             </HBox>
 
         </VBox>

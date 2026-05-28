@@ -25,7 +25,7 @@
                             text="SUBIR AUTOEVALUACIÓN FIRMADA" />
                 </HBox>
                 <HBox alignment="CENTER_RIGHT">
-                    <Button fx:id="btnRegresar" styleClass="btn-cancelar" text="REGRESAR" />
+                    <Button fx:id="btnRegresar" onAction="#manejarSalir" styleClass="btn-cancelar" text="REGRESAR" />
                 </HBox>
             </VBox>
         </VBox>

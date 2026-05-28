@@ -1,46 +1,40 @@
 package gui.controladores;
 
 import logica.interfaces.Regresable;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.stage.Stage;
-import javafx.scene.control.Button;
 import java.util.logging.Logger;
 
+import static gui.controladores.NavegacionControlador.abrirVentana;
+import static gui.controladores.NavegacionControlador.regresar;
+
 public class ReporteSeleccionControlador implements Regresable {
+
+    private static final Logger REGISTRADOR = Logger.getLogger(ReporteSeleccionControlador.class.getName());
     private Scene escenaAnterior;
-    private static final Logger logger = Logger.getLogger(ReporteSeleccionControlador.class.getName());
 
-    @FXML private Button btnRegresar;
-    @FXML private Button btnGenerar;
-    @FXML private Button btnAñadir;
-
-    public void initialize() {
-        btnGenerar.setOnAction(e -> irAGenerar());
-        btnAñadir.setOnAction(e -> irAAnadir());
-        btnRegresar.setOnAction(e -> regresar());
+    @FXML
+    private void manejarGenerar(ActionEvent eventoClic) {
+        Node nodoOrigen = (Node) eventoClic.getSource();
+        abrirVentana("/gui/vista/FXMLReporteGenerar.fxml", nodoOrigen);
     }
 
     @FXML
-    private void irAGenerar() {
-        NavegacionControlador.abrirVentana("/gui/vista/FXMLReporteGenerar.fxml", btnGenerar);
-    }
-
-    @FXML
-    private void irAAnadir() {
-        NavegacionControlador.abrirVentana("/gui/vista/FXMLReporteAnadir.fxml", btnAñadir);
+    private void manejarAnadir(ActionEvent eventoClic) {
+        Node nodoOrigen = (Node) eventoClic.getSource();
+        abrirVentana("/gui/vista/FXMLReporteAnadir.fxml", nodoOrigen);
     }
 
     @Override
-    public void setEscenaAnterior(Scene escena) {
-        this.escenaAnterior = escena;
+    public void setEscenaAnterior(Scene escenaGuardada) {
+        this.escenaAnterior = escenaGuardada;
     }
 
-    private void regresar() {
-        if (escenaAnterior != null) {
-            Stage escenario = (Stage) btnRegresar.getScene().getWindow();
-            escenario.setScene(escenaAnterior);
-            escenario.show();
-        }
+    @FXML
+    private void manejarCancelar(ActionEvent eventoClic) {
+        Node nodoOrigen = (Node) eventoClic.getSource();
+        regresar(nodoOrigen, this.escenaAnterior);
     }
 }

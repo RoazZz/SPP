@@ -62,9 +62,9 @@
 
                 <HBox alignment="CENTER_RIGHT" spacing="15">
                     <padding><Insets top="5" /></padding>
-                    <Button fx:id="btnDescargar" styleClass="btn-cancelar" text="DESCARGAR" />
-                    <Button fx:id="btnCancelar" styleClass="btn-cancelar" text="CANCELAR" />
-                    <Button fx:id="btnCalificar" styleClass="btn-guardar" text="CALIFICAR" />
+                    <Button fx:id="btnDescargar" onAction="#manejarDescargar" styleClass="btn-cancelar" text="DESCARGAR" />
+                    <Button fx:id="btnCancelar" onAction="#manejarCancelar" styleClass="btn-cancelar" text="CANCELAR" />
+                    <Button fx:id="btnCalificar" onAction="#manejarCalificar" styleClass="btn-guardar" text="CALIFICAR" />
                 </HBox>
 
             </VBox>

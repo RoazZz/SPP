@@ -12,13 +12,13 @@ import logica.dto.UsuarioDTO;
 import logica.utilidades.AutenticacionUsuario;
 import logica.utilidades.SesionUsuarioSingleton;
 
-
+import javafx.event.ActionEvent;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class InicioSesionControlador {
 
-    private static final Logger logger = Logger.getLogger(InicioSesionControlador.class.getName());
+    private static final Logger REGISTRADOR = Logger.getLogger(InicioSesionControlador.class.getName());
 
     @FXML private TextField txtUsuario;
     @FXML private PasswordField pswContrasenia;
@@ -28,7 +28,7 @@ public class InicioSesionControlador {
     private final NavegacionControlador navegacionControlador = new NavegacionControlador();
 
     @FXML
-    public void manejarInicioDeSesion() {
+    private void manejarInicioDeSesion(ActionEvent evento) {
         if (!validarCampos()) {
             return;
         }
@@ -38,9 +38,11 @@ public class InicioSesionControlador {
     private boolean validarCampos() {
         if (txtUsuario.getText().trim().isEmpty() || pswContrasenia.getText().trim().isEmpty()) {
             lblMensaje.setText("Es obligatorio llenar todos los campos");
+            return false;
         }
         return true;
     }
+
 
     private void autenticarYNavegar() {
         try {
@@ -48,13 +50,13 @@ public class InicioSesionControlador {
             navegar(usuario);
         } catch (EntidadNoEncontradaExcepcion e) {
             lblMensaje.setText("Usuario no encontrado");
-            logger.log(Level.WARNING, "Usuario no encontrado", e);
+            REGISTRADOR.log(Level.WARNING, "Usuario no encontrado", e);
         } catch (AutenticacionDeUsuarioExcepcion e) {
             lblMensaje.setText(e.getMessage());
-            logger.log(Level.WARNING, "Error de autenticación", e);
+            REGISTRADOR.log(Level.WARNING, "Error de autenticación", e);
         } catch (DAOExcepcion e) {
             lblMensaje.setText("Error al conectar con la base de datos");
-            logger.log(Level.SEVERE, "Error de base de datos en login", e);
+            REGISTRADOR.log(Level.SEVERE, "Error de base de datos en login", e);
         }
     }
 

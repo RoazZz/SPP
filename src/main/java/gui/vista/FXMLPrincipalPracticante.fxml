@@ -123,7 +123,7 @@
 
                 <Label styleClass="label-seccion" stylesheets="@/estilos.css" text="Plan de Actividades" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER" />
 
-                <Button fx:id="btnCerrarSesion" mnemonicParsing="false" text="Cerrar Sesión" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
+                <Button fx:id="btnCerrarSesion" onAction="#manejarCerrarSesion" mnemonicParsing="false" text="Cerrar Sesión" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
             </children>
         </GridPane>
     </center>

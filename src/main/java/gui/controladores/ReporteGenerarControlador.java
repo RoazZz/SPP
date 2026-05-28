@@ -6,12 +6,15 @@ import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.List;
 import logica.interfaces.Regresable;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
@@ -36,46 +39,55 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ReporteGenerarControlador implements Initializable, Regresable {
-    private static final Logger logger = Logger.getLogger(ReporteGenerarControlador.class.getName());
 
-    @FXML private TextField txtNRC, txtPeriodo, txtNombreActividad, txtTiempoP, txtTiempoR;
+    private static final Logger REGISTRADOR = Logger.getLogger(ReporteGenerarControlador.class.getName());
+
+    @FXML private TextField txtNRC;
+    @FXML private TextField txtPeriodo;
+    @FXML private TextField txtNombreActividad;
+    @FXML private TextField txtTiempoP;
+    @FXML private TextField txtTiempoR;
     @FXML private TextArea txtDescActividad;
     @FXML private ComboBox<TipoReporte> cbTipoReporte;
     @FXML private ListView<String> lvActividades;
-    @FXML private Button btnGenerar;
-    @FXML private Button btnCancelar;
     @FXML private ComboBox<String> cbMes;
-    private Scene escenaAnterior;
 
+    private Scene escenaAnterior;
     private ObservableList<String> listaActividades = FXCollections.observableArrayList();
 
     @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
+    public void initialize(URL urlRecibida, ResourceBundle recursoRecibido) {
         cbTipoReporte.getItems().setAll(TipoReporte.values());
         lvActividades.setItems(listaActividades);
-        btnGenerar.setOnAction(e -> procesarGeneracion());
-        btnCancelar.setOnAction(e -> regresar());
+
         cbMes.getItems().setAll(
                 "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
                 "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
         );
 
-        cbTipoReporte.valueProperty().addListener((observable, anterior, nuevo) -> {
-            boolean esMensual = nuevo == TipoReporte.MENSUAL;
-            cbMes.setVisible(esMensual);
-            cbMes.setManaged(esMensual);
-            if (!esMensual) {
-                cbMes.setValue(null);
+        cbTipoReporte.valueProperty().addListener(new ChangeListener<TipoReporte>() {
+            @Override
+            public void changed(ObservableValue<? extends TipoReporte> observablePropiedad, TipoReporte valorAnterior, TipoReporte valorNuevo) {
+                boolean esMensual = false;
+                if (valorNuevo == TipoReporte.MENSUAL) {
+                    esMensual = true;
+                }
+                cbMes.setVisible(esMensual);
+                cbMes.setManaged(esMensual);
+                if (!esMensual) {
+                    cbMes.setValue(null);
+                }
             }
         });
     }
 
     @FXML
-    private void agregarActividad() {
+    private void agregarActividad(ActionEvent eventoClic) {
         if (txtNombreActividad.getText().isEmpty() || txtTiempoR.getText().isEmpty()) {
             return;
         }
-        listaActividades.add(txtNombreActividad.getText() + " | Horas: " + txtTiempoR.getText() + " | " + txtDescActividad.getText());
+        String actividadFormateada = txtNombreActividad.getText() + " | Horas: " + txtTiempoR.getText() + " | " + txtDescActividad.getText();
+        listaActividades.add(actividadFormateada);
         txtNombreActividad.clear();
         txtDescActividad.clear();
         txtTiempoP.clear();
@@ -83,7 +95,7 @@ public class ReporteGenerarControlador implements Initializable, Regresable {
     }
 
     @FXML
-    private void procesarGeneracion() {
+    private void procesarGeneracion(ActionEvent eventoClic) {
         if (cbTipoReporte.getValue() == null || listaActividades.isEmpty()) {
             mostrarAlerta(Alert.AlertType.WARNING, "Campos vacíos", "Llena los datos y agrega actividades.");
             return;
@@ -95,103 +107,119 @@ public class ReporteGenerarControlador implements Initializable, Regresable {
         }
 
         String subCarpetaTipo = cbTipoReporte.getValue().name();
-        String nombreArchivo = cbTipoReporte.getValue() == TipoReporte.MENSUAL
-                ? "Generado_" + subCarpetaTipo + "_" + cbMes.getValue() + "_" + System.currentTimeMillis() + ".pdf"
-                : "Generado_" + subCarpetaTipo + "_" + System.currentTimeMillis() + ".pdf";
-        Path carpetaDestino = Paths.get(System.getProperty("user.dir"), "Reportes", subCarpetaTipo, "GENERADOS");
+        String nombreArchivoPDF = "Generado_" + subCarpetaTipo + "_" + System.currentTimeMillis() + ".pdf";
+        if (cbTipoReporte.getValue() == TipoReporte.MENSUAL) {
+            nombreArchivoPDF = "Generado_" + subCarpetaTipo + "_" + cbMes.getValue() + "_" + System.currentTimeMillis() + ".pdf";
+        }
+
+        Path carpetaDestinoSistema = Paths.get(System.getProperty("user.dir"), "Reportes", subCarpetaTipo, "GENERADOS");
 
         try {
             if (esDuplicado()) {
                 return;
             }
 
-            if (!Files.exists(carpetaDestino)) {
-                Files.createDirectories(carpetaDestino);
+            if (!Files.exists(carpetaDestinoSistema)) {
+                Files.createDirectories(carpetaDestinoSistema);
             }
 
-            Path rutaArchivo = carpetaDestino.resolve(nombreArchivo);
+            Path rutaArchivoFinal = carpetaDestinoSistema.resolve(nombreArchivoPDF);
 
-            PdfWriter pdfWriter = new PdfWriter(rutaArchivo.toString());
-            PdfDocument pdf = new PdfDocument(pdfWriter);
-            Document documento = new Document(pdf);
+            try (
+                    PdfWriter escritorPDF = new PdfWriter(rutaArchivoFinal.toString());
+                    PdfDocument documentoPDF = new PdfDocument(escritorPDF);
+                    Document documentoVisual = new Document(documentoPDF)
+            ) {
+                documentoVisual.add(new Paragraph("REPORTE OFICIAL DE PRÁCTICAS").setBold().setFontSize(16));
+                documentoVisual.add(new Paragraph("Tipo: " + subCarpetaTipo));
 
-            documento.add(new Paragraph("REPORTE OFICIAL DE PRÁCTICAS").setBold().setFontSize(16));
-            documento.add(new Paragraph("Tipo: " + subCarpetaTipo));
+                if (cbTipoReporte.getValue() == TipoReporte.MENSUAL) {
+                    documentoVisual.add(new Paragraph("Mes: " + cbMes.getValue()));
+                }
+
+                documentoVisual.add(new Paragraph("NRC: " + txtNRC.getText()));
+                documentoVisual.add(new Paragraph("Periodo: " + txtPeriodo.getText()));
+                documentoVisual.add(new Paragraph("Fecha: " + LocalDate.now()));
+                documentoVisual.add(new Paragraph("\nDETALLE DE ACTIVIDADES:"));
+
+                List listaVisualPDF = new List();
+                for (int indiceActividad = 0; indiceActividad < listaActividades.size(); indiceActividad++) {
+                    String actividadLista = listaActividades.get(indiceActividad);
+                    listaVisualPDF.add(actividadLista);
+                }
+                documentoVisual.add(listaVisualPDF);
+            }
+
+            String mesConfigurado = null;
             if (cbTipoReporte.getValue() == TipoReporte.MENSUAL) {
-                documento.add(new Paragraph("Mes: " + cbMes.getValue()));
+                mesConfigurado = cbMes.getValue();
             }
-            documento.add(new Paragraph("NRC: " + txtNRC.getText()));
-            documento.add(new Paragraph("Periodo: " + txtPeriodo.getText()));
-            documento.add(new Paragraph("Fecha: " + LocalDate.now()));
-            documento.add(new Paragraph("\nDETALLE DE ACTIVIDADES:"));
 
-            List listaPdf = new List();
-            for (String act : listaActividades) {
-                listaPdf.add(act);
-            }
-            documento.add(listaPdf);
-            documento.close();
-
-            String mesSeleccionado = cbTipoReporte.getValue() == TipoReporte.MENSUAL
-                    ? cbMes.getValue()
-                    : null;
-
-            ReporteDAO reporteDAO = new ReporteDAO();
-            ReporteDTO reporteDTO = new ReporteDTO(0,
-                    SesionUsuarioSingleton.obtenerInstancia().obtenerUsuarioActual().getIdUsuario(),
+            ReporteDAO reporteAccesoBD = new ReporteDAO();
+            int idUsuarioBase = SesionUsuarioSingleton.obtenerInstancia().obtenerUsuarioActual().getIdUsuario();
+            ReporteDTO reporteRegistrado = new ReporteDTO(
+                    0,
+                    idUsuarioBase,
                     cbTipoReporte.getValue(),
                     LocalDate.now(),
-                    rutaArchivo.toString(),
+                    rutaArchivoFinal.toString(),
                     EstadoReporte.GENERADO,
-                    mesSeleccionado,
+                    mesConfigurado,
                     null,
                     null,
                     null
             );
-            reporteDAO.agregarReporte(reporteDTO);
+            reporteAccesoBD.agregarReporte(reporteRegistrado);
 
             mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Reporte generado en: " + subCarpetaTipo + "/GENERADOS");
-            regresar();
+            regresar(eventoClic);
 
-        } catch (IOException | DAOExcepcion e) {
-            logger.log(Level.SEVERE, "Error en generación", e);
+        } catch (IOException | DAOExcepcion excepcionCapturada) {
+            REGISTRADOR.log(Level.SEVERE, "Error en generación", excepcionCapturada);
             mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudo completar la operación.");
         }
     }
 
     private boolean esDuplicado() throws DAOExcepcion {
-        ReporteDAO reporteDAO = new ReporteDAO();
-        int idUsuario = SesionUsuarioSingleton.obtenerInstancia().obtenerUsuarioActual().getIdUsuario();
-        String mesSeleccionado = cbTipoReporte.getValue() == TipoReporte.MENSUAL ? cbMes.getValue() : null;
+        ReporteDAO reporteAccesoBD = new ReporteDAO();
+        int identificadorUsuario = SesionUsuarioSingleton.obtenerInstancia().obtenerUsuarioActual().getIdUsuario();
+        String mesParaVerificar = null;
 
-        if (reporteDAO.existeDuplicado(idUsuario, cbTipoReporte.getValue(), mesSeleccionado, EstadoReporte.GENERADO)) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Reporte duplicado",
-                    cbTipoReporte.getValue() == TipoReporte.MENSUAL
-                            ? "Ya generaste el reporte de " + mesSeleccionado + "."
-                            : "Ya generaste tu reporte parcial.");
-            return true;
+        if (cbTipoReporte.getValue() == TipoReporte.MENSUAL) {
+            mesParaVerificar = cbMes.getValue();
         }
-        return false;
+
+        boolean existeRegistro = reporteAccesoBD.existeDuplicado(identificadorUsuario, cbTipoReporte.getValue(), mesParaVerificar, EstadoReporte.GENERADO);
+        if (existeRegistro) {
+            String mensajeAdvertencia = "Ya generaste tu reporte parcial.";
+            if (cbTipoReporte.getValue() == TipoReporte.MENSUAL) {
+                mensajeAdvertencia = "Ya generaste el reporte de " + mesParaVerificar + ".";
+            }
+            mostrarAlerta(Alert.AlertType.WARNING, "Reporte duplicado", mensajeAdvertencia);
+        }
+
+        return existeRegistro;
     }
 
-    private void mostrarAlerta(Alert.AlertType tipo, String titulo, String mensaje) {
-        Alert alert = new Alert(tipo);
-        alert.setTitle(titulo);
-        alert.setHeaderText(null);
-        alert.setContentText(mensaje);
-        alert.showAndWait();
+    private void mostrarAlerta(Alert.AlertType tipoAlerta, String tituloAlerta, String mensajeAlerta) {
+        Alert ventanaAlerta = new Alert(tipoAlerta);
+        ventanaAlerta.setTitle(tituloAlerta);
+        ventanaAlerta.setHeaderText(null);
+        ventanaAlerta.setContentText(mensajeAlerta);
+        ventanaAlerta.showAndWait();
     }
 
     @Override
-    public void setEscenaAnterior(Scene escena) {
-        this.escenaAnterior = escena;
+    public void setEscenaAnterior(Scene escenaGuardada) {
+        this.escenaAnterior = escenaGuardada;
     }
 
-    private void regresar() {
+    @FXML
+    private void regresar(ActionEvent eventoClic) {
         if (escenaAnterior != null) {
-            Stage escenario = (Stage) btnCancelar.getScene().getWindow();
-            escenario.setScene(escenaAnterior);
-            escenario.show();
+            Stage escenarioActual = (Stage) ((Node) eventoClic.getSource()).getScene().getWindow();
+            escenarioActual.setScene(escenaAnterior);
+            escenarioActual.show();
         }
     }
 }

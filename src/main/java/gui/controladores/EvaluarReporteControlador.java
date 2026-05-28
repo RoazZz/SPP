@@ -1,6 +1,7 @@
 package gui.controladores;
 
 import excepciones.DAOExcepcion;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -20,6 +21,8 @@ import java.util.logging.Logger;
 
 public class EvaluarReporteControlador {
 
+    private static final Logger REGISTRADOR = Logger.getLogger(EvaluarReporteControlador.class.getName());
+
     @FXML private Label lblIdReporte;
     @FXML private Label lblIdUsuario;
     @FXML private Label lblFecha;
@@ -33,13 +36,9 @@ public class EvaluarReporteControlador {
 
     private ReporteDTO reporteActual;
 
-    private static final Logger LOGGER = Logger.getLogger(EvaluarReporteControlador.class.getName());
-
     @FXML
     public void initialize() {
-        btnDescargar.setOnAction(evento -> manejarDescargar());
-        btnCancelar.setOnAction(evento -> manejarCancelar());
-        btnCalificar.setOnAction(evento -> manejarCalificar());
+        ocultarError();
     }
 
     public void cargarReporte(ReporteDTO reporte) {
@@ -50,76 +49,69 @@ public class EvaluarReporteControlador {
         lblEstado.setText(reporte.getEstado().name());
     }
 
-    private String validarCampos() {
-        String textoCalificacion = txtCalificacion.getText().trim();
-
-        if (textoCalificacion.isEmpty()) {
-            return "La calificación es obligatoria.";
-        }
-
-        double calificacion;
-        try {
-            calificacion = Double.parseDouble(textoCalificacion);
-        } catch (NumberFormatException e) {
-            return "La calificación debe ser un número válido (Ej. 8.50).";
-        }
-
-        if (calificacion < 0.0 || calificacion > 10.0) {
-            return "La calificación debe estar entre 0.00 y 10.00.";
-        }
-
-        return null;
-    }
-
-    private void calificarReporte(double calificacion) {
-        try {
-            ReporteDAO reporteDAO = new ReporteDAO();
-            reporteDAO.calificarReporte(reporteActual.getIdReporte(), calificacion);
-            mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Reporte Parcial evaluado exitosamente.");
-            btnCalificar.getScene().getWindow().hide();
-        } catch (DAOExcepcion e) {
-            LOGGER.log(Level.SEVERE, "Error al calificar reporte", e);
-            mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudo calificar el Reporte Parcial. Intente de nuevo.");
-        }
-    }
-
-    private void manejarCalificar() {
+    @FXML
+    private void manejarCalificar(ActionEvent eventoClic) {
         ocultarError();
-
         String errorValidacion = validarCampos();
         if (errorValidacion != null) {
             mostrarError(errorValidacion);
-            return;
-        }
-
-        Optional<ButtonType> respuesta = mostrarConfirmacion("¿Estás seguro de que deseas asignar esta calificación?");
-
-        if (respuesta.isPresent() && respuesta.get() == ButtonType.YES) {
-            calificarReporte(Double.parseDouble(txtCalificacion.getText().trim()));
+        } else {
+            Optional<ButtonType> respuesta = mostrarConfirmacion("¿Estás seguro de que deseas asignar esta calificación?");
+            if (respuesta.isPresent() && respuesta.get() == ButtonType.YES) {
+                calificarReporte(Double.parseDouble(txtCalificacion.getText().trim()));
+            }
         }
     }
 
-    private void manejarCancelar() {
+    @FXML
+    private void manejarCancelar(ActionEvent eventoClic) {
         Optional<ButtonType> respuesta = mostrarConfirmacion("¿Seguro desea cancelar?");
-
         if (respuesta.isPresent() && respuesta.get() == ButtonType.YES) {
             btnCancelar.getScene().getWindow().hide();
         }
     }
 
-    private void manejarDescargar() {
-        try {
-            File archivo = new File(reporteActual.getRuta());
-
-            if (!archivo.exists()) {
-                mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se encontró el archivo del reporte.");
-                return;
+    @FXML
+    private void manejarDescargar(ActionEvent eventoClic) {
+        if (reporteActual != null) {
+            try {
+                File archivo = new File(reporteActual.getRuta());
+                if (!archivo.exists()) {
+                    mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se encontró el archivo.");
+                } else {
+                    Desktop.getDesktop().open(archivo);
+                }
+            } catch (IOException excepcionCapturada) {
+                REGISTRADOR.log(Level.SEVERE, "Error al abrir reporte", excepcionCapturada);
+                mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudo abrir el archivo.");
             }
+        }
+    }
 
-            Desktop.getDesktop().open(archivo);
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Error al abrir archivo del reporte", e);
-            mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudo abrir el archivo.");
+    private String validarCampos() {
+        String textoCalificacion = txtCalificacion.getText().trim();
+        if (textoCalificacion.isEmpty()) {
+            return "La calificación es obligatoria.";
+        }
+        try {
+            double valor = Double.parseDouble(textoCalificacion);
+            if (valor < 0.0 || valor > 10.0) {
+                return "Rango inválido (0-10).";
+            }
+        } catch (NumberFormatException e) {
+            return "Formato numérico inválido.";
+        }
+        return null;
+    }
+
+    private void calificarReporte(double calificacion) {
+        try {
+            new ReporteDAO().calificarReporte(reporteActual.getIdReporte(), calificacion);
+            mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Evaluado correctamente.");
+            btnCalificar.getScene().getWindow().hide();
+        } catch (DAOExcepcion excepcionCapturada) {
+            REGISTRADOR.log(Level.SEVERE, "Error calificar", excepcionCapturada);
+            mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudo guardar.");
         }
     }
 
