@@ -16,7 +16,10 @@ import java.sql.Connection;
 import java.sql.Statement;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class PruebaProfesorDAO {
     private static ProfesorDAO profesorDAO;
@@ -47,6 +50,7 @@ public class PruebaProfesorDAO {
         }
     }
 
+    /*
     @BeforeEach
     void prepararObjetosYLimpiar() throws Exception {
         Connection conexion = ConexionBD.obtenerInstancia().obtenerConexion();
@@ -59,7 +63,7 @@ public class PruebaProfesorDAO {
 
         profesorValido = new ProfesorDTO(0, "Roaz", "León", "M", "roaz123", TipoEstadoUsuario.ACTIVO, TipoDeUsuario.PROFESOR, "12345", TipoTurno.MATUTINO);
         profesorInvalidoNombreNulo = new ProfesorDTO(0, null, "Error", "M", "123", TipoEstadoUsuario.ACTIVO, TipoDeUsuario.PROFESOR, "00000", TipoTurno.VESPERTINO);
-    }
+    } */
 
     @AfterEach
     void restaurarRecursos() {

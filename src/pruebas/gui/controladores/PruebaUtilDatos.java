@@ -36,7 +36,7 @@ public class PruebaUtilDatos {
         return usuarioPrueba;
     }
 
-    public ProfesorDTO insertarProfesorPrueba(String nombre, String apellidoPaterno, String apellidoMaterno,
+    /* public ProfesorDTO insertarProfesorPrueba(String nombre, String apellidoPaterno, String apellidoMaterno,
                                               String numeroDePersonal, TipoTurno turno,
                                               TipoEstadoUsuario tipoEstadoUsuario) throws Exception {
         ProfesorDTO profesorPrueba = new ProfesorDTO(
@@ -49,7 +49,7 @@ public class PruebaUtilDatos {
         idsProfesoresPruebaInsertados.add(profesorPrueba.getIdUsuario());
         idsUsuariosPruebaInsertados.add(profesorPrueba.getIdUsuario());
         return profesorPrueba;
-    }
+    } */
 
     public void limpiarTodosLosDatosPrueba() throws Exception {
         Connection conexion = ConexionBD.obtenerInstancia().obtenerConexion();

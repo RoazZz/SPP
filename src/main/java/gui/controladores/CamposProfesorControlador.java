@@ -2,7 +2,8 @@ package gui.controladores;
 
 import logica.interfaces.ControladorEspecialidadInterfaz;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.TextField;
 import logica.dto.ProfesorDTO;
 import logica.enums.TipoTurno;
 

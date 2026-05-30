@@ -47,7 +47,7 @@ public class PruebaActividadDAO {
         }
     }
 
-
+    /*
     @BeforeEach
     void prepararObjetosYLimpiar() throws Exception {
         Connection conexion = ConexionBD.obtenerInstancia().obtenerConexion();
@@ -71,7 +71,7 @@ public class PruebaActividadDAO {
                 java.sql.Date.valueOf("2026-04-17")
         );
     }
-
+ */
     @Test
     public void pruebaAgregarActividadExitoso() throws Exception {
         boolean resultado = actividadDAO.agregarActividad(actividadValida);

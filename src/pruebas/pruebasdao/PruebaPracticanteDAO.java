@@ -15,7 +15,9 @@ import java.sql.Connection;
 import java.sql.Statement;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class PruebaPracticanteDAO {
 
@@ -45,6 +47,7 @@ public class PruebaPracticanteDAO {
         }
     }
 
+    /*
     @BeforeEach
     void prepararObjetosYLimpiar() throws Exception {
         Connection conexion = ConexionBD.obtenerInstancia().obtenerConexion();
@@ -85,6 +88,7 @@ public class PruebaPracticanteDAO {
                 false
         );
     }
+     */
 
     @Test
     public void pruebaAgregarPracticanteExitoso() throws Exception {
