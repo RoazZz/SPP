@@ -94,7 +94,7 @@ public class SolicitarProyectoControlador implements Initializable, Regresable {
     }
 
     @FXML
-    private void manejarEnviarSolicitud(ActionEvent e) {
+    private void manejarEnviarSolicitud(ActionEvent eventoClic) {
         String periodo = txtPeriodo.getText().trim();
         if (seleccionados.isEmpty() || periodo.isEmpty()) {
             lblError.setText("Selecciona proyectos y periodo.");
@@ -103,14 +103,23 @@ public class SolicitarProyectoControlador implements Initializable, Regresable {
         }
         try {
             if (SesionUsuarioSingleton.obtenerInstancia().obtenerUsuarioActual() instanceof PracticanteDTO practicante) {
-                SolicitaProyectoDAO dao = new SolicitaProyectoDAO();
-                for (ProyectoDTO p : seleccionados) {
-                    dao.insertarSolicitudProyecto(new SolicitaProyectoDTO(practicante.getMatricula(), p.getIdProyecto(), TipoEstadoSolicitud.PENDIENTE, periodo));
+                SolicitaProyectoDAO solicitaProyectoDAO = new SolicitaProyectoDAO();
+                for (int indicePrioridad = 0; indicePrioridad < seleccionados.size(); indicePrioridad++) {
+                    ProyectoDTO proyectoSeleccionado = seleccionados.get(indicePrioridad);
+                    int prioridad = indicePrioridad + 1;
+                    solicitaProyectoDAO.insertarSolicitudProyecto(new SolicitaProyectoDTO(
+                            practicante.getMatricula(),
+                            proyectoSeleccionado.getIdProyecto(),
+                            TipoEstadoSolicitud.PENDIENTE,
+                            periodo,
+                            prioridad));
                 }
                 regresar(lblError, escenaAnterior);
             }
-        } catch (DAOExcepcion ex) {
-            REGISTRADOR.log(Level.SEVERE, "Error solicitud", ex);
+        } catch (DAOExcepcion excepcionCapturada) {
+            REGISTRADOR.log(Level.SEVERE, "Error al registrar la solicitud de proyecto del practicante", excepcionCapturada);
+            lblError.setText("No se pudo enviar la solicitud. Intente más tarde.");
+            lblError.setVisible(true);
         }
     }
 

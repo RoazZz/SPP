@@ -18,6 +18,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import logica.dao.ReporteDAO;
 import logica.dto.ReporteDTO;
+import logica.dto.PracticanteDTO;
 import logica.enums.TipoReporte;
 import logica.enums.EstadoReporte;
 import excepciones.DAOExcepcion;
@@ -132,31 +133,40 @@ public class ReporteAnadirControlador implements Initializable, Regresable {
         confirmacionDeEnvio.setContentText("¿Está seguro de subir el documento firmado?");
 
         Optional<ButtonType> respuestaUsuario = confirmacionDeEnvio.showAndWait();
+
         if (respuestaUsuario.isPresent() && respuestaUsuario.get() == ButtonType.OK) {
             try {
                 if (esDuplicado()) {
                     return;
                 }
-                String nombreCarpetaRaiz = cbTipoReporte.getValue().name();
-                Path carpetaDestinoFinal = Paths.get(System.getProperty("user.dir"), "Reportes", nombreCarpetaRaiz, "ANADIDOS");
+
+                String nombreCarpetaTipo = cbTipoReporte.getValue().name();
+                String carpetaPracticante = construirNombreCarpetaPracticante();
+                Path carpetaDestinoFinal = Paths.get(System.getProperty("user.dir"),
+                        "Reportes", nombreCarpetaTipo, "ANADIDOS", carpetaPracticante);
 
                 if (!Files.exists(carpetaDestinoFinal)) {
                     Files.createDirectories(carpetaDestinoFinal);
                 }
 
                 Path archivoCopiaSistema = carpetaDestinoFinal.resolve(archivoPdf.getName());
+
+                if (Files.exists(archivoCopiaSistema)) {
+                    mostrarAlerta(Alert.AlertType.WARNING, "Archivo duplicado",
+                            "Ya existe un archivo con el nombre '" + archivoPdf.getName() + "' en tu carpeta de reportes.");
+                    return;
+                }
+
                 Files.copy(archivoPdf.toPath(), archivoCopiaSistema, StandardCopyOption.REPLACE_EXISTING);
 
-                String identificadorHashArchivo = CifradorArchivo.generarHashArchivo(archivoPdf.toPath());
-                String identificadorHashContenido = CifradorArchivo.generarHashContenido(archivoPdf.toPath());
                 String mesDeterminado = null;
-
                 if (cbTipoReporte.getValue() == TipoReporte.MENSUAL) {
                     mesDeterminado = cbMes.getValue();
                 }
 
                 ReporteDAO gestorBaseDatos = new ReporteDAO();
                 int idSesionBase = SesionUsuarioSingleton.obtenerInstancia().obtenerUsuarioActual().getIdUsuario();
+
                 ReporteDTO registroReporte = new ReporteDTO(
                         0,
                         idSesionBase,
@@ -165,8 +175,6 @@ public class ReporteAnadirControlador implements Initializable, Regresable {
                         archivoCopiaSistema.toString(),
                         EstadoReporte.ENTREGADO,
                         mesDeterminado,
-                        identificadorHashArchivo,
-                        identificadorHashContenido,
                         null
                 );
                 gestorBaseDatos.agregarReporte(registroReporte);
@@ -175,11 +183,11 @@ public class ReporteAnadirControlador implements Initializable, Regresable {
                 manejarRegresar(eventoClic);
 
             } catch (IOException excepcionCapturada) {
-                REGISTRADOR.log(Level.SEVERE, "Error al copiar el archivo físico", excepcionCapturada);
+                REGISTRADOR.log(Level.SEVERE, "Error al copiar el archivo físico del reporte", excepcionCapturada);
                 mostrarAlerta(Alert.AlertType.ERROR, "Error de Archivo", "No se pudo guardar el archivo en el servidor local.");
             } catch (DAOExcepcion excepcionCapturada) {
-                REGISTRADOR.log(Level.SEVERE, "Error al registrar en la base de datos", excepcionCapturada);
-                mostrarAlerta(Alert.AlertType.ERROR, "Error de Base de Datos", "El archivo se copió, pero no se pudo registrar en la base de datos.");
+                REGISTRADOR.log(Level.SEVERE, "Error al registrar el reporte en la base de datos", excepcionCapturada);
+                mostrarAlerta(Alert.AlertType.ERROR, "Error de Base de Datos", "El archivo se copió, pero no se pudo registrar.");
             }
         }
     }
@@ -204,24 +212,18 @@ public class ReporteAnadirControlador implements Initializable, Regresable {
 
         String reporteAnalizadoEnPDF = CifradorArchivo.extraerTipoReporte(archivoPdf.toPath());
         if (reporteAnalizadoEnPDF != null && !reporteAnalizadoEnPDF.equalsIgnoreCase(cbTipoReporte.getValue().name())) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Tipo incorrecto", "El PDF es de tipo " + reporteAnalizadoEnPDF + " pero seleccionaste " + cbTipoReporte.getValue().name() + ".");
+            mostrarAlerta(Alert.AlertType.WARNING, "Tipo incorrecto",
+                    "El PDF es de tipo " + reporteAnalizadoEnPDF + " pero seleccionaste " + cbTipoReporte.getValue().name() + ".");
             return true;
         }
 
         if (cbTipoReporte.getValue() == TipoReporte.MENSUAL) {
             String mesExtraidoDePDF = CifradorArchivo.extraerMes(archivoPdf.toPath());
             if (mesExtraidoDePDF != null && !mesExtraidoDePDF.equalsIgnoreCase(cbMes.getValue())) {
-                mostrarAlerta(Alert.AlertType.WARNING, "Mes incorrecto", "El PDF corresponde a " + mesExtraidoDePDF + " pero seleccionaste " + cbMes.getValue() + ".");
+                mostrarAlerta(Alert.AlertType.WARNING, "Mes incorrecto",
+                        "El PDF corresponde a " + mesExtraidoDePDF + " pero seleccionaste " + cbMes.getValue() + ".");
                 return true;
             }
-        }
-
-        String valorHashArchivoTemporal = CifradorArchivo.generarHashArchivo(archivoPdf.toPath());
-        String valorHashContenidoTemporal = CifradorArchivo.generarHashContenido(archivoPdf.toPath());
-
-        if (herramientaReporteDAO.existeHashDuplicado(valorHashArchivoTemporal, valorHashContenidoTemporal)) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Archivo duplicado", "Este archivo ya existe en el sistema.");
-            return true;
         }
 
         return false;
@@ -261,5 +263,17 @@ public class ReporteAnadirControlador implements Initializable, Regresable {
             escenarioControlado.setScene(escenaAnterior);
             escenarioControlado.show();
         }
+    }
+
+    private String construirNombreCarpetaPracticante() {
+        var usuarioActual = SesionUsuarioSingleton.obtenerInstancia().obtenerUsuarioActual();
+        String nombreFormateado = usuarioActual.getNombre().trim().replace(" ", "_");
+        String identificador;
+        if (usuarioActual instanceof PracticanteDTO practicante) {
+            identificador = practicante.getMatricula().trim();
+        } else {
+            identificador = String.valueOf(usuarioActual.getIdUsuario());
+        }
+        return nombreFormateado + "_" + identificador;
     }
 }

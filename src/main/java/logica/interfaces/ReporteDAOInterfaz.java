@@ -14,5 +14,4 @@ public interface ReporteDAOInterfaz {
     ReporteDTO buscarReportePorId(int idReporte) throws DAOExcepcion, EntidadNoEncontradaExcepcion;
     List<ReporteDTO> listarTodosReporte() throws DAOExcepcion;
     boolean existeDuplicado(int idUsuario, TipoReporte tipo, String mes, EstadoReporte estado) throws DAOExcepcion;
-    boolean existeHashDuplicado(String hashArchivo, String hashContenido) throws DAOExcepcion;
 }

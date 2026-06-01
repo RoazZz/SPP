@@ -7,12 +7,16 @@ public class SolicitaProyectoDTO {
     private int idProyecto;
     private TipoEstadoSolicitud tipoEstadoSolicitud;
     private String periodo;
+    private int prioridad;
 
-    public SolicitaProyectoDTO(String matricula, int idProyecto, TipoEstadoSolicitud tipoEstadoSolicitud, String periodo) {
+
+    public SolicitaProyectoDTO(String matricula, int idProyecto, TipoEstadoSolicitud tipoEstadoSolicitud, String periodo,
+                               int prioridad) {
         this.matricula = matricula;
         this.idProyecto = idProyecto;
         this.tipoEstadoSolicitud = tipoEstadoSolicitud;
         this.periodo = periodo;
+        this.prioridad = prioridad;
     }
 
     public String getMatricula() {
@@ -45,5 +49,13 @@ public class SolicitaProyectoDTO {
 
     public void setPeriodo(String periodo) {
         this.periodo = periodo;
+    }
+
+    public int getPrioridad() {
+        return prioridad;
+    }
+
+    public void setPrioridad(int prioridad) {
+        this.prioridad = prioridad;
     }
 }

@@ -22,29 +22,27 @@ import java.util.logging.Logger;
 
 public class ReporteDAO implements ReporteDAOInterfaz {
 
-    public static final String SQL_INSERT = "INSERT INTO reporte (idUsuario, TipoReporte, Fecha, Ruta, Estado, mes," +
-            " hashArchivo, hashContenido) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    public static final String SQL_INSERT = "INSERT INTO reporte (idUsuario, TipoReporte, Fecha, Ruta, Estado, mes) " + "VALUES (?, ?, ?, ?, ?, ?)";
     public static final String SQL_UPDATE = "UPDATE reporte SET idUsuario = ?, TipoReporte = ?, Fecha = ?, Ruta = ?, " +
             "Estado = ? " + "WHERE idReporte = ?";
     public static final String SQL_UPDATE_CALIFICACION = "UPDATE reporte SET Calificacion = ?, Estado = ?" +
             " WHERE idReporte = ?";
     public static final String SQL_SELECT_BY_ID = "SELECT idReporte, idUsuario, TipoReporte, Fecha, Ruta, Estado, mes," +
-            " hashArchivo, hashContenido, Calificacion " + "FROM reporte WHERE idReporte = ?";
+            " Calificacion " + "FROM reporte WHERE idReporte = ?";
     public static final String SQL_SELECT_ALL = "SELECT idReporte, idUsuario, TipoReporte, Fecha, Ruta, Estado, mes," +
-            " hashArchivo, hashContenido, Calificacion " + "FROM reporte";
+            "Calificacion " + "FROM reporte";
     public static final String SQL_SELECT_BY_USUARIO = "SELECT idReporte, idUsuario, TipoReporte, Fecha, Ruta, Estado," +
-            " mes, hashArchivo, hashContenido, Calificacion " + "FROM reporte WHERE idUsuario = ?";
+            " mes, Calificacion " + "FROM reporte WHERE idUsuario = ?";
     public static final String SQL_EXISTE_DUPLICADO = "SELECT COUNT(*) FROM reporte " + "WHERE idUsuario = ?" +
             " AND TipoReporte = ? AND (mes = ? OR (mes IS NULL AND ? IS NULL)) AND Estado = ?";
-    public static final String SQL_EXISTE_HASH = "SELECT COUNT(*) FROM reporte WHERE hashArchivo = ? OR hashContenido = ?";
     public static final String SQL_SELECT_POR_SECCION =
             "SELECT r.idReporte, r.idUsuario, r.TipoReporte, r.Fecha, r.Ruta, r.Estado, " +
-                    "r.mes, r.hashArchivo, r.hashContenido, r.Calificacion " +
+                    "r.mes, r.Calificacion " +
                     "FROM reporte r " +
                     "JOIN practicante p ON r.idUsuario = p.idUsuario " +
                     "WHERE p.idSeccion = ? AND r.Estado = 'ENTREGADO'";
     public static final String SQL_SELECT_ALL_ENTREGADOS =
-            "SELECT idReporte, idUsuario, TipoReporte, Fecha, Ruta, Estado, mes, hashArchivo, hashContenido, Calificacion " +
+            "SELECT idReporte, idUsuario, TipoReporte, Fecha, Ruta, Estado, mes, Calificacion " +
                     "FROM reporte WHERE Estado = 'ENTREGADO'";
 
     private final Connection conexion;
@@ -68,8 +66,6 @@ public class ReporteDAO implements ReporteDAOInterfaz {
             sentenciaPreparada.setString(4, reporte.getRuta());
             sentenciaPreparada.setString(5, reporte.getEstado().name());
             sentenciaPreparada.setString(6, reporte.getMes());
-            sentenciaPreparada.setString(7, reporte.getHashArchivo());
-            sentenciaPreparada.setString(8, reporte.getHashContenido());
             sentenciaPreparada.executeUpdate();
 
             try (ResultSet conjuntoResultado = sentenciaPreparada.getGeneratedKeys()) {
@@ -214,20 +210,7 @@ public class ReporteDAO implements ReporteDAOInterfaz {
         }
     }
 
-    @Override
-    public boolean existeHashDuplicado(String hashArchivo, String hashContenido) throws DAOExcepcion {
-        try (PreparedStatement sentenciaPreparada = conexion.prepareStatement(SQL_EXISTE_HASH)) {
-            sentenciaPreparada.setString(1, hashArchivo);
-            sentenciaPreparada.setString(2, hashContenido);
 
-            try (ResultSet conjuntoResultado = sentenciaPreparada.executeQuery()) {
-                return conjuntoResultado.next() && conjuntoResultado.getInt(1) > 0;
-            }
-        } catch (SQLException sqlExcepcion) {
-            REGISTRADOR.log(Level.SEVERE, "Error al verificar hash duplicado", sqlExcepcion);
-            throw new DAOExcepcion("Error al verificar hash duplicado", sqlExcepcion);
-        }
-    }
 
     private ReporteDTO crearDTO(ResultSet conjuntoResultado) throws SQLException {
         double calificacionRaw = conjuntoResultado.getDouble("Calificacion");
@@ -241,8 +224,6 @@ public class ReporteDAO implements ReporteDAOInterfaz {
                 conjuntoResultado.getString("Ruta"),
                 EstadoReporte.valueOf(conjuntoResultado.getString("Estado")),
                 conjuntoResultado.getString("mes"),
-                conjuntoResultado.getString("hashArchivo"),
-                conjuntoResultado.getString("hashContenido"),
                 calificacion
         );
     }

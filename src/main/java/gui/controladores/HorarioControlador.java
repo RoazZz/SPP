@@ -7,9 +7,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javafx.event.ActionEvent;
@@ -231,16 +233,17 @@ public class HorarioControlador implements Regresable {
     }
 
     private void eliminarHorariosPreviosEnCarpeta(Path carpetaMatricula) throws IOException {
+        List<Path> archivosPdf;
         try (Stream<Path> flujoDeArchivos = Files.list(carpetaMatricula)) {
-            flujoDeArchivos
-                    .filter(this::esArchivoPdf)
-                    .forEach(archivoParaEliminar -> {
-                        try {
-                            Files.deleteIfExists(archivoParaEliminar);
-                        } catch (IOException excepcionCapturada) {
-                            REGISTRADOR.log(Level.SEVERE, "Error al eliminar archivo previo", excepcionCapturada);
-                        }
-                    });
+            archivosPdf = flujoDeArchivos.filter(this::esArchivoPdf).collect(Collectors.toList());
+        }
+        for (Path archivoParaEliminar : archivosPdf) {
+            try {
+                Files.deleteIfExists(archivoParaEliminar);
+            } catch (IOException excepcionCapturada) {
+                REGISTRADOR.log(Level.SEVERE,
+                        "Error al eliminar el horario previo " + archivoParaEliminar, excepcionCapturada);
+            }
         }
     }
 

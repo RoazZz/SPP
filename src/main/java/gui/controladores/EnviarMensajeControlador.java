@@ -63,8 +63,7 @@ public class EnviarMensajeControlador implements Initializable {
 
             PracticanteDAO practicanteDAO = new PracticanteDAO();
             List<PracticanteDTO> listaPracticantes = practicanteDAO.listarPracticantes();
-            for (int indice = 0; indice < listaPracticantes.size(); indice++) {
-                PracticanteDTO practicante = listaPracticantes.get(indice);
+            for (PracticanteDTO practicante : listaPracticantes) {
                 if (practicante.getIdUsuario() != idUsuarioActual) {
                     todosLosDestinatarios.add(practicante);
                 }
@@ -72,8 +71,7 @@ public class EnviarMensajeControlador implements Initializable {
 
             CoordinadorDAO coordinadorDAO = new CoordinadorDAO();
             List<CoordinadorDTO> listaCoordinadores = coordinadorDAO.listarCoordinador();
-            for (int indice = 0; indice < listaCoordinadores.size(); indice++) {
-                CoordinadorDTO coordinador = listaCoordinadores.get(indice);
+            for (CoordinadorDTO coordinador : listaCoordinadores) {
                 if (coordinador.getIdUsuario() != idUsuarioActual) {
                     todosLosDestinatarios.add(coordinador);
                 }
@@ -81,8 +79,7 @@ public class EnviarMensajeControlador implements Initializable {
 
             ProfesorDAO profesorDAO = new ProfesorDAO();
             List<ProfesorDTO> listaProfesores = profesorDAO.listarProfesores();
-            for (int indice = 0; indice < listaProfesores.size(); indice++) {
-                ProfesorDTO profesor = listaProfesores.get(indice);
+            for (ProfesorDTO profesor : listaProfesores) {
                 if (profesor.getIdUsuario() != idUsuarioActual) {
                     todosLosDestinatarios.add(profesor);
                 }
@@ -90,8 +87,7 @@ public class EnviarMensajeControlador implements Initializable {
 
             AdministradorDAO administradorDAO = new AdministradorDAO();
             List<AdministradorDTO> listaAdministradores = administradorDAO.listarAdministradores();
-            for (int indice = 0; indice < listaAdministradores.size(); indice++) {
-                AdministradorDTO administrador = listaAdministradores.get(indice);
+            for (AdministradorDTO administrador : listaAdministradores) {
                 if (administrador.getIdUsuario() != idUsuarioActual) {
                     todosLosDestinatarios.add(administrador);
                 }

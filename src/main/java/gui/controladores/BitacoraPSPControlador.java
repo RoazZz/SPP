@@ -24,6 +24,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -74,31 +75,52 @@ public class BitacoraPSPControlador implements Initializable, Regresable {
             return;
         }
 
-        try {
-            Path carpetaDestino = Paths.get(System.getProperty("user.dir"), "BitacorasPSP");
-            Files.createDirectories(carpetaDestino);
-            Path archivoDestino = carpetaDestino.resolve(archivoSeleccionado.getName());
-            Files.copy(archivoSeleccionado.toPath(), archivoDestino, StandardCopyOption.REPLACE_EXISTING);
+        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmacion.setTitle("Confirmar operación");
+        confirmacion.setHeaderText(null);
+        confirmacion.setContentText("¿Está seguro de continuar con la operación?");
+        confirmacion.getButtonTypes().setAll(ButtonType.CANCEL, ButtonType.OK);
 
-            String rutaRelativa = Paths.get("BitacorasPSP", archivoSeleccionado.getName()).toString();
+        Optional<ButtonType> respuesta = confirmacion.showAndWait();
+        if (respuesta.isEmpty() || respuesta.get() != ButtonType.OK) {
+            return;
+        }
+
+        try {
+            String carpetaPracticante = txtMatricula.getText().trim();
+            Path carpetaDestino = Paths.get(System.getProperty("user.dir"), "BitacorasPSP", carpetaPracticante);
+            Files.createDirectories(carpetaDestino);
+
+            Path archivoDestino = carpetaDestino.resolve(archivoSeleccionado.getName());
+            if (Files.exists(archivoDestino)) {
+                lblError.setText("Ya existe una bitácora con ese nombre en tu carpeta.");
+                lblError.setVisible(true);
+                return;
+            }
+            Files.copy(archivoSeleccionado.toPath(), archivoDestino, StandardCopyOption.REPLACE_EXISTING);
 
             BitacoraPSPDTO bitacoraPSPDTO = new BitacoraPSPDTO(
                     0,
                     txtMatricula.getText().trim(),
-                    dpFecha.getValue()
-            );
+                    dpFecha.getValue());
 
             BitacoraPSPDAO bitacoraPSPDAO = new BitacoraPSPDAO();
             bitacoraPSPDAO.agregarBitacoraPSP(bitacoraPSPDTO);
 
+            Alert exito = new Alert(Alert.AlertType.INFORMATION);
+            exito.setTitle("Operación exitosa");
+            exito.setHeaderText(null);
+            exito.setContentText("Archivo cargado exitosamente.");
+            exito.showAndWait();
+
             regresar(lblError, escenaAnterior);
 
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Error al copiar archivo de bitácora", e);
+        } catch (IOException excepcionCapturada) {
+            LOGGER.log(Level.SEVERE, "Error al copiar el archivo de bitácora PSP", excepcionCapturada);
             lblError.setText("No se pudo guardar el archivo. Intente más tarde.");
             lblError.setVisible(true);
-        } catch (DAOExcepcion e) {
-            LOGGER.log(Level.SEVERE, "Error al guardar bitácora PSP en BD", e);
+        } catch (DAOExcepcion excepcionCapturada) {
+            LOGGER.log(Level.SEVERE, "Error al registrar la bitácora PSP en la base de datos", excepcionCapturada);
             Alert alerta = new Alert(Alert.AlertType.ERROR);
             alerta.setTitle("Error del sistema");
             alerta.setHeaderText(null);

@@ -143,8 +143,7 @@ public class ReporteGenerarControlador implements Initializable, Regresable {
                 documentoVisual.add(new Paragraph("\nDETALLE DE ACTIVIDADES:"));
 
                 List listaVisualPDF = new List();
-                for (int indiceActividad = 0; indiceActividad < listaActividades.size(); indiceActividad++) {
-                    String actividadLista = listaActividades.get(indiceActividad);
+                for (String actividadLista : listaActividades) {
                     listaVisualPDF.add(actividadLista);
                 }
                 documentoVisual.add(listaVisualPDF);
@@ -165,8 +164,6 @@ public class ReporteGenerarControlador implements Initializable, Regresable {
                     rutaArchivoFinal.toString(),
                     EstadoReporte.GENERADO,
                     mesConfigurado,
-                    null,
-                    null,
                     null
             );
             reporteAccesoBD.agregarReporte(reporteRegistrado);

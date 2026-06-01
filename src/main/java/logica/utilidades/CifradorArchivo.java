@@ -16,47 +16,6 @@ public class CifradorArchivo {
 
     private CifradorArchivo() {}
 
-    public static String generarHashArchivo(Path rutaArchivo) throws IOException {
-        MessageDigest digest = obtenerDigest();
-        byte[] buffer = new byte[8192];
-        int bytesLeidos;
-
-        try (InputStream flujo = Files.newInputStream(rutaArchivo)) {
-            while ((bytesLeidos = flujo.read(buffer)) != -1) {
-                digest.update(buffer, 0, bytesLeidos);
-            }
-        }
-        return bytesAHexadecimal(digest.digest());
-    }
-
-    public static String generarHashContenido(Path rutaArchivo) throws IOException {
-        try (PdfDocument documento = new PdfDocument(new PdfReader(rutaArchivo.toString()))) {
-            StringBuilder texto = new StringBuilder();
-            boolean dentroDeActividades = false;
-
-            for (int pagina = 1; pagina <= documento.getNumberOfPages(); pagina++) {
-                String textoPagina = PdfTextExtractor.getTextFromPage(documento.getPage(pagina));
-                for (String linea : textoPagina.split("\n")) {
-                    if (linea.trim().equals("DETALLE DE ACTIVIDADES:")) {
-                        dentroDeActividades = true;
-                        continue;
-                    }
-                    if (dentroDeActividades) {
-                        texto.append(linea.trim());
-                    }
-                }
-            }
-
-            String textoNormalizado = texto.toString()
-                    .toLowerCase()
-                    .trim()
-                    .replaceAll("\\s+", " ");
-
-            MessageDigest digest = obtenerDigest();
-            digest.update(textoNormalizado.getBytes("UTF-8"));
-            return bytesAHexadecimal(digest.digest());
-        }
-    }
 
     public static String extraerTipoReporte(Path rutaArchivo) throws IOException {
         try (PdfDocument pdfDoc = new PdfDocument(new PdfReader(rutaArchivo.toString()))) {

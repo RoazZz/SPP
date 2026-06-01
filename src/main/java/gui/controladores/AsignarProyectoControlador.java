@@ -12,6 +12,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -21,20 +22,22 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.util.Callback;
 import logica.dao.CoordinadorAsignaProyectoDAO;
 import logica.dao.SolicitaProyectoDAO;
+import logica.dao.ProfesorDAO;
 import logica.dto.CoordinadorAsignaProyectoDTO;
 import logica.dto.CoordinadorDTO;
 import logica.dto.SolicitaProyectoDTO;
+import logica.dto.ProfesorDTO;
 import logica.enums.EstadoAsignacionProyecto;
 import logica.enums.TipoEstadoSolicitud;
 import logica.utilidades.SesionUsuarioSingleton;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 public class AsignarProyectoControlador implements Initializable, Regresable {
 
@@ -44,6 +47,7 @@ public class AsignarProyectoControlador implements Initializable, Regresable {
     private final SolicitaProyectoDAO solicitaProyectoDAO;
 
     @FXML private TextField txtPeriodo;
+    @FXML private ComboBox<ProfesorDTO> cbProfesor;
     @FXML private TableView<SolicitaProyectoDTO> tvSolicitudes;
     @FXML private TableColumn<SolicitaProyectoDTO, String> colMatricula;
     @FXML private TableColumn<SolicitaProyectoDTO, Integer> colIdProyecto;
@@ -63,7 +67,18 @@ public class AsignarProyectoControlador implements Initializable, Regresable {
     @Override
     public void initialize(URL urlRecibida, ResourceBundle recursoRecibido) {
         configurarTabla();
+        cargarProfesores();
         lblMensaje.setVisible(false);
+    }
+
+    private void cargarProfesores() {
+        try {
+            ProfesorDAO profesorDAO = new ProfesorDAO();
+            cbProfesor.setItems(FXCollections.observableArrayList(profesorDAO.listarProfesores()));
+        } catch (DAOExcepcion excepcionCapturada) {
+            REGISTRADOR.log(Level.SEVERE, "Error al cargar la lista de profesores", excepcionCapturada);
+            mostrarMensaje("No se pudieron cargar los profesores en el sistema.", false);
+        }
     }
 
     private void configurarTabla() {
@@ -122,7 +137,7 @@ public class AsignarProyectoControlador implements Initializable, Regresable {
                 listaSolicitudes.setAll(solicitudesEncontradas);
 
                 if (solicitudesEncontradas.isEmpty()) {
-                    mostrarMensaje("No hay solicitudes pendientes para el periodo indicado.", false);
+                    mostrarMensaje("No hay solicitudes pendientes para los criterios indicados.", false);
                 }
             } catch (DAOExcepcion excepcionCapturada) {
                 REGISTRADOR.log(Level.SEVERE, "Error al buscar solicitudes", excepcionCapturada);
@@ -132,16 +147,29 @@ public class AsignarProyectoControlador implements Initializable, Regresable {
     }
 
     public List<SolicitaProyectoDTO> obtenerSolicitudesPendientes(String periodoBuscado) throws DAOExcepcion {
-        return solicitaProyectoDAO.obtenerTodasLasSolicitudesProyecto()
-                .stream()
-                .filter(solicitud -> solicitud.getTipoEstadoSolicitud() == TipoEstadoSolicitud.PENDIENTE)
-                .filter(solicitud -> solicitud.getPeriodo().toLowerCase().contains(periodoBuscado.toLowerCase()))
-                .collect(Collectors.toList());
+        ProfesorDTO profesorSeleccionado = cbProfesor.getValue();
+        List<SolicitaProyectoDTO> solicitudes;
+
+        if (profesorSeleccionado != null) {
+            solicitudes = solicitaProyectoDAO.obtenerSolicitudesProyectoPorProfesor(
+                    profesorSeleccionado.getNumeroDePersonal(), periodoBuscado);
+        } else {
+            solicitudes = solicitaProyectoDAO.obtenerSolicitudesProyectoPorPeriodo(periodoBuscado);
+        }
+
+        List<SolicitaProyectoDTO> pendientes = new ArrayList<>();
+        for (SolicitaProyectoDTO solicitud : solicitudes) {
+            if (solicitud.getTipoEstadoSolicitud() == TipoEstadoSolicitud.PENDIENTE) {
+                pendientes.add(solicitud);
+            }
+        }
+        return pendientes;
     }
 
     @FXML
     private void manejarLimpiar(ActionEvent eventoClic) {
         txtPeriodo.clear();
+        cbProfesor.setValue(null); // NUEVO: Limpia la selección del ComboBox
         listaSolicitudes.clear();
         lblMensaje.setVisible(false);
     }

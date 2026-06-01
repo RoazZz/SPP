@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TableColumn?>
@@ -27,6 +28,7 @@
                 <Label styleClass="label-seccion" text="Solicitudes Pendientes" />
                 <HBox alignment="CENTER_LEFT" spacing="15">
                     <TextField fx:id="txtPeriodo" promptText="Periodo escolar (Ej: AGOSTO 2025 - ENERO 2026)" HBox.hgrow="ALWAYS" />
+                    <ComboBox fx:id="cbProfesor" promptText="Filtrar por Profesor" prefWidth="250.0" />
                     <Button onAction="#manejarBuscar" styleClass="btn-guardar" text="BUSCAR" />
                     <Button onAction="#manejarLimpiar" styleClass="btn-cancelar" text="LIMPIAR" />
                 </HBox>

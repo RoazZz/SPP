@@ -12,5 +12,6 @@ public interface SolicitudProyectoDAOInterfaz {
     List<SolicitaProyectoDTO> obtenerSolicitudesProyectoPorIdProyecto(int idProyecto) throws DAOExcepcion;
     List<SolicitaProyectoDTO> obtenerSolicitudesProyectoPorPeriodo(String periodo) throws DAOExcepcion;
     List<SolicitaProyectoDTO> obtenerTodasLasSolicitudesProyecto() throws DAOExcepcion;
+    List<SolicitaProyectoDTO> obtenerSolicitudesProyectoPorProfesor(String numeroDePersonalProfesor, String periodo) throws DAOExcepcion;
 
 }

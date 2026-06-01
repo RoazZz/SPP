@@ -141,8 +141,7 @@ public class ListaUsuariosControlador implements Regresable {
         List<TipoDeUsuario> tiposPermitidos = permisosUsuario.tiposVisibles();
 
         cbFiltroTipo.getItems().add(TODOS);
-        for (int i = 0; i < tiposPermitidos.size(); i++) {
-            TipoDeUsuario tipoActual = tiposPermitidos.get(i);
+        for (TipoDeUsuario tipoActual : tiposPermitidos) {
             cbFiltroTipo.getItems().add(tipoActual.name());
         }
         cbFiltroTipo.setValue(TODOS);
