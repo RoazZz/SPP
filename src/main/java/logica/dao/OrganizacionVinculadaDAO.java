@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 
 public class OrganizacionVinculadaDAO implements OrganizacionVinculadaDAOInterfaz {
     private final Connection conexion;
-    private static final Logger logger = Logger.getLogger(OrganizacionVinculadaDAO.class.getName());
+    private static final Logger REGISTRADOR = Logger.getLogger(OrganizacionVinculadaDAO.class.getName());
     private static final String SQL_INSERT = "INSERT INTO OrganizacionVinculada (idOrganizacion, Nombre, Direccion) " +
             "VALUES ( ?, ?, ?)";
     private static final String SQL_BUSCAR_POR_ID_ORGANIZACIONVINCULADA = "SELECT * FROM OrganizacionVinculada " +
@@ -31,10 +31,10 @@ public class OrganizacionVinculadaDAO implements OrganizacionVinculadaDAOInterfa
         try{
         this.conexion = ConexionBD.obtenerInstancia().obtenerConexion();
         } catch (IOException ioExcepcion){
-            logger.log(Level.SEVERE, "Error al leer archivo de configuración", ioExcepcion);
+            REGISTRADOR.log(Level.SEVERE, "Error al leer archivo de configuración", ioExcepcion);
             throw new DAOExcepcion("Error de configuracion", ioExcepcion);
         } catch (SQLException sqlExcepcion) {
-            logger.log(Level.SEVERE, "Error de conexion SQL en OrganizaciónVinculadaDAO", sqlExcepcion);
+            REGISTRADOR.log(Level.SEVERE, "Error de conexion SQL en OrganizaciónVinculadaDAO", sqlExcepcion);
             throw new DAOExcepcion("Error de base de datos", sqlExcepcion);
         }
     }
@@ -46,10 +46,10 @@ public class OrganizacionVinculadaDAO implements OrganizacionVinculadaDAOInterfa
             sentenciaPreparada.setString(2, organizacionVinculada.getNombre());
             sentenciaPreparada.setString(3, organizacionVinculada.getDireccion());
             sentenciaPreparada.executeUpdate();
-            logger.log(Level.INFO, "Organización Vinculada creada exitosamente: " + organizacionVinculada.getIdOrganizacion());
+            REGISTRADOR.log(Level.INFO, "Organización Vinculada creada exitosamente: " + organizacionVinculada.getIdOrganizacion());
             return true;
         } catch (SQLException sqlExcepcion){
-            logger.log(Level.SEVERE, "Error al agregar Organizacion Vinculada", sqlExcepcion);
+            REGISTRADOR.log(Level.SEVERE, "Error al agregar Organizacion Vinculada", sqlExcepcion);
             throw new DAOExcepcion("Error al agregar la Organizacion Vinculada: ", sqlExcepcion);
         }
     }
@@ -61,10 +61,10 @@ public class OrganizacionVinculadaDAO implements OrganizacionVinculadaDAOInterfa
             sentenciaPreparada.setString(2, organizacionVinculada.getDireccion());
             sentenciaPreparada.setString(3, organizacionVinculada.getIdOrganizacion());
             sentenciaPreparada.executeUpdate();
-            logger.log(Level.INFO, "Organización Vinculada actualizada exitosamente: " + organizacionVinculada.getIdOrganizacion());
+            REGISTRADOR.log(Level.INFO, "Organización Vinculada actualizada exitosamente: " + organizacionVinculada.getIdOrganizacion());
             return true;
         } catch (SQLException sqlExcepcion){
-            logger.log(Level.SEVERE, "Error al actualizar Organizacion Vinculada", sqlExcepcion);
+            REGISTRADOR.log(Level.SEVERE, "Error al actualizar Organizacion Vinculada", sqlExcepcion);
             throw new DAOExcepcion("Error al actualizar a la Organizacion Vinculada: ", sqlExcepcion);
         }
     }
@@ -80,11 +80,11 @@ public class OrganizacionVinculadaDAO implements OrganizacionVinculadaDAOInterfa
                 String direccion = conjuntoResultado.getString("Direccion");
                 return new OrganizacionVinculadaDTO(idOrganizacionVinculada, nombre, direccion);
             } else{
-                logger.log(Level.WARNING, "No se encontro alguna organizacion vinculada con el id " + idOrganizacion);
+                REGISTRADOR.log(Level.WARNING, "No se encontro alguna organizacion vinculada con el id " + idOrganizacion);
                 throw new EntidadNoEncontradaExcepcion("No existe organizacion vinculada con el id " + idOrganizacion);
             }
         } catch (SQLException sqlExcepcion){
-            logger.log(Level.SEVERE, "Error al buscar a la Organizacion Vinculada", sqlExcepcion);
+            REGISTRADOR.log(Level.SEVERE, "Error al buscar a la Organizacion Vinculada", sqlExcepcion);
             throw new DAOExcepcion("Error al buscar a la Organizacion Vinculada: ", sqlExcepcion);
         }
     }
@@ -104,7 +104,7 @@ public class OrganizacionVinculadaDAO implements OrganizacionVinculadaDAOInterfa
             }
             return listaOrganizacionVinculada;
         } catch (SQLException sqlExcepcion){
-            logger.log(Level.SEVERE, "Error al listar las Organizacion Vinculadas", sqlExcepcion);
+            REGISTRADOR.log(Level.SEVERE, "Error al listar las Organizacion Vinculadas", sqlExcepcion);
             throw new DAOExcepcion("Error al listar a las Organizaciones Vinculadas: ", sqlExcepcion);
         }
     }
