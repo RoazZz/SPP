@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<BorderPane prefHeight="720.0" prefWidth="760.0" stylesheets="@/estilos.css"
+            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="gui.controladores.CalificacionFinalControlador">
+    <top>
+        <VBox styleClass="header-container">
+            <padding><Insets bottom="15" left="25" right="25" top="15" /></padding>
+            <Label styleClass="titulo-ventana" text="Calificacion Final" />
+            <HBox spacing="6">
+                <Label styleClass="subtitulo-ventana" text="Practicante: " />
+                <Label fx:id="lblMatricula" styleClass="subtitulo-ventana" text="-" />
+            </HBox>
+        </VBox>
+    </top>
+    <center>
+        <VBox alignment="TOP_CENTER" spacing="20" style="-fx-padding: 25 40 25 40;">
+            <VBox spacing="15" styleClass="panel-formulario" style="-fx-max-width: Infinity;">
+                <Label styleClass="label-seccion" text="Evidencias de la rubrica (0 - 10)" />
+                <GridPane hgap="20" vgap="12">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="ALWAYS" percentWidth="70" />
+                        <ColumnConstraints hgrow="ALWAYS" percentWidth="30" />
+                    </columnConstraints>
+                    <Label text="Documentos iniciales (5%)" styleClass="label-campo" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                    <TextField fx:id="txtDocumentosIniciales" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                    <Label text="Reportes mensuales (20%)" styleClass="label-campo" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                    <TextField fx:id="txtReportesMensuales" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                    <Label text="Primer informe 210 hrs (10%)" styleClass="label-campo" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                    <TextField fx:id="txtPrimerInforme210" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                    <Label text="Primera presentacion cuerpo colegiado (10%)" styleClass="label-campo" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                    <TextField fx:id="txtPrimeraPresentacionColegiado" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                    <Label text="Primera evaluacion de la OV (10%)" styleClass="label-campo" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                    <TextField fx:id="txtPrimeraEvaluacionOrganizacion" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                    <Label text="Segundo informe 420 hrs (15%)" styleClass="label-campo" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                    <TextField fx:id="txtSegundoInforme420" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                    <Label text="Segunda presentacion cuerpo colegiado (15%)" styleClass="label-campo" GridPane.columnIndex="0" GridPane.rowIndex="6" />
+                    <TextField fx:id="txtSegundaPresentacionColegiado" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                    <Label text="Segunda evaluacion de la OV (10%)" styleClass="label-campo" GridPane.columnIndex="0" GridPane.rowIndex="7" />
+                    <TextField fx:id="txtSegundaEvaluacionOrganizacion" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+                    <Label text="Autoevaluacion del estudiante (5%)" styleClass="label-campo" GridPane.columnIndex="0" GridPane.rowIndex="8" />
+                    <TextField fx:id="txtAutoevaluacion" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+                </GridPane>
+                <Label fx:id="lblError" styleClass="label-error" visible="false" managed="false" wrapText="true" />
+                <Separator />
+                <HBox spacing="20" alignment="CENTER_LEFT">
+                    <VBox spacing="5">
+                        <Label styleClass="label-campo" text="Porcentaje" />
+                        <Label fx:id="lblCalificacionPorcentaje" styleClass="label-seccion" text="Pendiente" />
+                    </VBox>
+                    <VBox spacing="5">
+                        <Label styleClass="label-campo" text="Calificacion final (0-10)" />
+                        <Label fx:id="lblCalificacionFinal" styleClass="label-seccion" text="Pendiente" />
+                    </VBox>
+                    <Region HBox.hgrow="ALWAYS" />
+                    <Button fx:id="btnCalcular" onAction="#calcularCalificacionFinal" styleClass="btn-guardar" text="CALCULAR Y GUARDAR" />
+                </HBox>
+            </VBox>
+        </VBox>
+    </center>
+</BorderPane>
