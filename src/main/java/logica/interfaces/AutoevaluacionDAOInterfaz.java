@@ -12,4 +12,5 @@ public interface AutoevaluacionDAOInterfaz {
     boolean calificarAutoevaluacion(String matricula, double calificacion) throws DAOExcepcion;
     AutoevaluacionDTO buscarAutoevaluacionPorMatricula(String matricula) throws DAOExcepcion, EntidadNoEncontradaExcepcion;
     List<AutoevaluacionDTO> obtenerTodasLasAutoevaluaciones() throws DAOExcepcion;
+    public boolean existeAutoevaluacionPorMatricula(String matricula) throws DAOExcepcion;
 }

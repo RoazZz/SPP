@@ -25,7 +25,9 @@ public class UsuarioDAO implements UsuarioDAOInterfaz {
     private static final String SQL_INSERT = "INSERT INTO Usuario(Nombre, ApellidoP, ApellidoM, Contrasenia, Estado, TipoUsuario) VALUES (?, ?, ?, ?, ?, ?)";
     private static final String SQL_BUSCAR_POR_ID_USUARIO = "SELECT * FROM Usuario WHERE idUsuario = ?";
     private static final String SQL_UPDATE = "UPDATE Usuario SET Nombre = ?, ApellidoP = ?, ApellidoM = ?, Contrasenia = ?, Estado = ?, TipoUsuario = ? WHERE idUsuario = ?";
-    private static final String SQL_SELECT_ALL = "SELECT * FROM Usuario";
+    private static final String SQL_SELECT_ALL = "SELECT * FROM Usuario WHERE Estado = 'ACTIVO'";
+    private static final String SQL_SELECT_BY_TIPOS = "SELECT * FROM Usuario WHERE Estado = 'ACTIVO' AND TipoUsuario IN (?, ?)";
+
 
     public UsuarioDAO() throws DAOExcepcion {
         try {
@@ -132,6 +134,45 @@ public class UsuarioDAO implements UsuarioDAOInterfaz {
         } catch (SQLException e){
             REGISTRADOR.log(Level.SEVERE, "Error al listar a los usuarios", e);
             throw new DAOExcepcion("Error al listar a los usuarios: ", e);
+        }
+    }
+
+    @Override
+    public List<UsuarioDTO> listarUsuariosPorTipos(List<TipoDeUsuario> tiposPermitidos) throws DAOExcepcion {
+        if (tiposPermitidos.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        String marcadores = "?,".repeat(tiposPermitidos.size());
+        marcadores = marcadores.substring(0, marcadores.length() - 1);
+        String consulta = "SELECT * FROM Usuario WHERE Estado = 'ACTIVO' AND TipoUsuario IN (" + marcadores + ")";
+
+        List<UsuarioDTO> listaUsuario = new ArrayList<>();
+
+        try (PreparedStatement preparedStatement = conexion.prepareStatement(consulta)) {
+            for (int indice = 0; indice < tiposPermitidos.size(); indice++) {
+                preparedStatement.setString(indice + 1, tiposPermitidos.get(indice).name());
+            }
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    UsuarioDTO usuario = new UsuarioDTO(
+                            resultSet.getInt("idUsuario"),
+                            resultSet.getString("Nombre"),
+                            resultSet.getString("ApellidoP"),
+                            resultSet.getString("ApellidoM"),
+                            resultSet.getString("Contrasenia"),
+                            TipoEstadoUsuario.valueOf(resultSet.getString("Estado")),
+                            TipoDeUsuario.valueOf(resultSet.getString("TipoUsuario"))
+                    );
+                    listaUsuario.add(usuario);
+                }
+            }
+
+            return listaUsuario;
+        } catch (SQLException sqlExcepcion) {
+            REGISTRADOR.log(Level.SEVERE, "Error al listar usuarios por tipos", sqlExcepcion);
+            throw new DAOExcepcion("Error al listar usuarios por tipos: ", sqlExcepcion);
         }
     }
 }

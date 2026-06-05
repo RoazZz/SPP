@@ -7,6 +7,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import logica.utilidades.GestorDocumento;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -127,6 +128,21 @@ public class ReporteAnadirControlador implements Initializable, Regresable {
             return;
         }
 
+        try {
+            var usuarioActual = SesionUsuarioSingleton.obtenerInstancia().obtenerUsuarioActual();
+            if (usuarioActual instanceof PracticanteDTO practicante) {
+                if (!GestorDocumento.practicanteTieneProyectoAceptado(practicante.getMatricula())) {
+                    mostrarAlerta(Alert.AlertType.WARNING, "Sin proyecto asignado",
+                            "No puedes subir un reporte sin tener un proyecto aceptado.");
+                    return;
+                }
+            }
+        } catch (DAOExcepcion daoExcepcion) {
+            REGISTRADOR.log(Level.SEVERE, "Error al verificar proyecto del practicante", daoExcepcion);
+            mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudo verificar el estado de tu proyecto.");
+            return;
+        }
+
         Alert confirmacionDeEnvio = new Alert(Alert.AlertType.CONFIRMATION);
         confirmacionDeEnvio.setTitle("Confirmar subida");
         confirmacionDeEnvio.setHeaderText(null);
@@ -148,7 +164,8 @@ public class ReporteAnadirControlador implements Initializable, Regresable {
                     Files.createDirectories(carpetaDestinoFinal);
                 }
 
-                Path archivoCopiaSistema = carpetaDestinoFinal.resolve(archivoPdf.getName());
+                String nombreEstandarizado = GestorDocumento.construirNombreArchivo(cbTipoReporte.getValue().name(), carpetaPracticante);
+                Path archivoCopiaSistema = carpetaDestinoFinal.resolve(nombreEstandarizado);
 
                 if (Files.exists(archivoCopiaSistema)) {
                     mostrarAlerta(Alert.AlertType.WARNING, "Archivo duplicado", "Ya existe un archivo con el nombre '" + archivoPdf.getName() + "' en tu carpeta de reportes.");

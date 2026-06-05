@@ -151,8 +151,12 @@ public class ListaUsuariosControlador implements Regresable {
 
     private void cargarUsuarios() {
         try {
+            TipoDeUsuario rolActual = SesionUsuarioSingleton.obtenerInstancia().obtenerUsuarioActual().getTipoDeUsuario();
+            PermisosRol permisosUsuario = new PermisosRol(rolActual);
+            List<TipoDeUsuario> tiposPermitidos = permisosUsuario.tiposVisibles();
+
             UsuarioDAO usuarioObjetoDeAcceso = new UsuarioDAO();
-            List<UsuarioDTO> usuariosRecuperados = usuarioObjetoDeAcceso.listarUsuarios();
+            List<UsuarioDTO> usuariosRecuperados = usuarioObjetoDeAcceso.listarUsuariosPorTipos(tiposPermitidos);
 
             listaCompleta = FXCollections.observableArrayList(usuariosRecuperados);
             listaFiltrada = new FilteredList<>(listaCompleta, usuarioFiltro -> true);

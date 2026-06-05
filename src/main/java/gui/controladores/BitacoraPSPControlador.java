@@ -20,14 +20,14 @@ import logica.dto.BitacoraPSPDTO;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import logica.dto.PracticanteDTO;
+import logica.utilidades.GestorDocumento;
+import logica.utilidades.SesionUsuarioSingleton;
 
 import static gui.controladores.NavegacionControlador.regresar;
 
@@ -35,7 +35,6 @@ public class BitacoraPSPControlador implements Initializable, Regresable {
 
     private static final Logger REGISTRADOR = Logger.getLogger(BitacoraPSPControlador.class.getName());
 
-    @FXML private TextField txtMatricula;
     @FXML private DatePicker dpFecha;
     @FXML private TextField txtRuta;
     @FXML private Label lblError;
@@ -75,6 +74,26 @@ public class BitacoraPSPControlador implements Initializable, Regresable {
             return;
         }
 
+        String matricula = obtenerMatriculaSesion();
+        if (matricula == null) {
+            lblError.setText("No se pudo obtener la matrícula de la sesión.");
+            lblError.setVisible(true);
+            return;
+        }
+
+        try {
+            if (!GestorDocumento.practicanteTieneProyectoAceptado(matricula)) {
+                lblError.setText("No puedes registrar una bitácora sin tener un proyecto aceptado.");
+                lblError.setVisible(true);
+                return;
+            }
+        } catch (DAOExcepcion daoExcepcion) {
+            REGISTRADOR.log(Level.SEVERE, "Error al verificar proyecto del practicante", daoExcepcion);
+            lblError.setText("No se pudo verificar el estado de tu proyecto. Intente más tarde.");
+            lblError.setVisible(true);
+            return;
+        }
+
         Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
         confirmacion.setTitle("Confirmar operación");
         confirmacion.setHeaderText(null);
@@ -87,23 +106,15 @@ public class BitacoraPSPControlador implements Initializable, Regresable {
         }
 
         try {
-            String carpetaPracticante = txtMatricula.getText().trim();
-            Path carpetaDestino = Paths.get(System.getProperty("user.dir"), "BitacorasPSP", carpetaPracticante);
-            Files.createDirectories(carpetaDestino);
+            Path carpetaDestino = GestorDocumento.construirRutaBitacora(matricula);
 
-            Path archivoDestino = carpetaDestino.resolve(archivoSeleccionado.getName());
-            if (Files.exists(archivoDestino)) {
-                lblError.setText("Ya existe una bitácora con ese nombre en tu carpeta.");
-                lblError.setVisible(true);
+            if (GestorDocumento.existeDocumentoEnCarpeta(carpetaDestino) && !GestorDocumento.confirmarReemplazo()) {
                 return;
             }
-            Files.copy(archivoSeleccionado.toPath(), archivoDestino, StandardCopyOption.REPLACE_EXISTING);
 
-            BitacoraPSPDTO bitacoraPSPDTO = new BitacoraPSPDTO(
-                    0,
-                    txtMatricula.getText().trim(),
-                    dpFecha.getValue());
+            GestorDocumento.guardarDocumento(carpetaDestino, archivoSeleccionado);
 
+            BitacoraPSPDTO bitacoraPSPDTO = new BitacoraPSPDTO(0, matricula, dpFecha.getValue());
             BitacoraPSPDAO bitacoraPSPDAO = new BitacoraPSPDAO();
             bitacoraPSPDAO.agregarBitacoraPSP(bitacoraPSPDTO);
 
@@ -115,12 +126,12 @@ public class BitacoraPSPControlador implements Initializable, Regresable {
 
             regresar(lblError, escenaAnterior);
 
-        } catch (IOException excepcionCapturada) {
-            REGISTRADOR.log(Level.SEVERE, "Error al copiar el archivo de bitácora PSP", excepcionCapturada);
+        } catch (IOException ioExcepcion) {
+            REGISTRADOR.log(Level.SEVERE, "Error al copiar el archivo de bitácora PSP", ioExcepcion);
             lblError.setText("No se pudo guardar el archivo. Intente más tarde.");
             lblError.setVisible(true);
-        } catch (DAOExcepcion excepcionCapturada) {
-            REGISTRADOR.log(Level.SEVERE, "Error al registrar la bitácora PSP en la base de datos", excepcionCapturada);
+        } catch (DAOExcepcion daoExcepcion) {
+            REGISTRADOR.log(Level.SEVERE, "Error al registrar la bitácora PSP en la base de datos", daoExcepcion);
             Alert alerta = new Alert(Alert.AlertType.ERROR);
             alerta.setTitle("Error del sistema");
             alerta.setHeaderText(null);
@@ -130,12 +141,16 @@ public class BitacoraPSPControlador implements Initializable, Regresable {
         }
     }
 
+    private String obtenerMatriculaSesion() {
+        Object usuarioActual = SesionUsuarioSingleton.obtenerInstancia().obtenerUsuarioActual();
+        if (usuarioActual instanceof PracticanteDTO practicante) {
+            return practicante.getMatricula();
+        }
+        return null;
+    }
+
     private String validarCampos() {
         StringBuilder errores = new StringBuilder();
-
-        if (txtMatricula.getText().trim().isEmpty()) {
-            errores.append("La matrícula no puede estar vacía.\n");
-        }
         if (dpFecha.getValue() == null) {
             errores.append("Debe seleccionar una fecha.\n");
         }

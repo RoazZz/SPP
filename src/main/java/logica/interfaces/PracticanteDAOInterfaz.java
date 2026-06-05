@@ -11,6 +11,7 @@ public interface PracticanteDAOInterfaz {
     PracticanteDTO buscarPracticantePorMatricula(String matricula) throws DAOExcepcion, EntidadNoEncontradaExcepcion;
     List<PracticanteDTO> listarPracticantes() throws DAOExcepcion;
     boolean existePracticanteConMatricula(String matricula) throws DAOExcepcion;
+    List<PracticanteDTO> listarPracticantesPorSeccion(int idSeccion) throws DAOExcepcion;
 
 }
 

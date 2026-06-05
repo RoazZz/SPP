@@ -26,6 +26,8 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
+import excepciones.DAOExcepcion;
+import logica.utilidades.GestorDocumento;
 
 import logica.dto.PracticanteDTO;
 import logica.utilidades.SesionUsuarioSingleton;
@@ -35,8 +37,6 @@ import static gui.controladores.NavegacionControlador.regresar;
 public class HorarioControlador implements Regresable {
 
     private static final Logger REGISTRADOR = Logger.getLogger(HorarioControlador.class.getName());
-
-    private static final String NOMBRE_CARPETA_RAIZ = "Horarios";
     private static final String EXTENSION_PDF = ".pdf";
     private static final String FILTRO_PDF_DESCRIPCION = "Documentos PDF";
     private static final String FILTRO_PDF_PATRON = "*.pdf";
@@ -44,7 +44,6 @@ public class HorarioControlador implements Regresable {
     @FXML private Button btnSeleccionar;
     @FXML private Button btnVistaPrevia;
     @FXML private Label lblNombreArchivo;
-    @FXML private Label lblValidacionArchivo;
     @FXML private Button btnGuardar;
     @FXML private HBox hboxValidacionArchivo;
 
@@ -129,25 +128,32 @@ public class HorarioControlador implements Regresable {
             return;
         }
 
-        Path carpetaMatricula = construirRutaCarpetaMatricula(matriculaUsuario);
-
         try {
-            if (existeHorarioPrevio(carpetaMatricula) && !confirmarReemplazoHorarioExistente()) {
+            if (!GestorDocumento.practicanteTieneProyectoAceptado(matriculaUsuario)) {
+                mostrarAlerta(AlertType.WARNING, "Sin proyecto asignado", "No puedes subir el horario sin tener un proyecto aceptado.");
                 return;
             }
 
-            if (!confirmarSubidaHorario()) {
+            Path carpetaMatricula = GestorDocumento.construirRutaHorario(matriculaUsuario);
+
+            if (GestorDocumento.existeDocumentoEnCarpeta(carpetaMatricula) && !GestorDocumento.confirmarReemplazo()) {
                 return;
             }
 
-            Path rutaArchivoGuardado = copiarHorarioACarpetaDestino(carpetaMatricula);
+            if (!GestorDocumento.confirmarSubida()) {
+                return;
+            }
 
+            GestorDocumento.guardarDocumento(carpetaMatricula, archivoPdfSeleccionado);
             mostrarAlerta(AlertType.INFORMATION, "Éxito", "Horario guardado correctamente.");
             regresar(lblNombreArchivo, escenaAnterior);
 
-        } catch (IOException excepcionCapturada) {
-            REGISTRADOR.log(Level.SEVERE, "Error al guardar el horario en disco", excepcionCapturada);
+        } catch (IOException ioExcepcion) {
+            REGISTRADOR.log(Level.SEVERE, "Error al guardar el horario en disco", ioExcepcion);
             mostrarAlerta(AlertType.ERROR, "Error al guardar", "No se pudo guardar el horario en el servidor local.");
+        } catch (DAOExcepcion daoExcepcion) {
+            REGISTRADOR.log(Level.SEVERE, "Error al verificar proyecto del practicante", daoExcepcion);
+            mostrarAlerta(AlertType.ERROR, "Error", "No se pudo verificar el estado de tu proyecto.");
         }
     }
 
@@ -168,84 +174,9 @@ public class HorarioControlador implements Regresable {
         return matriculaEncontrada;
     }
 
-    private Path construirRutaCarpetaMatricula(String matriculaRecibida) {
-        return Paths.get(System.getProperty("user.dir"), NOMBRE_CARPETA_RAIZ, matriculaRecibida);
-    }
-
-    private boolean existeHorarioPrevio(Path carpetaMatricula) throws IOException {
-        boolean existeHorario = false;
-        if (Files.exists(carpetaMatricula)) {
-            try (Stream<Path> flujoDeArchivos = Files.list(carpetaMatricula)) {
-                existeHorario = flujoDeArchivos.anyMatch(this::esArchivoPdf);
-            }
-        }
-        return existeHorario;
-    }
-
     private boolean esArchivoPdf(Path rutaRecibida) {
         return Files.isRegularFile(rutaRecibida)
                 && rutaRecibida.getFileName().toString().toLowerCase().endsWith(EXTENSION_PDF);
-    }
-
-    private boolean confirmarReemplazoHorarioExistente() {
-        Alert alertaReemplazo = new Alert(AlertType.CONFIRMATION,
-                "Ya existe un horario registrado para tu matrícula.\n"
-                        + "Solo puedes tener un horario subido a la vez.\n\n"
-                        + "¿Deseas reemplazarlo por el nuevo archivo?",
-                ButtonType.YES, ButtonType.NO);
-        alertaReemplazo.setHeaderText("Horario existente");
-        alertaReemplazo.setTitle("Horario ya registrado");
-
-        Optional<ButtonType> respuestaAlerta = alertaReemplazo.showAndWait();
-        boolean fueConfirmado = false;
-        if (respuestaAlerta.isPresent() && respuestaAlerta.get() == ButtonType.YES) {
-            fueConfirmado = true;
-        }
-        return fueConfirmado;
-    }
-
-    private boolean confirmarSubidaHorario() {
-        Alert alertaConfirmacion = new Alert(AlertType.CONFIRMATION,
-                "¿Está seguro de subir este horario?",
-                ButtonType.YES, ButtonType.NO);
-        alertaConfirmacion.setHeaderText(null);
-        alertaConfirmacion.setTitle("Confirmar subida");
-
-        Optional<ButtonType> respuestaAlerta = alertaConfirmacion.showAndWait();
-        boolean fueConfirmado = false;
-        if (respuestaAlerta.isPresent() && respuestaAlerta.get() == ButtonType.YES) {
-            fueConfirmado = true;
-        }
-        return fueConfirmado;
-    }
-
-    private Path copiarHorarioACarpetaDestino(Path carpetaMatricula) throws IOException {
-        if (!Files.exists(carpetaMatricula)) {
-            Files.createDirectories(carpetaMatricula);
-        } else {
-            eliminarHorariosPreviosEnCarpeta(carpetaMatricula);
-        }
-
-        Path rutaArchivoDestino = carpetaMatricula.resolve(archivoPdfSeleccionado.getName());
-        Files.copy(archivoPdfSeleccionado.toPath(), rutaArchivoDestino, StandardCopyOption.REPLACE_EXISTING);
-        return rutaArchivoDestino;
-    }
-
-    private void eliminarHorariosPreviosEnCarpeta(Path carpetaMatricula) throws IOException {
-        List<Path> archivosPdf;
-        try (Stream<Path> flujoDeArchivos = Files.list(carpetaMatricula)) {
-            archivosPdf = flujoDeArchivos
-                    .filter(this::esArchivoPdf)
-                    .toList();
-        }
-        for (Path archivoParaEliminar : archivosPdf) {
-            try {
-                Files.deleteIfExists(archivoParaEliminar);
-            } catch (IOException excepcionCapturada) {
-                REGISTRADOR.log(Level.SEVERE,
-                        "Error al eliminar el horario previo " + archivoParaEliminar, excepcionCapturada);
-            }
-        }
     }
 
     @Override

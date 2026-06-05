@@ -24,7 +24,6 @@
             <VBox alignment="CENTER" style="-fx-padding: 40 0;">
                 <VBox styleClass="panel-formulario">
                     <Label styleClass="label-seccion" text="Datos de la Bitácora" />
-                    <TextField fx:id="txtMatricula" promptText="Matrícula" />
                     <DatePicker fx:id="dpFecha" maxWidth="Infinity" promptText="Fecha de la bitácora" />
                     <TextField fx:id="txtRuta" editable="false" promptText="Ruta del archivo (se llenará automáticamente)" />
                     <Button onAction="#seleccionarArchivo" styleClass="btn-examinar" text="Seleccionar archivo..." />

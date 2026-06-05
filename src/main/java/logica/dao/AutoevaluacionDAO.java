@@ -25,6 +25,8 @@ public class AutoevaluacionDAO implements AutoevaluacionDAOInterfaz {
             "Comentarios, RutaDocumento FROM autoevaluacion WHERE Matricula = ?";
     private static final String SQL_SELECT_ALL = "SELECT idAutoEvaluacion, Matricula, Calificacion, " +
             "Comentarios, RutaDocumento FROM autoevaluacion";
+    private static final String SQL_EXISTE_POR_MATRICULA =
+            "SELECT COUNT(*) FROM autoevaluacion WHERE Matricula = ?";
     private Connection conexion;
     public AutoevaluacionDAO() throws DAOExcepcion {
         try {
@@ -137,5 +139,19 @@ public class AutoevaluacionDAO implements AutoevaluacionDAOInterfaz {
                 conjuntoResultado.getString("Comentarios"),
                 conjuntoResultado.getString("RutaDocumento")
         );
+    }
+
+    @Override
+    public boolean existeAutoevaluacionPorMatricula(String matricula) throws DAOExcepcion {
+        try (PreparedStatement sentenciaPreparada = conexion.prepareStatement(SQL_EXISTE_POR_MATRICULA)) {
+            sentenciaPreparada.setString(1, matricula);
+
+            try (ResultSet conjuntoResultado = sentenciaPreparada.executeQuery()) {
+                return conjuntoResultado.next() && conjuntoResultado.getInt(1) > 0;
+            }
+        } catch (SQLException sqlExcepcion) {
+            REGISTRADOR.log(Level.SEVERE, "Error al verificar existencia de autoevaluación", sqlExcepcion);
+            throw new DAOExcepcion("Error al verificar existencia de autoevaluación", sqlExcepcion);
+        }
     }
 }

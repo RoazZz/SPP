@@ -36,11 +36,19 @@ public class PracticanteDAO implements PracticanteDAOInterfaz {
             " LenguaIndigena = ? WHERE Matricula = ?";
     private static final String SQL_SELECT_ALL =
             "SELECT usuario.idUsuario, usuario.nombre, usuario.apellidoP, usuario.apellidoM, " +
-            "usuario.contrasenia, usuario.tipoUsuario, usuario.Estado, " +
-            "practicante.matricula, practicante.idSeccion, practicante.semestre, practicante.Genero," +
-            "practicante.edad, practicante.lenguaIndigena " +
-                    "FROM usuario JOIN practicante ON usuario.idUsuario = practicante.idUsuario ";
+                    "usuario.contrasenia, usuario.tipoUsuario, usuario.Estado, " +
+                    "practicante.matricula, practicante.idSeccion, practicante.semestre, practicante.Genero," +
+                    "practicante.edad, practicante.lenguaIndigena " +
+                    "FROM usuario JOIN practicante ON usuario.idUsuario = practicante.idUsuario " +
+                    "WHERE usuario.Estado = 'ACTIVO'";
     private static final String SQL_EXISTE_MATRICULA = "SELECT COUNT(*) FROM Practicante WHERE Matricula = ?";
+    private static final String SQL_SELECT_BY_SECCION =
+            "SELECT usuario.idUsuario, usuario.nombre, usuario.apellidoP, usuario.apellidoM, " +
+                    "usuario.contrasenia, usuario.tipoUsuario, usuario.Estado, " +
+                    "practicante.matricula, practicante.idSeccion, practicante.semestre, practicante.Genero," +
+                    "practicante.edad, practicante.lenguaIndigena " +
+                    "FROM usuario JOIN practicante ON usuario.idUsuario = practicante.idUsuario " +
+                    "WHERE practicante.idSeccion = ? AND usuario.Estado = 'ACTIVO'";
 
 
     public PracticanteDAO() throws DAOExcepcion {
@@ -201,6 +209,43 @@ public class PracticanteDAO implements PracticanteDAOInterfaz {
         } catch (SQLException sqlExcepcion) {
             REGISTRADOR.log(Level.SEVERE, "Error al verificar matrícula duplicada", sqlExcepcion);
             throw new DAOExcepcion("Error al verificar si existe la matrícula", sqlExcepcion);
+        }
+    }
+
+    @Override
+    public List<PracticanteDTO> listarPracticantesPorSeccion(int idSeccion) throws DAOExcepcion {
+        List<PracticanteDTO> listaPracticante = new ArrayList<>();
+
+        try (PreparedStatement sentenciaPreparada = conexion.prepareStatement(SQL_SELECT_BY_SECCION)) {
+            sentenciaPreparada.setInt(1, idSeccion);
+
+            try (ResultSet conjuntoResultado = sentenciaPreparada.executeQuery()) {
+                while (conjuntoResultado.next()) {
+                    PracticanteDTO practicante = new PracticanteDTO(
+                            conjuntoResultado.getInt("idUsuario"),
+                            conjuntoResultado.getString("nombre"),
+                            conjuntoResultado.getString("apellidoP"),
+                            conjuntoResultado.getString("apellidoM"),
+                            conjuntoResultado.getString("contrasenia"),
+                            TipoEstadoUsuario.valueOf(conjuntoResultado.getString("estado")),
+                            TipoDeUsuario.valueOf(conjuntoResultado.getString("tipoUsuario"))
+                    );
+
+                    practicante.setMatricula(conjuntoResultado.getString("Matricula"));
+                    practicante.setIdSeccion(conjuntoResultado.getInt("idSeccion"));
+                    practicante.setSemestre(conjuntoResultado.getString("Semestre"));
+                    practicante.setGeneroDelPracticante(GeneroDelPracticante.valueOf(conjuntoResultado.getString("Genero")));
+                    practicante.setEdad(conjuntoResultado.getInt("Edad"));
+                    practicante.setLenguaIndigena(conjuntoResultado.getBoolean("LenguaIndigena"));
+
+                    listaPracticante.add(practicante);
+                }
+            }
+
+            return listaPracticante;
+        } catch (SQLException sqlExcepcion) {
+            REGISTRADOR.log(Level.SEVERE, "Error al listar practicantes por sección", sqlExcepcion);
+            throw new DAOExcepcion("Error al listar practicantes por sección: ", sqlExcepcion);
         }
     }
 }

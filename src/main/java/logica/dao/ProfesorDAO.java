@@ -33,9 +33,10 @@ public class ProfesorDAO implements ProfesorDAOInterfaz {
     private static final String SQL_UPDATE = "UPDATE profesor SET Turno = ? WHERE NumeroDePersonal = ?";
     private static final String SQL_SELECT_ALL =
             "SELECT usuario.idUsuario, usuario.nombre, usuario.apellidoP, usuario.apellidoM, " +
-            "usuario.contrasenia, usuario.TipoUsuario, usuario.estado, " +
-            "profesor.NumeroDePersonal, profesor.Turno, profesor.IdSeccion " +
-            "FROM usuario JOIN profesor ON usuario.idUsuario = profesor.idUsuario";
+                    "usuario.contrasenia, usuario.TipoUsuario, usuario.estado, " +
+                    "profesor.NumeroDePersonal, profesor.Turno, profesor.IdSeccion " +
+                    "FROM usuario JOIN profesor ON usuario.idUsuario = profesor.idUsuario " +
+                    "WHERE usuario.estado = 'ACTIVO'";
     private static final String SQL_EXISTE_NUMERO_PERSONAL = "SELECT COUNT(*) FROM Profesor WHERE NumeroDePersonal = ?" +
             " AND idUsuario != ?";
 

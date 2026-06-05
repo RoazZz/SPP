@@ -14,6 +14,8 @@ import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import logica.dto.PracticanteDTO;
+import excepciones.DAOExcepcion;
+import logica.utilidades.GestorDocumento;
 import logica.utilidades.SesionUsuarioSingleton;
 
 import java.awt.Desktop;
@@ -92,60 +94,31 @@ public class PlanDeActividadesControlador implements Initializable, Regresable {
             return;
         }
 
-        File directorioDestino = obtenerDirectorioAlmacenamiento();
-
-        if (!asegurarExistenciaDeDirectorio(directorioDestino)) {
-            mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudieron crear las carpetas de almacenamiento.");
-            return;
-        }
-
-        File archivoDestino = new File(directorioDestino, archivoSeleccionado.getName());
-
-        if (archivoDestino.exists() && !confirmarReemplazo(archivoSeleccionado.getName())) {
-            return;
-        }
-
         try {
-            Files.copy(archivoSeleccionado.toPath(), archivoDestino.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            if (!GestorDocumento.practicanteTieneProyectoAceptado(practicanteLogueado.getMatricula())) {
+                mostrarAlerta(Alert.AlertType.WARNING, "Sin proyecto asignado",
+                        "No puedes subir el plan de actividades sin tener un proyecto aceptado.");
+                return;
+            }
+
+            Path carpetaDestino = GestorDocumento.construirRutaPlan(practicanteLogueado.getMatricula());
+
+            if (GestorDocumento.existeDocumentoEnCarpeta(carpetaDestino)
+                    && !GestorDocumento.confirmarReemplazo()) {
+                return;
+            }
+
+            GestorDocumento.guardarDocumento(carpetaDestino, archivoSeleccionado);
             mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "El Plan de Actividades se ha subido correctamente.");
             regresar(eventoClic);
-        } catch (IOException excepcionCapturada) {
-            REGISTRADOR.log(Level.SEVERE, "Error crítico de E/S al copiar el archivo para la matrícula: " + practicanteLogueado.getMatricula(), excepcionCapturada);
+
+        } catch (IOException ioExcepcion) {
+            REGISTRADOR.log(Level.SEVERE, "Error al copiar el archivo para la matrícula: " + practicanteLogueado.getMatricula(), ioExcepcion);
             mostrarAlerta(Alert.AlertType.ERROR, "Error de Escritura", "Ocurrió un problema físico al guardar el archivo.");
+        } catch (DAOExcepcion daoExcepcion) {
+            REGISTRADOR.log(Level.SEVERE, "Error al verificar proyecto del practicante", daoExcepcion);
+            mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudo verificar el estado de tu proyecto.");
         }
-    }
-
-    private File obtenerDirectorioAlmacenamiento() {
-        String nombreFormateado = practicanteLogueado.getNombre().trim().replace(" ", "_");
-        String matriculaFormateada = practicanteLogueado.getMatricula().trim();
-        String carpetaPracticante = nombreFormateado + "_" + matriculaFormateada;
-        return new File(RUTA_BASE_PLANES.toFile(), carpetaPracticante);
-    }
-
-    private boolean asegurarExistenciaDeDirectorio(File directorioObjetivo) {
-        boolean existeDirectorio = true;
-        if (!directorioObjetivo.exists()) {
-            existeDirectorio = directorioObjetivo.mkdirs();
-        }
-        return existeDirectorio;
-    }
-
-    private boolean confirmarReemplazo(String nombreArchivoNuevo) {
-        return mostrarAlertaConfirmacion("Archivo duplicado", "El archivo '" + nombreArchivoNuevo + "' ya existe en tu carpeta.\n\n¿Deseas reemplazarlo por el nuevo?");
-    }
-
-    private boolean mostrarAlertaConfirmacion(String tituloAlerta, String mensajeAlerta) {
-        Alert alertaConfirmacion = new Alert(Alert.AlertType.CONFIRMATION);
-        alertaConfirmacion.setTitle(tituloAlerta);
-        alertaConfirmacion.setHeaderText(null);
-        alertaConfirmacion.setContentText(mensajeAlerta);
-
-        Optional<ButtonType> resultadoUsuario = alertaConfirmacion.showAndWait();
-        boolean fueConfirmado = false;
-        if (resultadoUsuario.isPresent() && resultadoUsuario.get() == ButtonType.OK) {
-            fueConfirmado = true;
-        }
-        return fueConfirmado;
     }
 
     private void mostrarAlerta(Alert.AlertType tipoAlerta, String tituloAlerta, String mensajeAlerta) {

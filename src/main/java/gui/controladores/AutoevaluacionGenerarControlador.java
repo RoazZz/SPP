@@ -30,6 +30,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import excepciones.DAOExcepcion;
+import excepciones.EntidadNoEncontradaExcepcion;
+import logica.utilidades.GestorDocumento;
 
 import static gui.controladores.NavegacionControlador.regresar;
 
@@ -156,26 +159,44 @@ public class AutoevaluacionGenerarControlador implements Regresable {
     private void procesarGeneracion() {
         try {
             String matricula = obtenerMatricula();
+
+            if (!GestorDocumento.practicanteTieneProyectoAceptado(matricula)) {
+                mostrarAlerta(Alert.AlertType.WARNING, "Sin proyecto asignado",
+                        "No puedes generar una autoevaluación sin tener un proyecto aceptado.");
+                return;
+            }
+
+            AutoevaluacionDAO autoevaluacionDAO = new AutoevaluacionDAO();
+            try {
+                autoevaluacionDAO.buscarAutoevaluacionPorMatricula(matricula);
+                mostrarAlerta(Alert.AlertType.WARNING, "Ya registrada",
+                        "Ya existe una autoevaluación registrada para tu matrícula.");
+                return;
+            } catch (EntidadNoEncontradaExcepcion entidadNoEncontradaExcepcion) {
+                    REGISTRADOR.log(Level.INFO, "El practicante no cuenta con autoevaluaciones previas.");
+            }
+
             BigDecimal calificacion = calcularCalificacion();
 
-            Path carpetaDestino = Paths.get(
-                    System.getProperty("user.dir"), "Autoevaluaciones", matricula
-            );
+            Path carpetaDestino = GestorDocumento.construirRutaAutoevaluacion(matricula);
+            String nombreArchivo = GestorDocumento.construirNombreArchivo("Autoevaluacion", matricula);
+            Path rutaArchivo = carpetaDestino.resolve(nombreArchivo);
 
             if (!Files.exists(carpetaDestino)) {
                 Files.createDirectories(carpetaDestino);
             }
-
-            String nombreArchivo = "Autoevaluacion_" + matricula + "_" + System.currentTimeMillis() + ".pdf";
-            Path rutaArchivo = carpetaDestino.resolve(nombreArchivo);
 
             generarDocumentoPDF(matricula, calificacion, rutaArchivo);
             guardarAutoevaluacion(matricula, calificacion);
 
             mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Autoevaluación generada exitosamente.");
             regresar(lblError, escenaAnterior);
-        } catch (IOException | DAOExcepcion e) {
-            REGISTRADOR.log(Level.SEVERE, "Error al generar autoevaluación", e);
+
+        } catch (IOException ioExcepcion) {
+            REGISTRADOR.log(Level.SEVERE, "Error al generar autoevaluación", ioExcepcion);
+            manejarErrorGeneracion();
+        } catch (DAOExcepcion daoExcepcion) {
+            REGISTRADOR.log(Level.SEVERE, "Error al generar autoevaluación", daoExcepcion);
             manejarErrorGeneracion();
         }
     }

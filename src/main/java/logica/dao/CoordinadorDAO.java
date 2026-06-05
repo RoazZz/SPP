@@ -32,9 +32,10 @@ public class CoordinadorDAO implements CoordinadorDAOInterfaz{
                     "WHERE coordinador.NumeroDePersonal = ?";
     private static final String SQL_SELECT_ALL =
             "SELECT usuario.idUsuario, usuario.nombre, usuario.apellidoP, usuario.apellidoM, " +
-            "usuario.contrasenia, usuario.estado, usuario.tipoUsuario, " +
-            "coordinador.NumeroDePersonal " +
-            "FROM usuario JOIN coordinador ON usuario.idUsuario = coordinador.idUsuario";
+                    "usuario.contrasenia, usuario.estado, usuario.tipoUsuario, " +
+                    "coordinador.NumeroDePersonal " +
+                    "FROM usuario JOIN coordinador ON usuario.idUsuario = coordinador.idUsuario " +
+                    "WHERE usuario.estado = 'ACTIVO'";
     private static final String SQL_EXISTE_NUMERO_PERSONAL = "SELECT COUNT(*) FROM Coordinador" +
             " WHERE NumeroDePersonal = ? AND idUsuario != ?";
 
