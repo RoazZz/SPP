@@ -9,12 +9,14 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.stage.FileChooser;
 import logica.dao.ReporteDAO;
 import logica.dto.ReporteDTO;
 
-import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -22,6 +24,8 @@ import java.util.logging.Logger;
 public class EvaluarReporteControlador {
 
     private static final Logger REGISTRADOR = Logger.getLogger(EvaluarReporteControlador.class.getName());
+    private static final double CALIFICACION_MINIMA = 0.0;
+    private static final double CALIFICACION_MAXIMA = 10.0;
 
     @FXML private Label lblIdReporte;
     @FXML private Label lblIdUsuario;
@@ -74,33 +78,48 @@ public class EvaluarReporteControlador {
     @FXML
     private void manejarDescargar(ActionEvent eventoClic) {
         if (reporteActual != null) {
-            try {
-                File archivo = new File(reporteActual.getRuta());
-                if (!archivo.exists()) {
-                    mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se encontró el archivo.");
-                } else {
-                    Desktop.getDesktop().open(archivo);
+            File archivoOrigen = new File(reporteActual.getRuta());
+
+            if (!archivoOrigen.exists()) {
+                mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se encontró el archivo origen del reporte.");
+                return;
+            }
+
+            FileChooser selectorArchivos = new FileChooser();
+            selectorArchivos.setTitle("Guardar Reporte");
+            selectorArchivos.setInitialFileName(archivoOrigen.getName());
+
+            File archivoDestino = selectorArchivos.showSaveDialog(btnDescargar.getScene().getWindow());
+
+            if (archivoDestino != null) {
+                try {
+                    Files.copy(archivoOrigen.toPath(), archivoDestino.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "El reporte se ha descargado correctamente.");
+                } catch (IOException excepcionCapturada) {
+                    REGISTRADOR.log(Level.SEVERE, "Error al copiar archivo con FileChooser", excepcionCapturada);
+                    mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudo guardar el archivo en la ruta seleccionada.");
                 }
-            } catch (IOException excepcionCapturada) {
-                REGISTRADOR.log(Level.SEVERE, "Error al abrir reporte", excepcionCapturada);
-                mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudo abrir el archivo.");
             }
         }
     }
 
     private String validarCampos() {
         String textoCalificacion = txtCalificacion.getText().trim();
+
         if (textoCalificacion.isEmpty()) {
             return "La calificación es obligatoria.";
         }
+
         try {
             double valor = Double.parseDouble(textoCalificacion);
-            if (valor < 0.0 || valor > 10.0) {
-                return "Rango inválido (0-10).";
+            if (valor < CALIFICACION_MINIMA || valor > CALIFICACION_MAXIMA) {
+                return "Rango no válido para calificación.";
             }
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException excepcionCapturada) {
+            REGISTRADOR.log(Level.SEVERE, "Formato numérico inválido", excepcionCapturada);
             return "Formato numérico inválido.";
         }
+
         return null;
     }
 

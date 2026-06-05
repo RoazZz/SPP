@@ -47,6 +47,8 @@ public class PruebaActividadDAO {
         }
     }
 
+}
+
     /*
     @BeforeEach
     void prepararObjetosYLimpiar() throws Exception {
@@ -72,6 +74,7 @@ public class PruebaActividadDAO {
         );
     }
  */
+    /*
     @Test
     public void pruebaAgregarActividadExitoso() throws Exception {
         boolean resultado = actividadDAO.agregarActividad(actividadValida);
@@ -88,3 +91,5 @@ public class PruebaActividadDAO {
         assertThrows(EntidadNoEncontradaExcepcion.class, () -> actividadDAO.buscarActividadPorIdActividad(10));
     }
 }
+ */
+

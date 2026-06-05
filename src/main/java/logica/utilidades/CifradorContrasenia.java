@@ -5,8 +5,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class CifradorContraseña {
-    private static final Logger LOGGER = Logger.getLogger(CifradorContraseña.class.getName());
+public class CifradorContrasenia {
+    private static final Logger LOGGER = Logger.getLogger(CifradorContrasenia.class.getName());
 
     public static String cifrarContraseña(String contraseña){
         String hashResultante = "";

@@ -3,20 +3,24 @@ package logica.dto;
 import java.time.LocalDate;
 
 public class ActividadDTO {
+
     private int idActividad;
     private String matricula;
-    private String nombre;
+    private String titulo;
     private String descripcion;
-    private LocalDate fechaInicio;
-    private LocalDate fechaCierre;
+    private LocalDate fecha;
+    private String rutaDocumento;
 
-    public ActividadDTO(int idActividad, String matricula, String nombre, String descripcion, LocalDate fechaInicio, LocalDate fechaCierre) {
+    public ActividadDTO() {
+    }
+
+    public ActividadDTO(int idActividad, String matricula, String titulo, String descripcion, LocalDate fecha, String rutaDocumento) {
         this.idActividad = idActividad;
         this.matricula = matricula;
-        this.nombre = nombre;
+        this.titulo = titulo;
         this.descripcion = descripcion;
-        this.fechaInicio = fechaInicio;
-        this.fechaCierre = fechaCierre;
+        this.fecha = fecha;
+        this.rutaDocumento = rutaDocumento;
     }
 
     public int getIdActividad() {
@@ -35,12 +39,12 @@ public class ActividadDTO {
         this.matricula = matricula;
     }
 
-    public String getNombre() {
-        return nombre;
+    public String getTitulo() {
+        return titulo;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setTitulo(String titulo) {
+        this.titulo = titulo;
     }
 
     public String getDescripcion() {
@@ -51,19 +55,19 @@ public class ActividadDTO {
         this.descripcion = descripcion;
     }
 
-    public LocalDate getFechaInicio() {
-        return fechaInicio;
+    public LocalDate getFecha() {
+        return fecha;
     }
 
-    public void setFechaInicio(LocalDate fechaInicio) {
-        this.fechaInicio = fechaInicio;
+    public void setFecha(LocalDate fecha) {
+        this.fecha = fecha;
     }
 
-    public LocalDate getFechaCierre() {
-        return fechaCierre;
+    public String getRutaDocumento() {
+        return rutaDocumento;
     }
 
-    public void setFechaCierre(LocalDate fechaCierre) {
-        this.fechaCierre = fechaCierre;
+    public void setRutaDocumento(String rutaDocumento) {
+        this.rutaDocumento = rutaDocumento;
     }
 }

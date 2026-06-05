@@ -8,7 +8,7 @@ import logica.dto.PracticanteDTO;
 import logica.enums.GeneroDelPracticante;
 import logica.enums.TipoDeUsuario;
 import logica.enums.TipoEstadoUsuario;
-import logica.utilidades.CifradorContraseña;
+import logica.utilidades.CifradorContrasenia;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,7 +27,7 @@ public class PracticanteControlador {
     }
 
     public PracticanteDTO construirPracticanteDTO(int id, String nombre, String apellidoP, String apellidoM, String contrasenia, String matricula, int idSeccion, String semestre, GeneroDelPracticante genero, int edad, boolean lenguaIndigena) {
-        String contraseniaProtegida = CifradorContraseña.cifrarContraseña(contrasenia);
+        String contraseniaProtegida = CifradorContrasenia.cifrarContraseña(contrasenia);
         PracticanteDTO practicante = new PracticanteDTO(
                 id, nombre, apellidoP, apellidoM, contraseniaProtegida,
                 TipoEstadoUsuario.ACTIVO, TipoDeUsuario.PRACTICANTE

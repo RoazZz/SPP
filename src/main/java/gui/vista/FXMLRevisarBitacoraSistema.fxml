@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane prefHeight="600.0" prefWidth="900.0" stylesheets="@/estilos.css"
+            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="gui.controladores.RevisarBitacoraControlador">
+    <top>
+        <VBox spacing="10.0">
+            <children>
+                <Label styleClass="titulo-ventana" text="Bitácora del Sistema" />
+                <HBox spacing="10.0">
+                    <children>
+                        <TextField fx:id="txtBuscarMatricula" promptText="Buscar por matrícula" />
+                        <Button fx:id="btnBuscar" onAction="#manejarBuscar" styleClass="btn-guardar" text="Buscar" />
+                        <Button fx:id="btnLimpiar" onAction="#manejarLimpiar" text="Limpiar" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+    </top>
+    <center>
+        <TableView fx:id="tvBitacora">
+            <columns>
+                <TableColumn fx:id="colFechaHora" prefWidth="200.0" text="Fecha y hora" />
+                <TableColumn fx:id="colMatricula" prefWidth="120.0" text="Matrícula" />
+                <TableColumn fx:id="colTipoEvento" prefWidth="150.0" text="Tipo de evento" />
+                <TableColumn fx:id="colDescripcion" prefWidth="380.0" text="Descripción" />
+            </columns>
+        </TableView>
+    </center>
+    <bottom>
+        <HBox spacing="10.0">
+            <children>
+                <Label fx:id="lblMensaje" />
+                <Button fx:id="btnRegresar" onAction="#manejarRegresar" text="Regresar" />
+            </children>
+        </HBox>
+    </bottom>
+</BorderPane>

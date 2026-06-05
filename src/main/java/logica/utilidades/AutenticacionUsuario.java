@@ -10,7 +10,7 @@ import logica.dao.ProfesorDAO;
 import logica.dto.UsuarioDTO;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import static logica.utilidades.CifradorContraseña.verificarContrasenia;
+import static logica.utilidades.CifradorContrasenia.verificarContrasenia;
 
 public class AutenticacionUsuario {
     private static final Logger REGISTRADOR = Logger.getLogger(AutenticacionUsuario.class.getName());

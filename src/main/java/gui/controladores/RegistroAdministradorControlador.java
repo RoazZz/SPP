@@ -15,7 +15,7 @@ import logica.dto.AdministradorDTO;
 import logica.dto.UsuarioDTO;
 import logica.enums.TipoDeUsuario;
 import logica.enums.TipoEstadoUsuario;
-import logica.utilidades.CifradorContraseña;
+import logica.utilidades.CifradorContrasenia;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -72,7 +72,7 @@ public class RegistroAdministradorControlador {
     }
 
     private void registrarAdministrador(String nombre, String apellidoPaterno, String apellidoMaterno, String contrasenia) throws DAOExcepcion {
-        String contraseniaCifrada = CifradorContraseña.cifrarContraseña(contrasenia);
+        String contraseniaCifrada = CifradorContrasenia.cifrarContraseña(contrasenia);
 
         AdministradorDTO administrador = new AdministradorDTO(
                 0,

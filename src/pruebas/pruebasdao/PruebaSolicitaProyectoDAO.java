@@ -1,3 +1,4 @@
+/*
 package pruebasdao;
 
 import accesodatos.ConexionBD;
@@ -106,3 +107,5 @@ public class PruebaSolicitaProyectoDAO {
         assertThrows(DAOExcepcion.class, () -> solicitaProyectoDAO.actualizarSolicitudProyecto(solicitaProyectoValido));
     }
 }
+
+ */

@@ -30,12 +30,12 @@ public class UsuarioDAO implements UsuarioDAOInterfaz {
     public UsuarioDAO() throws DAOExcepcion {
         try {
             this.conexion = ConexionBD.obtenerInstancia().obtenerConexion();
-        } catch (IOException ioException){
-            REGISTRADOR.log(Level.SEVERE, "Error al leer archivo de configuración", ioException);
-            throw new DAOExcepcion("Error de configuracion", ioException);
-        } catch (SQLException sqlException) {
-            REGISTRADOR.log(Level.SEVERE, "Error de conexion SQL en UsuarioDAO", sqlException);
-            throw new DAOExcepcion("Error de base de datos", sqlException);
+        } catch (IOException e){
+            REGISTRADOR.log(Level.SEVERE, "Error al leer archivo de configuración", e);
+            throw new DAOExcepcion("Error de configuracion", e);
+        } catch (SQLException e) {
+            REGISTRADOR.log(Level.SEVERE, "Error de conexion SQL en UsuarioDAO", e);
+            throw new DAOExcepcion("Error de base de datos", e);
         }
     }
 
@@ -64,9 +64,9 @@ public class UsuarioDAO implements UsuarioDAOInterfaz {
             REGISTRADOR.log(Level.INFO, "Usuario base creado exitosamente:", usuario.getIdUsuario());
             return usuario;
 
-        } catch (SQLException sqlException) {
-            REGISTRADOR.log(Level.SEVERE, "Error al agregar usuario en la base de datos", sqlException);
-            throw new DAOExcepcion("No se pudo registrar el usuario en el sistema.", sqlException);
+        } catch (SQLException e) {
+            REGISTRADOR.log(Level.SEVERE, "Error al agregar usuario en la base de datos", e);
+            throw new DAOExcepcion("No se pudo registrar el usuario en el sistema.", e);
         }
     }
 
@@ -82,9 +82,9 @@ public class UsuarioDAO implements UsuarioDAOInterfaz {
             preparedStatement.setInt(7, usuario.getIdUsuario());
             preparedStatement.executeUpdate();
             REGISTRADOR.log(Level.INFO, "Usuarios base actualizado exitosamente: " + usuario.getIdUsuario());
-        } catch (SQLException sqlException){
-            REGISTRADOR.log(Level.SEVERE, "Error al actualizar al usuario", sqlException);
-            throw new DAOExcepcion("Error al actualizar al usuario: ", sqlException);
+        } catch (SQLException e){
+            REGISTRADOR.log(Level.SEVERE, "Error al actualizar al usuario", e);
+            throw new DAOExcepcion("Error al actualizar al usuario: ", e);
         }
     }
 
@@ -106,9 +106,9 @@ public class UsuarioDAO implements UsuarioDAOInterfaz {
                 REGISTRADOR.log(Level.WARNING, "No se encontro algun usuario con id: " + idUsuario);
                 throw new EntidadNoEncontradaExcepcion("No existe usuario con el id: " + idUsuario);
             }
-        } catch (SQLException sqlException){
-            REGISTRADOR.log(Level.SEVERE, "Error al buscar al usuario", sqlException);
-            throw new DAOExcepcion("Error al buscar al Usuario: ", sqlException);
+        } catch (SQLException e){
+            REGISTRADOR.log(Level.SEVERE, "Error al buscar al usuario", e);
+            throw new DAOExcepcion("Error al buscar al Usuario: ", e);
         }
     }
 
@@ -129,9 +129,9 @@ public class UsuarioDAO implements UsuarioDAOInterfaz {
                 listaUsuario.add(usuario);
             }
             return listaUsuario;
-        } catch (SQLException sqlException){
-            REGISTRADOR.log(Level.SEVERE, "Error al listar a los usuarios", sqlException);
-            throw new DAOExcepcion("Error al listar a los usuarios: ", sqlException);
+        } catch (SQLException e){
+            REGISTRADOR.log(Level.SEVERE, "Error al listar a los usuarios", e);
+            throw new DAOExcepcion("Error al listar a los usuarios: ", e);
         }
     }
 }
