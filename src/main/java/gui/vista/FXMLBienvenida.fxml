@@ -26,7 +26,7 @@
                     <children>
                         <Label alignment="TOP_CENTER" contentDisplay="TOP" styleClass="titulo-seccion" stylesheets="@/estilos.css" text="Bienvenido al SPP" textAlignment="CENTER" />
                         <Label alignment="CENTER" prefWidth="450.0" styleClass="label-campo" stylesheets="@/estilos.css" text="Es el primer arranque del sistema. Para comenzar, registra la cuenta del Administrador." textAlignment="CENTER" wrapText="true" />
-                        <Button fx:id="btnComenzar" onAction="#manejarComenzar" alignment="BOTTOM_CENTER" mnemonicParsing="false" styleClass="btn-guardar" text="Comenzar" />
+                        <Button fx:id="btnComenzar" alignment="BOTTOM_CENTER" mnemonicParsing="false" styleClass="btn-guardar" text="Comenzar" />
                     </children>
                 </VBox>
             </children>

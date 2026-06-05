@@ -1,16 +1,19 @@
 package gui.controladores;
 
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
+import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
+import java.net.URL;
+import java.util.ResourceBundle;
 
 import static gui.controladores.NavegacionControlador.abrirVentana;
 
-public class BienvenidaControlador {
+public class BienvenidaControlador implements Initializable {
 
-    @FXML
-    private void manejarComenzar(ActionEvent eventoClic) {
-        Node nodoOrigen = (Node) eventoClic.getSource();
-        abrirVentana("/gui/vista/FXMLRegistroAdministrador.fxml", nodoOrigen);
+    @FXML private Button btnComenzar;
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        btnComenzar.setOnAction(evento -> abrirVentana("/gui/vista/FXMLRegistroAdministrador.fxml", btnComenzar));
     }
 }
