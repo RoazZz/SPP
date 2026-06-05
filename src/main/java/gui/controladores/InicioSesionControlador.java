@@ -48,15 +48,15 @@ public class InicioSesionControlador {
         try {
             UsuarioDTO usuario = autenticarUsuario();
             navegar(usuario);
-        } catch (EntidadNoEncontradaExcepcion e) {
+        } catch (EntidadNoEncontradaExcepcion entidadNoEncontradaExcepcion) {
             lblMensaje.setText("Usuario no encontrado");
-            REGISTRADOR.log(Level.WARNING, "Usuario no encontrado", e);
-        } catch (AutenticacionDeUsuarioExcepcion e) {
-            lblMensaje.setText(e.getMessage());
-            REGISTRADOR.log(Level.WARNING, "Error de autenticación", e);
-        } catch (DAOExcepcion e) {
+            REGISTRADOR.log(Level.WARNING, "Usuario no encontrado", entidadNoEncontradaExcepcion);
+        } catch (AutenticacionDeUsuarioExcepcion autenticacionExcepcion) {
+            lblMensaje.setText(autenticacionExcepcion.getMessage());
+            REGISTRADOR.log(Level.WARNING, "Error de autenticación", autenticacionExcepcion);
+        } catch (DAOExcepcion daoExcepcion) {
             lblMensaje.setText("Error al conectar con la base de datos");
-            REGISTRADOR.log(Level.SEVERE, "Error de base de datos en login", e);
+            REGISTRADOR.log(Level.SEVERE, "Error de base de datos en login", daoExcepcion);
         }
     }
 

@@ -33,7 +33,7 @@ import static gui.controladores.NavegacionControlador.regresar;
 
 public class BitacoraPSPControlador implements Initializable, Regresable {
 
-    private static final Logger LOGGER = Logger.getLogger(BitacoraPSPControlador.class.getName());
+    private static final Logger REGISTRADOR = Logger.getLogger(BitacoraPSPControlador.class.getName());
 
     @FXML private TextField txtMatricula;
     @FXML private DatePicker dpFecha;
@@ -116,11 +116,11 @@ public class BitacoraPSPControlador implements Initializable, Regresable {
             regresar(lblError, escenaAnterior);
 
         } catch (IOException excepcionCapturada) {
-            LOGGER.log(Level.SEVERE, "Error al copiar el archivo de bitácora PSP", excepcionCapturada);
+            REGISTRADOR.log(Level.SEVERE, "Error al copiar el archivo de bitácora PSP", excepcionCapturada);
             lblError.setText("No se pudo guardar el archivo. Intente más tarde.");
             lblError.setVisible(true);
         } catch (DAOExcepcion excepcionCapturada) {
-            LOGGER.log(Level.SEVERE, "Error al registrar la bitácora PSP en la base de datos", excepcionCapturada);
+            REGISTRADOR.log(Level.SEVERE, "Error al registrar la bitácora PSP en la base de datos", excepcionCapturada);
             Alert alerta = new Alert(Alert.AlertType.ERROR);
             alerta.setTitle("Error del sistema");
             alerta.setHeaderText(null);

@@ -56,11 +56,11 @@ public class SolicitarProyectoControlador implements Initializable, Regresable {
     private final List<ProyectoDTO> seleccionados = new ArrayList<>();
 
     @Override
-    public void initialize(URL url, ResourceBundle rb) {
+    public void initialize(URL enlace, ResourceBundle resourceBundle) {
         colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
         colOrganizacion.setCellValueFactory(new PropertyValueFactory<>("idOrganizacion"));
         colDescripcion.setCellValueFactory(new PropertyValueFactory<>("descripcion"));
-        colSeleccionar.setCellFactory(c -> new CeldaAnadir(this::agregar));
+        colSeleccionar.setCellFactory(parametroColumna -> new CeldaAnadir(this::agregar));
         cargar();
         lblError.setVisible(false);
     }

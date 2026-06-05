@@ -56,33 +56,23 @@ public class ConfiguracionPerfilControlador implements Initializable {
     }
 
     private boolean validarCampos() {
-        boolean esValido = false;
-        try {
-            String nombre = txtNombre.getText().trim();
-            String paterno = txtApellidoP.getText().trim();
-            String materno = txtApellidoM.getText().trim();
+        String nombre = txtNombre.getText().trim();
+        String paterno = txtApellidoP.getText().trim();
 
-            if (nombre.isEmpty() || paterno.isEmpty()) {
-                mostrarAlerta(Alert.AlertType.WARNING, "Campos Vacíos", "El nombre y apellido paterno son obligatorios.");
-            } else {
-                esValido = true;
-            }
-        } catch (Exception excepcionCapturada) {
-            REGISTRADOR.log(Level.SEVERE, "Error validación", excepcionCapturada);
+        if (nombre.isEmpty() || paterno.isEmpty()) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Campos Vacíos", "El nombre y apellido paterno son obligatorios.");
+            return false;
         }
-        return esValido;
+
+        return true;
     }
 
     private void actualizarInformacion() {
-        try {
-            usuarioSesion.setNombre(txtNombre.getText().trim());
-            usuarioSesion.setApellidoPaterno(txtApellidoP.getText().trim());
-            usuarioSesion.setApellidoMaterno(txtApellidoM.getText().trim());
+        usuarioSesion.setNombre(txtNombre.getText().trim());
+        usuarioSesion.setApellidoPaterno(txtApellidoP.getText().trim());
+        usuarioSesion.setApellidoMaterno(txtApellidoM.getText().trim());
 
-            mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Perfil actualizado.");
-        } catch (Exception excepcionCapturada) {
-            REGISTRADOR.log(Level.SEVERE, "Error actualización", excepcionCapturada);
-        }
+        mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Perfil actualizado.");
     }
 
     private void mostrarAlerta(Alert.AlertType tipo, String titulo, String mensaje) {

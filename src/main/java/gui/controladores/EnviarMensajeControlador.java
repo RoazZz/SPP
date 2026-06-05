@@ -131,8 +131,7 @@ public class EnviarMensajeControlador implements Initializable {
                 } else {
                     String busqueda = nuevo.toLowerCase();
                     ObservableList<UsuarioDTO> filtrados = FXCollections.observableArrayList();
-                    for (int indice = 0; indice < todosLosDestinatarios.size(); indice++) {
-                        UsuarioDTO usuario = todosLosDestinatarios.get(indice);
+                    for (UsuarioDTO usuario : todosLosDestinatarios) {
                         if (obtenerEtiqueta(usuario).toLowerCase().contains(busqueda)) {
                             filtrados.add(usuario);
                         }

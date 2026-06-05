@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javafx.event.ActionEvent;
@@ -235,7 +234,9 @@ public class HorarioControlador implements Regresable {
     private void eliminarHorariosPreviosEnCarpeta(Path carpetaMatricula) throws IOException {
         List<Path> archivosPdf;
         try (Stream<Path> flujoDeArchivos = Files.list(carpetaMatricula)) {
-            archivosPdf = flujoDeArchivos.filter(this::esArchivoPdf).collect(Collectors.toList());
+            archivosPdf = flujoDeArchivos
+                    .filter(this::esArchivoPdf)
+                    .toList();
         }
         for (Path archivoParaEliminar : archivosPdf) {
             try {

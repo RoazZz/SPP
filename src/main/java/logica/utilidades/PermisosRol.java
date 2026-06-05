@@ -27,7 +27,7 @@ public class PermisosRol {
         return rol == TipoDeUsuario.COORDINADOR || rol == TipoDeUsuario.ADMIN;
     }
 
-    public boolean peudeInactivarUsuario(){
+    public boolean puedeInactivarUsuario(){
         return rol == TipoDeUsuario.COORDINADOR || rol == TipoDeUsuario.ADMIN;
     }
 

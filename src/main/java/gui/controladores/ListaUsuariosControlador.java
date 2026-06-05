@@ -98,6 +98,7 @@ public class ListaUsuariosControlador implements Regresable {
         });
     }
 
+
     private void configurarColumnaAcciones() {
         colAcciones.setCellFactory(parametroColumna -> new TableCell<UsuarioDTO, Void>() {
             private final Button btnInactivar = new Button("INACTIVAR");
@@ -125,7 +126,7 @@ public class ListaUsuariosControlador implements Regresable {
                 PermisosRol permisosUsuario = new PermisosRol(rolActual);
                 UsuarioDTO usuarioEnFila = getTableView().getItems().get(getIndex());
 
-                if (permisosUsuario.peudeInactivarUsuario() && usuarioEnFila.getTipoEstado() == TipoEstadoUsuario.ACTIVO) {
+                if (permisosUsuario.puedeInactivarUsuario() && usuarioEnFila.getTipoEstado() == TipoEstadoUsuario.ACTIVO) {
                     btnInactivar.setVisible(true);
                     setGraphic(contenedorBotones);
                 } else {

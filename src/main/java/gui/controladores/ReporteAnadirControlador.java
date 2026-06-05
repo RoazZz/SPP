@@ -142,8 +142,7 @@ public class ReporteAnadirControlador implements Initializable, Regresable {
 
                 String nombreCarpetaTipo = cbTipoReporte.getValue().name();
                 String carpetaPracticante = construirNombreCarpetaPracticante();
-                Path carpetaDestinoFinal = Paths.get(System.getProperty("user.dir"),
-                        "Reportes", nombreCarpetaTipo, "ANADIDOS", carpetaPracticante);
+                Path carpetaDestinoFinal = Paths.get(System.getProperty("user.dir"),"Reportes", nombreCarpetaTipo, "ANADIDOS", carpetaPracticante);
 
                 if (!Files.exists(carpetaDestinoFinal)) {
                     Files.createDirectories(carpetaDestinoFinal);
@@ -152,8 +151,7 @@ public class ReporteAnadirControlador implements Initializable, Regresable {
                 Path archivoCopiaSistema = carpetaDestinoFinal.resolve(archivoPdf.getName());
 
                 if (Files.exists(archivoCopiaSistema)) {
-                    mostrarAlerta(Alert.AlertType.WARNING, "Archivo duplicado",
-                            "Ya existe un archivo con el nombre '" + archivoPdf.getName() + "' en tu carpeta de reportes.");
+                    mostrarAlerta(Alert.AlertType.WARNING, "Archivo duplicado", "Ya existe un archivo con el nombre '" + archivoPdf.getName() + "' en tu carpeta de reportes.");
                     return;
                 }
 
