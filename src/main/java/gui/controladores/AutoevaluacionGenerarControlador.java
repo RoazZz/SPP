@@ -146,7 +146,8 @@ public class AutoevaluacionGenerarControlador implements Regresable {
                 0,
                 matricula,
                 calificacion,
-                txtComentarios.getText().trim()
+                txtComentarios.getText().trim(),
+                null
         );
         AutoevaluacionDAO autoevaluacionDAO = new AutoevaluacionDAO();
         autoevaluacionDAO.agregarAutoevaluacion(autoevaluacionDTO);

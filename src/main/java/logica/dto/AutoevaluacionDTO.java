@@ -7,12 +7,22 @@ public class AutoevaluacionDTO {
     private String matricula;
     private BigDecimal calificacion;
     private String comentarios;
+    private String rutaArchivo;
 
-    public AutoevaluacionDTO(int idAutoevaluacion, String matricula, BigDecimal calificacion, String comentarios) {
+    public AutoevaluacionDTO(int idAutoevaluacion, String matricula, BigDecimal calificacion, String comentarios, String rutaArchivo) {
         this.idAutoevaluacion = idAutoevaluacion;
         this.matricula = matricula;
         this.calificacion = calificacion;
         this.comentarios = comentarios;
+        this.rutaArchivo = rutaArchivo;
+    }
+
+    public String getRutaArchivo() {
+        return rutaArchivo;
+    }
+
+    public void setRutaArchivo(String rutaArchivo) {
+        this.rutaArchivo = rutaArchivo;
     }
 
     public int getIdAutoevaluacion() {
