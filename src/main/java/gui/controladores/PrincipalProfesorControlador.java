@@ -12,6 +12,6 @@ public class PrincipalProfesorControlador extends PrincipalBaseControlador {
         btnActividades.setOnAction(evento -> abrirVentana("/gui/vista/FXMLActividades.fxml", btnActividades));
         btnFormatoPresentacion.setOnAction(evento -> abrirVentana("/gui/vista/FXMLFormatoPresentacion.fxml", btnFormatoPresentacion));
         btnReportes.setOnAction(evento -> abrirVentana("/gui/vista/FXMLListaReportes.fxml", btnReportes));
-        btnCalificacionFinal.setOnAction(evento -> abrirVentana("/gui/vista/FXMLCalificacionFinal.fxml", btnCalificacionFinal));
+        btnCalificacionFinal.setOnAction(evento -> abrirVentana("/gui/vista/FXMLListaPracticantesCalificacion.fxml", btnCalificacionFinal));
     }
 }

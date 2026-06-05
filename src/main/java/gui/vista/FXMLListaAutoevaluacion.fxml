@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<BorderPane prefHeight="600.0" prefWidth="800.0" stylesheets="@/estilos.css"
+            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="gui.controladores.ListaAutoevaluacionesControlador">
+    <top>
+        <VBox styleClass="header-container">
+            <padding><Insets bottom="15" left="25" right="25" top="15" /></padding>
+            <Label styleClass="titulo-ventana" text="Autoevaluaciones" />
+            <Label styleClass="subtitulo-ventana" text="Selecciona una autoevaluacion para evaluar" />
+        </VBox>
+    </top>
+    <center>
+        <VBox alignment="TOP_CENTER" spacing="15" style="-fx-padding: 25 40 25 40;">
+            <VBox spacing="10" styleClass="panel-formulario" style="-fx-max-width: Infinity;">
+                <Label styleClass="label-seccion" text="Autoevaluaciones registradas" />
+                <TableView fx:id="tablaAutoevaluaciones" prefHeight="320">
+                    <columns>
+                        <TableColumn fx:id="colId" text="ID" prefWidth="60" />
+                        <TableColumn fx:id="colMatricula" text="Matricula" prefWidth="160" />
+                        <TableColumn fx:id="colCalificacion" text="Calificacion" prefWidth="140" />
+                        <TableColumn fx:id="colAcciones" text="Acciones" prefWidth="160" />
+                    </columns>
+                </TableView>
+            </VBox>
+            <HBox alignment="CENTER_RIGHT" spacing="15">
+                <Region HBox.hgrow="ALWAYS" />
+                <Button fx:id="btnRegresar" onAction="#manejarSalir" styleClass="btn-cancelar" text="REGRESAR" />
+            </HBox>
+        </VBox>
+    </center>
+</BorderPane>
