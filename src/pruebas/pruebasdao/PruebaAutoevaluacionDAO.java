@@ -54,8 +54,8 @@ public class PruebaAutoevaluacionDAO {
             statement.execute("SET FOREIGN_KEY_CHECKS = 1");
         }
 
-        autoevalaucionValida = new AutoevaluacionDTO(0, "S21012345", new BigDecimal("9.00"), "Nuevo");
-        autoevaluacionInvalidaMatriculaNula = new AutoevaluacionDTO(0, null, new BigDecimal("0.00"), "Error");
+        autoevalaucionValida = new AutoevaluacionDTO(0, "S21012345", new BigDecimal("9.00"), "Nuevo", null);
+        autoevaluacionInvalidaMatriculaNula = new AutoevaluacionDTO(0, null, new BigDecimal("0.00"), "Error", null);
     }
 
     @AfterEach
