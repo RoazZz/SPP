@@ -21,7 +21,7 @@ import java.util.logging.Logger;
 
 public class UsuarioDAO implements UsuarioDAOInterfaz {
     private final Connection conexion;
-    private static final Logger logger = Logger.getLogger(UsuarioDAO.class.getName());
+    private static final Logger REGISTRADOR = Logger.getLogger(UsuarioDAO.class.getName());
     private static final String SQL_INSERT = "INSERT INTO Usuario(Nombre, ApellidoP, ApellidoM, Contrasenia, Estado, TipoUsuario) VALUES (?, ?, ?, ?, ?, ?)";
     private static final String SQL_BUSCAR_POR_ID_USUARIO = "SELECT * FROM Usuario WHERE idUsuario = ?";
     private static final String SQL_UPDATE = "UPDATE Usuario SET Nombre = ?, ApellidoP = ?, ApellidoM = ?, Contrasenia = ?, Estado = ?, TipoUsuario = ? WHERE idUsuario = ?";
@@ -31,10 +31,10 @@ public class UsuarioDAO implements UsuarioDAOInterfaz {
         try {
             this.conexion = ConexionBD.obtenerInstancia().obtenerConexion();
         } catch (IOException e){
-            logger.log(Level.SEVERE, "Error al leer archivo de configuración", e);
+            REGISTRADOR.log(Level.SEVERE, "Error al leer archivo de configuración", e);
             throw new DAOExcepcion("Error de configuracion", e);
         } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error de conexion SQL en UsuarioDAO", e);
+            REGISTRADOR.log(Level.SEVERE, "Error de conexion SQL en UsuarioDAO", e);
             throw new DAOExcepcion("Error de base de datos", e);
         }
     }
@@ -61,11 +61,11 @@ public class UsuarioDAO implements UsuarioDAOInterfaz {
                 }
             }
 
-            logger.log(Level.INFO, "Usuario base creado exitosamente:", usuario.getIdUsuario());
+            REGISTRADOR.log(Level.INFO, "Usuario base creado exitosamente:", usuario.getIdUsuario());
             return usuario;
 
         } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error al agregar usuario en la base de datos", e);
+            REGISTRADOR.log(Level.SEVERE, "Error al agregar usuario en la base de datos", e);
             throw new DAOExcepcion("No se pudo registrar el usuario en el sistema.", e);
         }
     }
@@ -81,9 +81,9 @@ public class UsuarioDAO implements UsuarioDAOInterfaz {
             preparedStatement.setString(6, usuario.getTipoDeUsuario().name());
             preparedStatement.setInt(7, usuario.getIdUsuario());
             preparedStatement.executeUpdate();
-            logger.log(Level.INFO, "Usuarios base actualizado exitosamente: " + usuario.getIdUsuario());
+            REGISTRADOR.log(Level.INFO, "Usuarios base actualizado exitosamente: " + usuario.getIdUsuario());
         } catch (SQLException e){
-            logger.log(Level.SEVERE, "Error al actualizar al usuario", e);
+            REGISTRADOR.log(Level.SEVERE, "Error al actualizar al usuario", e);
             throw new DAOExcepcion("Error al actualizar al usuario: ", e);
         }
     }
@@ -103,11 +103,11 @@ public class UsuarioDAO implements UsuarioDAOInterfaz {
                 String tipoUsuario = resultSet.getString("TipoUsuario");
                 return new UsuarioDTO(idDeUsuario, nombre, apellidoPaterno, apellidoMaterno, contrasenia, TipoEstadoUsuario.valueOf(estado), TipoDeUsuario.valueOf(tipoUsuario));
             } else{
-                logger.log(Level.WARNING, "No se encontro algun usuario con id: " + idUsuario);
+                REGISTRADOR.log(Level.WARNING, "No se encontro algun usuario con id: " + idUsuario);
                 throw new EntidadNoEncontradaExcepcion("No existe usuario con el id: " + idUsuario);
             }
         } catch (SQLException e){
-            logger.log(Level.SEVERE, "Error al buscar al usuario", e);
+            REGISTRADOR.log(Level.SEVERE, "Error al buscar al usuario", e);
             throw new DAOExcepcion("Error al buscar al Usuario: ", e);
         }
     }
@@ -130,7 +130,7 @@ public class UsuarioDAO implements UsuarioDAOInterfaz {
             }
             return listaUsuario;
         } catch (SQLException e){
-            logger.log(Level.SEVERE, "Error al listar a los usuarios", e);
+            REGISTRADOR.log(Level.SEVERE, "Error al listar a los usuarios", e);
             throw new DAOExcepcion("Error al listar a los usuarios: ", e);
         }
     }
