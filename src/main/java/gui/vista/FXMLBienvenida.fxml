@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="519.0" prefWidth="721.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.controladores.BienvenidaControlador">
+    <top>
+        <VBox prefHeight="16.0" prefWidth="746.0" BorderPane.alignment="CENTER">
+            <children>
+                <Label alignment="TOP_CENTER" prefHeight="78.0" prefWidth="750.0" stylesheets="@/estilos.css" text="Sistema de Practicas Profesionales " textAlignment="CENTER">
+                    <styleClass>
+                        <String fx:value="titulo-ventana" />
+                        <String fx:value="header-container" />
+                    </styleClass>
+                </Label>
+            </children>
+        </VBox>
+    </top>
+    <center>
+        <VBox alignment="CENTER" prefHeight="430.0" prefWidth="722.0" stylesheets="@/estilos.css" BorderPane.alignment="CENTER">
+            <children>
+                <VBox alignment="TOP_CENTER" maxWidth="582.0" prefHeight="262.0" prefWidth="550.0" spacing="20" styleClass="panel-formulario" stylesheets="@/estilos.css">
+                    <children>
+                        <Label alignment="TOP_CENTER" contentDisplay="TOP" styleClass="titulo-seccion" stylesheets="@/estilos.css" text="Bienvenido al SPP" textAlignment="CENTER" />
+                        <Label alignment="CENTER" prefWidth="450.0" styleClass="label-campo" stylesheets="@/estilos.css" text="Es el primer arranque del sistema. Para comenzar, registra la cuenta del Administrador." textAlignment="CENTER" wrapText="true" />
+                        <Button fx:id="btnComenzar" onAction="#manejarComenzar" alignment="BOTTOM_CENTER" mnemonicParsing="false" styleClass="btn-guardar" text="Comenzar" />
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+    </center>
+</BorderPane>
