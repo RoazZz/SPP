@@ -39,6 +39,8 @@ public class AdministradorDAO implements AdministradorDAOInterfaz {
                     "usuario.contrasenia, usuario.TipoUsuario, usuario.estado, " +
                     "administrador.idAdministrador " +
                     "FROM usuario JOIN administrador ON usuario.idUsuario = administrador.idUsuario";
+    public static final String SQL_EXISTE_ADMIN = "SELECT COUNT(*) FROM administrador";
+
     private Connection conexion;
     private static final Logger REGISTRADOR = Logger.getLogger(AdministradorDAO.class.getName());
 
@@ -186,6 +188,21 @@ public class AdministradorDAO implements AdministradorDAOInterfaz {
         } catch (SQLException sqlExceptioN) {
             REGISTRADOR.log(Level.SEVERE, "Error al listar administradores", sqlExceptioN);
             throw new DAOExcepcion("Error al listar los administradores", sqlExceptioN);
+        }
+    }
+
+    @Override
+    public boolean existeAlgunAdministrador() throws DAOExcepcion {
+        try (PreparedStatement sentenciaPreparada =
+                     conexion.prepareStatement(SQL_EXISTE_ADMIN);
+             ResultSet conjuntoResultado = sentenciaPreparada.executeQuery()) {
+            if (conjuntoResultado.next()) {
+                return conjuntoResultado.getInt(1) > 0;
+            }
+            return false;
+        } catch (SQLException sqlExcepcion) {
+            REGISTRADOR.log(Level.SEVERE, "Error al verificar la existencia de administrador", sqlExcepcion);
+            throw new DAOExcepcion("Error al verificar la existencia de administrador", sqlExcepcion);
         }
     }
 }
