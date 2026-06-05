@@ -78,6 +78,14 @@
                         </ImageView>
                     </graphic>
                 </Button>
+                <Button fx:id="btnCalificacionFinal" mnemonicParsing="false" prefHeight="100.0" prefWidth="166.0" styleClass="btn-icono" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER">
+                    <graphic>
+                        <ImageView fitHeight="80.0" fitWidth="80.0" pickOnBounds="true" preserveRatio="true">
+                            <image><Image url="@/Reportes.jpg" /></image>
+                        </ImageView>
+                    </graphic>
+                </Button>
+                <Label styleClass="label-seccion" stylesheets="@/estilos.css" text="Calificacion Final" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
 
                 <Label styleClass="label-seccion" stylesheets="@/estilos.css" text="Configuración" GridPane.columnIndex="0" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
                 <Label styleClass="label-seccion" stylesheets="@/estilos.css" text="Buzón" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
