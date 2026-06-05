@@ -2,5 +2,6 @@ package logica.enums;
 
 public enum TipoReporte {
     PARCIAL,
-    MENSUAL
+    MENSUAL,
+    FINAL
 }
