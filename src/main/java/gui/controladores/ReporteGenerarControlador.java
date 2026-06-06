@@ -5,6 +5,7 @@ import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.List;
+import logica.dto.PracticanteDTO;
 import logica.interfaces.Regresable;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -26,6 +27,7 @@ import logica.dto.ReporteDTO;
 import logica.enums.EstadoReporte;
 import logica.enums.TipoReporte;
 import excepciones.DAOExcepcion;
+import logica.utilidades.GestorDocumento;
 import logica.utilidades.SesionUsuarioSingleton;
 
 import java.io.IOException;
@@ -96,6 +98,25 @@ public class ReporteGenerarControlador implements Initializable, Regresable {
 
     @FXML
     private void procesarGeneracion(ActionEvent eventoClic) {
+        Object usuarioActual = SesionUsuarioSingleton.obtenerInstancia().obtenerUsuarioActual();
+        if (!(usuarioActual instanceof PracticanteDTO practicante)) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Acceso no permitido",
+                    "Solo un practicante puede generar reportes.");
+            return;
+        }
+
+        try {
+            if (!GestorDocumento.practicanteTieneProyectoAceptado(practicante.getMatricula())) {
+                mostrarAlerta(Alert.AlertType.WARNING, "Sin proyecto asignado",
+                        "No puedes generar un reporte sin tener un proyecto aceptado.");
+                return;
+            }
+        } catch (DAOExcepcion daoExcepcion) {
+            REGISTRADOR.log(Level.SEVERE, "Error al verificar proyecto del practicante", daoExcepcion);
+            mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudo verificar el estado de tu proyecto.");
+            return;
+        }
+
         if (cbTipoReporte.getValue() == null || listaActividades.isEmpty()) {
             mostrarAlerta(Alert.AlertType.WARNING, "Campos vacíos", "Llena los datos y agrega actividades.");
             return;

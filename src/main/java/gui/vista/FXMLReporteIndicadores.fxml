@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="600.0" prefWidth="720.0" stylesheets="@/estilos.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.controladores.ReporteIndicadoresControlador">
+<BorderPane prefHeight="650.0" prefWidth="720.0" stylesheets="@/estilos.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.controladores.ReporteIndicadoresControlador">
     <top>
         <HBox alignment="CENTER_LEFT" styleClass="header-container">
             <padding>
@@ -27,7 +27,7 @@
     <center>
         <VBox alignment="TOP_CENTER" spacing="20">
             <padding>
-                <Insets bottom="30" left="40" right="40" top="30" />
+                <Insets bottom="10" left="40" right="40" top="30" />
             </padding>
 
             <VBox spacing="15" styleClass="panel-formulario">
@@ -67,4 +67,13 @@
             </VBox>
         </VBox>
     </center>
+
+    <bottom>
+        <HBox alignment="CENTER_RIGHT" spacing="15">
+            <padding>
+                <Insets bottom="20.0" left="40.0" right="40.0" top="10.0" />
+            </padding>
+            <Button fx:id="btnCancelar" onAction="#regresar" styleClass="btn-cancelar" text="Cancelar" />
+        </HBox>
+    </bottom>
 </BorderPane>

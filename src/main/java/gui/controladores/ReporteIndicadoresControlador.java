@@ -8,6 +8,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Alert;
@@ -17,12 +19,14 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import logica.dao.ReporteIndicadoresDAO;
 import logica.dto.CoordinadorDTO;
 import logica.dto.ReporteIndicadoresDTO;
 import logica.dto.UsuarioDTO;
 import logica.enums.FiltrosIndicadores;
+import logica.interfaces.Regresable;
 import logica.utilidades.ExportadorIndicadoresPDF;
 import logica.utilidades.SesionUsuarioSingleton;
 
@@ -34,7 +38,9 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ReporteIndicadoresControlador {
+import static gui.controladores.NavegacionControlador.regresar;
+
+public class ReporteIndicadoresControlador implements Regresable {
 
     private static final Logger REGISTRADOR = Logger.getLogger(ReporteIndicadoresControlador.class.getName());
 
@@ -43,12 +49,15 @@ public class ReporteIndicadoresControlador {
     private static final String PREFIJO_CARPETA_FILTRO = "Reporte Indicadores ";
     private static final String FORMATO_FECHA_HORA = "_yyyyMMdd_HHmmss";
 
+    private Scene escenaAnterior;
+
     @FXML private ComboBox<FiltrosIndicadores> cbFiltroIndicador;
     @FXML private Button btnGenerarReportePdf;
     @FXML private BarChart<String, Number> bcIndicadores;
     @FXML private TableView<ReporteIndicadoresDTO> tvIndicadores;
     @FXML private TableColumn<ReporteIndicadoresDTO, String> colCategoria;
     @FXML private TableColumn<ReporteIndicadoresDTO, Number> colTotal;
+    @FXML private Button btnCancelar;
 
     private ReporteIndicadoresDAO reporteIndicadoresDao;
     private ExportadorIndicadoresPDF exportadorPdf;
@@ -257,5 +266,19 @@ public class ReporteIndicadoresControlador {
                 throw new IllegalArgumentException("Filtro no soportado: " + filtroRecibido);
         }
         return tituloGrafica;
+    }
+
+    @Override
+    public void setEscenaAnterior(Scene escenaGuardada) {
+        this.escenaAnterior = escenaGuardada;
+    }
+
+    @FXML
+    private void regresar(ActionEvent eventoClic) {
+        if (escenaAnterior != null) {
+            Stage escenarioActual = (Stage) ((Node) eventoClic.getSource()).getScene().getWindow();
+            escenarioActual.setScene(escenaAnterior);
+            escenarioActual.show();
+        }
     }
 }
