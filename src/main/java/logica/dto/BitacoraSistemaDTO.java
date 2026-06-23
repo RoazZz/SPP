@@ -1,17 +1,19 @@
 package logica.dto;
-
 import java.time.LocalDateTime;
 
-public class BitacoraDTO {
+public class BitacoraSistemaDTO {
     private int idRegistro;
-    private String matricula;
+    private String rolUsuario;
+    private String nombreUsuario;
     private String tipoEvento;
     private LocalDateTime fechaHora;
     private String descripcionEvento;
 
-    public BitacoraDTO(int idRegistro, String matricula, String tipoEvento, LocalDateTime fechaHora, String descripcionEvento) {
+    public BitacoraSistemaDTO(int idRegistro, String rolUsuario, String nombreUsuario,
+                              String tipoEvento, LocalDateTime fechaHora, String descripcionEvento) {
         this.idRegistro = idRegistro;
-        this.matricula = matricula;
+        this.rolUsuario = rolUsuario;
+        this.nombreUsuario = nombreUsuario;
         this.tipoEvento = tipoEvento;
         this.fechaHora = fechaHora;
         this.descripcionEvento = descripcionEvento;
@@ -25,12 +27,20 @@ public class BitacoraDTO {
         this.idRegistro = idRegistro;
     }
 
-    public String getMatricula() {
-        return matricula;
+    public String getRolUsuario() {
+        return rolUsuario;
     }
 
-    public void setMatricula(String matricula) {
-        this.matricula = matricula;
+    public void setRolUsuario(String rolUsuario) {
+        this.rolUsuario = rolUsuario;
+    }
+
+    public String getNombreUsuario() {
+        return nombreUsuario;
+    }
+
+    public void setNombreUsuario(String nombreUsuario) {
+        this.nombreUsuario = nombreUsuario;
     }
 
     public String getTipoEvento() {
@@ -57,6 +67,3 @@ public class BitacoraDTO {
         this.descripcionEvento = descripcionEvento;
     }
 }
-
-
-
