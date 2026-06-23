@@ -28,6 +28,7 @@ import logica.enums.TipoDeUsuario;
 import logica.enums.TipoEstadoUsuario;
 import javafx.scene.layout.HBox;
 import logica.utilidades.PermisosRol;
+import logica.utilidades.RegistradorBitacora;
 import logica.utilidades.SesionUsuarioSingleton;
 import java.util.List;
 import java.util.Optional;
@@ -157,7 +158,7 @@ public class ListaUsuariosControlador implements Regresable {
 
             UsuarioDAO usuarioObjetoDeAcceso = new UsuarioDAO();
             List<UsuarioDTO> usuariosRecuperados = usuarioObjetoDeAcceso.listarUsuariosPorTipos(tiposPermitidos);
-
+            RegistradorBitacora.registrar("CONSULTA_USUARIOS", "Consultó el listado de usuarios");
             listaCompleta = FXCollections.observableArrayList(usuariosRecuperados);
             listaFiltrada = new FilteredList<>(listaCompleta, usuarioFiltro -> true);
 
@@ -231,6 +232,7 @@ public class ListaUsuariosControlador implements Regresable {
     private void inactivarUsuario(UsuarioDTO usuarioObjetivo) throws DAOExcepcion {
         usuarioObjetivo.setTipoEstado(TipoEstadoUsuario.INACTIVO);
         new UsuarioDAO().actualizarUsuario(usuarioObjetivo);
+        RegistradorBitacora.registrar("INACTIVAR_USUARIO", "Inactivó al usuario: " + usuarioObjetivo.getNombre());
     }
 
     private boolean mostrarConfirmacion(String mensajeConfirmacion) {

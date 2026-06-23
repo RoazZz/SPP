@@ -16,8 +16,8 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
-import logica.dao.BitacoraDAO;
-import logica.dto.BitacoraDTO;
+import logica.dao.BitacoraSistemaSistemaDAO;
+import logica.dto.BitacoraSistemaDTO;
 import logica.interfaces.Regresable;
 
 import java.net.URL;
@@ -33,16 +33,16 @@ public class RevisarBitacoraSistemaControlador implements Initializable, Regresa
     @FXML private TextField txtBuscarMatricula;
     @FXML private Button btnBuscar;
     @FXML private Button btnLimpiar;
-    @FXML private TableView<BitacoraDTO> tvBitacora;
-    @FXML private TableColumn<BitacoraDTO, String> colFechaHora;
-    @FXML private TableColumn<BitacoraDTO, String> colMatricula;
-    @FXML private TableColumn<BitacoraDTO, String> colTipoEvento;
-    @FXML private TableColumn<BitacoraDTO, String> colDescripcion;
+    @FXML private TableView<BitacoraSistemaDTO> tvBitacora;
+    @FXML private TableColumn<BitacoraSistemaDTO, String> colFechaHora;
+    @FXML private TableColumn<BitacoraSistemaDTO, String> colMatricula;
+    @FXML private TableColumn<BitacoraSistemaDTO, String> colTipoEvento;
+    @FXML private TableColumn<BitacoraSistemaDTO, String> colDescripcion;
     @FXML private Label lblMensaje;
 
     private Scene escenaAnterior;
-    private final ObservableList<BitacoraDTO> registrosCompletos = FXCollections.observableArrayList();
-    private FilteredList<BitacoraDTO> registrosFiltrados;
+    private final ObservableList<BitacoraSistemaDTO> registrosCompletos = FXCollections.observableArrayList();
+    private FilteredList<BitacoraSistemaDTO> registrosFiltrados;
 
     @Override
     public void initialize(URL url, ResourceBundle recursoRecibido) {
@@ -56,8 +56,8 @@ public class RevisarBitacoraSistemaControlador implements Initializable, Regresa
 
     private void cargarBitacora() {
         try {
-            BitacoraDAO bitacoraDAO = new BitacoraDAO();
-            List<BitacoraDTO> registrosRecuperados = bitacoraDAO.listarBitacoras();
+            BitacoraSistemaSistemaDAO bitacoraSistemaDAO = new BitacoraSistemaSistemaDAO();
+            List<BitacoraSistemaDTO> registrosRecuperados = bitacoraSistemaDAO.listarBitacoras();
             registrosCompletos.setAll(registrosRecuperados);
             registrosFiltrados = new FilteredList<>(registrosCompletos, registroVisible -> true);
             tvBitacora.setItems(registrosFiltrados);

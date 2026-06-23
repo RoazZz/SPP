@@ -10,6 +10,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import logica.dao.OrganizacionVinculadaDAO;
 import logica.dto.OrganizacionVinculadaDTO;
+import logica.utilidades.RegistradorBitacora;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -41,7 +42,7 @@ public class OrganizacionVinculadaControlador implements Regresable {
             );
 
             new OrganizacionVinculadaDAO().agregarOrganizacionVinculada(organizacionNueva);
-
+            RegistradorBitacora.registrar("REGISTRO_ORGANIZACION", "Registró la organización vinculada: " + organizacionNueva.getNombre());
             lblMensajeGuardar.getStyleClass().add("label-exito");
             lblMensajeGuardar.setText("Organización Vinculada guardada con éxito");
             limpiarCampos();

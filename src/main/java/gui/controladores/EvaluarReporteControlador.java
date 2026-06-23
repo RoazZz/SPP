@@ -12,6 +12,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import logica.dao.ReporteDAO;
 import logica.dto.ReporteDTO;
+import logica.utilidades.RegistradorBitacora;
 
 import java.io.File;
 import java.io.IOException;
@@ -94,6 +95,7 @@ public class EvaluarReporteControlador {
             if (archivoDestino != null) {
                 try {
                     Files.copy(archivoOrigen.toPath(), archivoDestino.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    RegistradorBitacora.registrar("DESCARGAR_REPORTE", "Descargó el reporte con id: " + reporteActual.getIdReporte());
                     mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "El reporte se ha descargado correctamente.");
                 } catch (IOException excepcionCapturada) {
                     REGISTRADOR.log(Level.SEVERE, "Error al copiar archivo con FileChooser", excepcionCapturada);
@@ -126,7 +128,7 @@ public class EvaluarReporteControlador {
     private void calificarReporte(double calificacion) {
         try {
             new ReporteDAO().calificarReporte(reporteActual.getIdReporte(), calificacion);
-            mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Evaluado correctamente.");
+            RegistradorBitacora.registrar("CALIFICAR_REPORTE", "Calificó el reporte con id: " + reporteActual.getIdReporte());            mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Evaluado correctamente.");
             btnCalificar.getScene().getWindow().hide();
         } catch (DAOExcepcion excepcionCapturada) {
             REGISTRADOR.log(Level.SEVERE, "Error calificar", excepcionCapturada);

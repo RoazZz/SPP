@@ -16,6 +16,8 @@ import logica.dto.UsuarioDTO;
 import logica.enums.TipoDeUsuario;
 import logica.enums.TipoEstadoUsuario;
 import logica.utilidades.CifradorContrasenia;
+import logica.utilidades.RegistradorBitacora;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -92,6 +94,7 @@ public class RegistroAdministradorControlador {
 
         AdministradorDAO administradorDAO = new AdministradorDAO();
         administradorDAO.agregarAdministrador(administrador);
+        RegistradorBitacora.registrar("REGISTRO_ADMINISTRADOR", "Registró al administrador: " + administrador.getNombre());
     }
 
     private void abrirInicioSesion(Node nodoOrigen) {

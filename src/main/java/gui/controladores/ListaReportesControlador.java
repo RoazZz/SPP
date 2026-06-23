@@ -28,6 +28,7 @@ import logica.dao.ProfesorDAO;
 import logica.dao.ReporteDAO;
 import logica.dto.ProfesorDTO;
 import logica.dto.ReporteDTO;
+import logica.utilidades.RegistradorBitacora;
 import logica.utilidades.SesionUsuarioSingleton;
 
 import java.awt.Desktop;
@@ -135,7 +136,7 @@ public class ListaReportesControlador implements Regresable {
                 ProfesorDTO profesorCompleto = profesorDAO.buscarProfesorPorNumPersonal(profesorActivo.getNumeroDePersonal());
                 ReporteDAO reporteDAO = new ReporteDAO();
                 List<ReporteDTO> reportesEncontrados = reporteDAO.listarReportesPorSeccion(profesorCompleto.getIdSeccion());
-
+                RegistradorBitacora.registrar("CONSULTA_REPORTES", "Consultó el listado de reportes");
                 listaCompleta = FXCollections.observableArrayList(reportesEncontrados);
                 listaFiltrada = new FilteredList<>(listaCompleta, reporteElemento -> true);
                 tablaReportes.setItems(listaFiltrada);

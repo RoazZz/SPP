@@ -30,6 +30,7 @@ import excepciones.DAOExcepcion;
 import logica.utilidades.GestorDocumento;
 
 import logica.dto.PracticanteDTO;
+import logica.utilidades.RegistradorBitacora;
 import logica.utilidades.SesionUsuarioSingleton;
 
 import static gui.controladores.NavegacionControlador.regresar;
@@ -145,7 +146,7 @@ public class HorarioControlador implements Regresable {
             }
 
             GestorDocumento.guardarDocumento(carpetaMatricula, archivoPdfSeleccionado);
-            mostrarAlerta(AlertType.INFORMATION, "Éxito", "Horario guardado correctamente.");
+            RegistradorBitacora.registrar("REGISTRO_HORARIO", "Registró su horario de la matrícula: " + matriculaUsuario);            mostrarAlerta(AlertType.INFORMATION, "Éxito", "Horario guardado correctamente.");
             regresar(lblNombreArchivo, escenaAnterior);
 
         } catch (IOException ioExcepcion) {

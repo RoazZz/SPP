@@ -1,21 +1,16 @@
 package gui.controladores;
-
-import excepciones.DAOExcepcion;
-import excepciones.ReglaDeNegocioExcepcion;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import logica.dto.UsuarioDTO;
+import logica.utilidades.RegistradorBitacora;
 import logica.utilidades.SesionUsuarioSingleton;
 
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ConfiguracionPerfilControlador implements Initializable {
@@ -72,6 +67,7 @@ public class ConfiguracionPerfilControlador implements Initializable {
         usuarioSesion.setApellidoPaterno(txtApellidoP.getText().trim());
         usuarioSesion.setApellidoMaterno(txtApellidoM.getText().trim());
 
+        RegistradorBitacora.registrar("ACTUALIZAR_PERFIL", "Actualizó su perfil");
         mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Perfil actualizado.");
     }
 

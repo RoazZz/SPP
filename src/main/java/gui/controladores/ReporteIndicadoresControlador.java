@@ -28,6 +28,7 @@ import logica.dto.UsuarioDTO;
 import logica.enums.FiltrosIndicadores;
 import logica.interfaces.Regresable;
 import logica.utilidades.ExportadorIndicadoresPDF;
+import logica.utilidades.RegistradorBitacora;
 import logica.utilidades.SesionUsuarioSingleton;
 
 import java.io.File;
@@ -114,6 +115,7 @@ public class ReporteIndicadoresControlador implements Regresable {
     private void actualizarVisualizacion(FiltrosIndicadores filtroSeleccionado) {
         try {
             datosActuales = reporteIndicadoresDao.contarPracticantesPor(filtroSeleccionado);
+            RegistradorBitacora.registrar("GENERAR_REPORTE_INDICADORES", "Generó el reporte de indicadores con filtro: " + filtroSeleccionado);
             llenarGrafica(filtroSeleccionado, datosActuales);
             llenarTabla(datosActuales);
 

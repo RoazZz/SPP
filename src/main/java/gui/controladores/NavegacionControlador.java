@@ -8,6 +8,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import logica.enums.TipoDeUsuario;
+import logica.utilidades.RegistradorBitacora;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -20,6 +21,7 @@ public class NavegacionControlador {
     public void navegarSegunRol(TipoDeUsuario tipoDeUsuario, Stage stage) throws AutenticacionDeUsuarioExcepcion {
         String ruta = obtenerRutaSegunRol(tipoDeUsuario);
         cargarPantalla(ruta, stage);
+        RegistradorBitacora.registrar("NAVEGACION", "Ingreso a la pantalla principal: " + ruta);
     }
 
     public static void abrirVentana(String rutaFXML, Node nodoActual) {
@@ -36,6 +38,7 @@ public class NavegacionControlador {
 
             escenario.setScene(new Scene(vista));
             escenario.show();
+            RegistradorBitacora.registrar("NAVEGACION", "Abrio la ventana: " + rutaFXML);
         } catch (IOException ioException) {
             REGISTRADOR.log(Level.SEVERE, "Error al abrir ventana: " + rutaFXML, ioException);
         }

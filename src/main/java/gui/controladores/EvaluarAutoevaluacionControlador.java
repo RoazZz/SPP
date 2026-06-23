@@ -12,6 +12,8 @@ import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import logica.dao.AutoevaluacionDAO;
 import logica.dto.AutoevaluacionDTO;
+import logica.utilidades.RegistradorBitacora;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -19,6 +21,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 public class EvaluarAutoevaluacionControlador {
     private static final Logger REGISTRADOR = Logger.getLogger(EvaluarAutoevaluacionControlador.class.getName());
     private static final double CALIFICACION_MINIMA = 0.0;
@@ -111,7 +114,7 @@ public class EvaluarAutoevaluacionControlador {
     private void calificarAutoevaluacion(double calificacion) {
         try {
             new AutoevaluacionDAO().calificarAutoevaluacion(autoevaluacionActual.getMatricula(), calificacion);
-            mostrarAlerta(Alert.AlertType.INFORMATION, "Exito", "Autoevaluacion evaluada correctamente.");
+            RegistradorBitacora.registrar("CALIFICAR_AUTOEVALUACION", "Calificó la autoevaluación de la matrícula: " + autoevaluacionActual.getMatricula());            mostrarAlerta(Alert.AlertType.INFORMATION, "Exito", "Autoevaluacion evaluada correctamente.");
             btnCalificar.getScene().getWindow().hide();
         } catch (DAOExcepcion daoExcepcion) {
             REGISTRADOR.log(Level.SEVERE, "Error al calificar la autoevaluacion", daoExcepcion);

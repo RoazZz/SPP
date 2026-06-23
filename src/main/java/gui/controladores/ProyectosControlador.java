@@ -15,6 +15,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableView;
 import javafx.stage.Stage;
 import logica.dto.ProyectoDTO;
+import logica.utilidades.RegistradorBitacora;
 
 import java.io.IOException;
 import java.net.URL;
@@ -50,6 +51,7 @@ public class ProyectosControlador implements Initializable, Regresable {
     void cargarProyectos() {
         try {
             List<ProyectoDTO> proyectosEncontrados = proyectoControlador.listarProyectos();
+            RegistradorBitacora.registrar("CONSULTA_PROYECTOS", "Consultó el listado de proyectos");
             ObservableList<ProyectoDTO> listaProyectos = FXCollections.observableArrayList(proyectosEncontrados);
             tablaProyectos.setItems(listaProyectos);
             REGISTRADOR.log(Level.INFO, "Proyectos cargados correctamente");
@@ -103,6 +105,7 @@ public class ProyectosControlador implements Initializable, Regresable {
 
             escenarioActual.setScene(new Scene(vistaCargada));
             escenarioActual.show();
+            RegistradorBitacora.registrar("EDITAR_PROYECTO", "Abrió la edición del proyecto: " + proyectoSeleccionado.getNombre());
         } catch (IOException excepcionCapturada) {
             REGISTRADOR.log(Level.SEVERE, "Error al abrir formulario de edición", excepcionCapturada);
             lblMensaje.setText("No se pudo abrir el formulario de edición.");

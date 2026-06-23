@@ -22,6 +22,7 @@ import logica.dto.PracticanteDTO;
 import logica.dto.ProyectoDTO;
 import logica.dto.SolicitaProyectoDTO;
 import logica.enums.TipoEstadoSolicitud;
+import logica.utilidades.RegistradorBitacora;
 import logica.utilidades.SesionUsuarioSingleton;
 
 import java.net.URL;
@@ -87,6 +88,7 @@ public class SolicitarProyectoControlador implements Initializable, Regresable {
     private void cargar() {
         try {
             proyectosDisponibles.setAll(new ProyectoDAO().listarProyectos());
+            RegistradorBitacora.registrar("CONSULTA_PROYECTOS", "Consultó los proyectos disponibles");
             tvProyectos.setItems(proyectosDisponibles);
         } catch (DAOExcepcion e) {
             REGISTRADOR.log(Level.SEVERE, "Error carga", e);
@@ -114,6 +116,7 @@ public class SolicitarProyectoControlador implements Initializable, Regresable {
                             periodo,
                             prioridad));
                 }
+                RegistradorBitacora.registrar("SOLICITAR_PROYECTO", "Solicitó proyectos por prioridad para el periodo: " + periodo);
                 regresar(lblError, escenaAnterior);
             }
         } catch (DAOExcepcion excepcionCapturada) {
@@ -137,7 +140,11 @@ public class SolicitarProyectoControlador implements Initializable, Regresable {
         lblPrioridad3.setText(seleccionados.size() > 2 ? seleccionados.get(2).getNombre() : "Sin selección");
     }
 
-    @Override public void setEscenaAnterior(Scene s) { this.escenaAnterior = s; }
+    @Override public void setEscenaAnterior(Scene scene) {
+        this.escenaAnterior = scene;
+    }
 
-    @FXML private void manejarSalir(ActionEvent e) { regresar((Node) e.getSource(), escenaAnterior); }
+    @FXML private void manejarSalir(ActionEvent evento) {
+        regresar((Node) evento.getSource(), escenaAnterior);
+    }
 }

@@ -6,6 +6,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import logica.dto.UsuarioDTO;
+import logica.utilidades.RegistradorBitacora;
 import logica.utilidades.SesionUsuarioSingleton;
 import javafx.event.ActionEvent;
 import java.net.URL;
@@ -34,6 +35,7 @@ public abstract class PrincipalBaseControlador implements Initializable {
 
     @FXML
     private void manejarCerrarSesion(ActionEvent evento) {
+        RegistradorBitacora.registrar("CIERRE_SESION", "El usuario cerro sesion");
         SesionUsuarioSingleton.obtenerInstancia().cerrarSesion();
         NavegacionControlador.abrirVentana("/gui/vista/FXMLInicioSesion.fxml", (Node) evento.getSource());
     }

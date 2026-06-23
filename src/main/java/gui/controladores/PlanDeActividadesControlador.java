@@ -8,7 +8,6 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
@@ -16,17 +15,14 @@ import javafx.stage.Stage;
 import logica.dto.PracticanteDTO;
 import excepciones.DAOExcepcion;
 import logica.utilidades.GestorDocumento;
+import logica.utilidades.RegistradorBitacora;
 import logica.utilidades.SesionUsuarioSingleton;
 
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -34,7 +30,6 @@ import java.util.logging.Logger;
 public class PlanDeActividadesControlador implements Initializable, Regresable {
 
     private static final Logger REGISTRADOR = Logger.getLogger(PlanDeActividadesControlador.class.getName());
-    private static final Path RUTA_BASE_PLANES = Paths.get(System.getProperty("user.dir"), "PlanesDeActividades");
 
     @FXML private Label lblNombreArchivo;
     @FXML private Label lblValidacionArchivo;
@@ -109,7 +104,7 @@ public class PlanDeActividadesControlador implements Initializable, Regresable {
             }
 
             GestorDocumento.guardarDocumento(carpetaDestino, archivoSeleccionado);
-            mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "El Plan de Actividades se ha subido correctamente.");
+            RegistradorBitacora.registrar("REGISTRO_PLAN_ACTIVIDADES", "Registró el plan de actividades de la matrícula: " + practicanteLogueado.getMatricula());            mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "El Plan de Actividades se ha subido correctamente.");
             regresar(eventoClic);
 
         } catch (IOException ioExcepcion) {

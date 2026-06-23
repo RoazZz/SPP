@@ -12,6 +12,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import logica.dto.ProyectoDTO;
+import logica.utilidades.RegistradorBitacora;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -95,6 +96,7 @@ public class FormularioProyectoControlador implements Initializable, Regresable 
             }
 
             REGISTRADOR.log(Level.INFO, "Proyecto guardado correctamente");
+            RegistradorBitacora.registrar("REGISTRO_PROYECTO", "Registró el proyecto: " + proyectoValidado.getNombre());
 
             if (controladorPadre != null) {
                 controladorPadre.cargarProyectos();

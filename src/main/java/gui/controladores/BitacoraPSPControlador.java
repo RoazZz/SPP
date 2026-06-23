@@ -27,6 +27,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import logica.dto.PracticanteDTO;
 import logica.utilidades.GestorDocumento;
+import logica.utilidades.RegistradorBitacora;
 import logica.utilidades.SesionUsuarioSingleton;
 
 import static gui.controladores.NavegacionControlador.regresar;
@@ -117,7 +118,7 @@ public class BitacoraPSPControlador implements Initializable, Regresable {
             BitacoraPSPDTO bitacoraPSPDTO = new BitacoraPSPDTO(0, matricula, dpFecha.getValue());
             BitacoraPSPDAO bitacoraPSPDAO = new BitacoraPSPDAO();
             bitacoraPSPDAO.agregarBitacoraPSP(bitacoraPSPDTO);
-
+            RegistradorBitacora.registrar("REGISTRO_BITACORA_PSP", "Registró su bitácora de actividades de la matrícula: " + matricula);
             Alert exito = new Alert(Alert.AlertType.INFORMATION);
             exito.setTitle("Operación exitosa");
             exito.setHeaderText(null);

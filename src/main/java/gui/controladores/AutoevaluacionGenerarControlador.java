@@ -18,6 +18,7 @@ import javafx.scene.control.TextArea;
 import logica.dao.AutoevaluacionDAO;
 import logica.dto.AutoevaluacionDTO;
 import logica.dto.PracticanteDTO;
+import logica.utilidades.RegistradorBitacora;
 import logica.utilidades.SesionUsuarioSingleton;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -129,8 +130,7 @@ public class AutoevaluacionGenerarControlador implements Regresable {
 
             for (int indiceCiclo = 0; indiceCiclo < AFIRMACIONES.size(); indiceCiclo++) {
                 documentoVisual.add(new Paragraph(
-                        (indiceCiclo + 1) + ". " + AFIRMACIONES.get(indiceCiclo) +
-                                " — Puntaje: " + listaDeComboBoxes.get(indiceCiclo).getValue()
+                        (indiceCiclo + 1) + ". " + AFIRMACIONES.get(indiceCiclo) + " — Puntaje: " + listaDeComboBoxes.get(indiceCiclo).getValue()
                 ));
             }
 
@@ -154,6 +154,7 @@ public class AutoevaluacionGenerarControlador implements Regresable {
         );
         AutoevaluacionDAO autoevaluacionDAO = new AutoevaluacionDAO();
         autoevaluacionDAO.agregarAutoevaluacion(autoevaluacionDTO);
+        RegistradorBitacora.registrar("REGISTRO_AUTOEVALUACION", "Registró su autoevaluación");
     }
 
     private void procesarGeneracion() {

@@ -30,6 +30,7 @@ import logica.dto.MensajeDTO;
 import logica.dto.PracticanteDTO;
 import logica.dto.ProfesorDTO;
 import logica.dto.UsuarioDTO;
+import logica.utilidades.RegistradorBitacora;
 import logica.utilidades.SesionUsuarioSingleton;
 
 import java.net.URL;
@@ -182,6 +183,7 @@ public class EnviarMensajeControlador implements Initializable {
             BuzonDTO buzonDestino = buzonDAO.obtenerBuzonPorIdUsuario(destinatario.getIdUsuario());
             MensajeDTO mensaje = new MensajeDTO(buzonOrigen.getIdBuzon(), buzonDestino.getIdBuzon(), txtAsunto.getText().trim(), txtMensaje.getText().trim());
             new MensajeDAO().insertarMensaje(mensaje);
+            RegistradorBitacora.registrar("ENVIAR_MENSAJE", "Envió un mensaje");
             lblMensaje.getStyleClass().remove("label-error");
             lblMensaje.getStyleClass().add("label-exito");
             lblMensaje.setText("Mensaje enviado correctamente.");

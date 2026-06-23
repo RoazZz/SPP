@@ -10,6 +10,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import logica.dto.UsuarioDTO;
 import logica.utilidades.AutenticacionUsuario;
+import logica.utilidades.RegistradorBitacora;
 import logica.utilidades.SesionUsuarioSingleton;
 
 import javafx.event.ActionEvent;
@@ -61,11 +62,9 @@ public class InicioSesionControlador {
     }
 
     private UsuarioDTO autenticarUsuario() throws EntidadNoEncontradaExcepcion, AutenticacionDeUsuarioExcepcion, DAOExcepcion {
-        UsuarioDTO usuario = autenticacionServicio.autenticar(
-                txtUsuario.getText().trim(),
-                pswContrasenia.getText().trim()
-        );
+        UsuarioDTO usuario = autenticacionServicio.autenticar(txtUsuario.getText(), pswContrasenia.getText());
         SesionUsuarioSingleton.obtenerInstancia().iniciarSesion(usuario);
+        RegistradorBitacora.registrar("INICIO_SESION", "El usuario inicio sesion en el sistema");
         return usuario;
     }
 

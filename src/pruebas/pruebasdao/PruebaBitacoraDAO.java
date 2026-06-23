@@ -3,8 +3,8 @@ package pruebasdao;
 import accesodatos.ConexionBD;
 import excepciones.DAOExcepcion;
 import excepciones.EntidadNoEncontradaExcepcion;
-import logica.dao.BitacoraDAO;
-import logica.dto.BitacoraDTO;
+import logica.dao.BitacoraSistemaSistemaDAO;
+import logica.dto.BitacoraSistemaDTO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,9 +18,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class PruebaBitacoraDAO {
 
-    private static BitacoraDAO bitacoraDAO;
-    private BitacoraDTO bitacoraValida;
-    private BitacoraDTO bitacoraSinMatricula;
+    private static BitacoraSistemaSistemaDAO bitacoraSistemaDAO;
+    private BitacoraSistemaDTO bitacoraValida;
+    private BitacoraSistemaDTO bitacoraSinMatricula;
 
     @BeforeAll
     static void prepararEntorno() throws Exception {
@@ -28,7 +28,7 @@ public class PruebaBitacoraDAO {
         System.setProperty("db.usuario", "testuser");
         System.setProperty("db.contraseña", "testpass123");
         ConexionBD.reset();
-        bitacoraDAO = new BitacoraDAO();
+        bitacoraSistemaDAO = new BitacoraSistemaSistemaDAO();
         Connection conexion = ConexionBD.obtenerInstancia().obtenerConexion();
         try (Statement statement = conexion.createStatement()) {
             statement.execute("SET FOREIGN_KEY_CHECKS = 0");
@@ -53,14 +53,14 @@ public class PruebaBitacoraDAO {
             statement.execute("DELETE FROM Bitacora WHERE idRegistro != 999");
             statement.execute("SET FOREIGN_KEY_CHECKS = 1");
         }
-        bitacoraValida = new BitacoraDTO(
+        bitacoraValida = new BitacoraSistemaDTO(
                 0,
                 "S24021",
                 "LOGIN",
                 LocalDateTime.of(2026, 4, 17, 10, 30, 0),
                 "El practicante inició sesión"
         );
-        bitacoraSinMatricula = new BitacoraDTO(
+        bitacoraSinMatricula = new BitacoraSistemaDTO(
                 0,
                 null,
                 "LOGIN",
@@ -71,18 +71,18 @@ public class PruebaBitacoraDAO {
 
     @Test
     public void pruebaAgregarBitacoraExitoso() throws Exception {
-        boolean resultado = bitacoraDAO.agregarBitacora(bitacoraValida);
+        boolean resultado = bitacoraSistemaDAO.agregarBitacora(bitacoraValida);
         assertTrue(resultado);
     }
 
     @Test
     public void pruebaAgregarBitacoraExcepcionMatriculaNula() {
-        assertThrows(DAOExcepcion.class, () -> bitacoraDAO.agregarBitacora(bitacoraSinMatricula));
+        assertThrows(DAOExcepcion.class, () -> bitacoraSistemaDAO.agregarBitacora(bitacoraSinMatricula));
     }
 
     @Test
     public void pruebaBuscarBitacoraMatriculaNoExistente() {
-        assertThrows(EntidadNoEncontradaExcepcion.class, () -> bitacoraDAO.buscarBitacoraPorMatricula("10"));
+        assertThrows(EntidadNoEncontradaExcepcion.class, () -> bitacoraSistemaDAO.buscarBitacoraPorMatricula("10"));
     }
 
 

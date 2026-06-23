@@ -24,6 +24,7 @@ import logica.enums.TipoReporte;
 import logica.enums.EstadoReporte;
 import excepciones.DAOExcepcion;
 import logica.utilidades.CifradorArchivo;
+import logica.utilidades.RegistradorBitacora;
 import logica.utilidades.SesionUsuarioSingleton;
 
 import java.awt.Desktop;
@@ -193,6 +194,7 @@ public class ReporteAnadirControlador implements Initializable, Regresable {
                         null
                 );
                 gestorBaseDatos.agregarReporte(registroReporte);
+                RegistradorBitacora.registrar("SUBIR_REPORTE", "Subió un reporte de tipo: " + cbTipoReporte.getValue().name());
 
                 mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Archivo firmado cargado y registrado exitosamente.");
                 manejarRegresar(eventoClic);

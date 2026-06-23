@@ -17,6 +17,8 @@ import javafx.stage.Stage;
 import logica.dao.AutoevaluacionDAO;
 import logica.dto.AutoevaluacionDTO;
 import logica.interfaces.Regresable;
+import logica.utilidades.RegistradorBitacora;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
@@ -54,7 +56,7 @@ public class ListaAutoevaluacionesControlador implements Regresable {
     private void cargarAutoevaluaciones() {
         try {
             List<AutoevaluacionDTO> autoevaluaciones = autoevaluacionDAO.obtenerTodasLasAutoevaluaciones();
-            ObservableList<AutoevaluacionDTO> listaObservable = FXCollections.observableArrayList(autoevaluaciones);
+            RegistradorBitacora.registrar("CONSULTA_AUTOEVALUACIONES", "Consultó las autoevaluaciones");            ObservableList<AutoevaluacionDTO> listaObservable = FXCollections.observableArrayList(autoevaluaciones);
             tablaAutoevaluaciones.setItems(listaObservable);
         } catch (DAOExcepcion daoExcepcion) {
             REGISTRADOR.log(Level.SEVERE, "Error al cargar las autoevaluaciones", daoExcepcion);

@@ -19,6 +19,7 @@ import logica.dto.PracticanteDTO;
 import logica.dto.ProfesorDTO;
 import logica.enums.TipoDeUsuario;
 import logica.utilidades.PermisosRol;
+import logica.utilidades.RegistradorBitacora;
 import logica.utilidades.SesionUsuarioSingleton;
 
 import java.io.IOException;
@@ -163,6 +164,7 @@ public class FormularioUsuarioControlador implements Regresable {
                     camposHijo.getSeccion()
             );
             profesorControlador.procesarGuardadoProfesor(profesorNuevo, false);
+            RegistradorBitacora.registrar("REGISTRO_PROFESOR", "Registró al profesor: " + profesorNuevo.getNumeroDePersonal());
             mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Profesor registrado correctamente.");
             regresar(lblError, escenaAnterior);
         } catch (ReglaDeNegocioExcepcion | DAOExcepcion excepcionCapturada) {
@@ -188,6 +190,7 @@ public class FormularioUsuarioControlador implements Regresable {
                     camposHijo.isLenguaIndigena()
             );
             practicanteControlador.procesarGuardadoPracticante(practicanteNuevo, false);
+            RegistradorBitacora.registrar("REGISTRO_PRACTICANTE", "Registró al practicante: " + practicanteNuevo.getMatricula());
             mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Practicante registrado correctamente.");
             regresar(lblError, escenaAnterior);
         } catch (ReglaDeNegocioExcepcion | DAOExcepcion | NumberFormatException excepcionCapturada) {
@@ -208,6 +211,7 @@ public class FormularioUsuarioControlador implements Regresable {
                     camposHijo.getNumeroPersonal()
             );
             coordinadorControlador.procesarGuardadoCoordinador(coordinadorNuevo, false);
+            RegistradorBitacora.registrar("REGISTRO_COORDINADOR", "Registró al coordinador: " + coordinadorNuevo.getNumeroPersonal());
             mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Coordinador registrado correctamente.");
             regresar(lblError, escenaAnterior);
         } catch (ReglaDeNegocioExcepcion | DAOExcepcion excepcionCapturada) {

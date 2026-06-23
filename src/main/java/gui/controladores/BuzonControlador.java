@@ -24,6 +24,7 @@ import logica.dao.BuzonDAO;
 import logica.dao.MensajeDAO;
 import logica.dto.BuzonDTO;
 import logica.dto.MensajeDTO;
+import logica.utilidades.RegistradorBitacora;
 import logica.utilidades.SesionUsuarioSingleton;
 
 import java.io.IOException;
@@ -105,6 +106,7 @@ public class BuzonControlador implements Initializable, Regresable {
             BuzonDTO buzon = new BuzonDAO().obtenerBuzonPorIdUsuario(idUsuario);
             List<MensajeDTO> mensajes = new MensajeDAO().obtenerMensajesConRemitente(buzon.getIdBuzon());
             tablaMensajes.setItems(FXCollections.observableArrayList(mensajes));
+            RegistradorBitacora.registrar("CONSULTA_MENSAJES", "Consultó sus mensajes recibidos");
         } catch (DAOExcepcion | EntidadNoEncontradaExcepcion excepcionCapturada) {
             REGISTRADOR.log(Level.SEVERE, "Error carga buzón", excepcionCapturada);
             lblError.setText("Error al cargar mensajes.");
