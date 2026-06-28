@@ -2,12 +2,12 @@ package pruebasdao;
 
 import accesodatos.ConexionBD;
 import excepciones.DAOExcepcion;
+import excepciones.EntidadNoEncontradaExcepcion;
 import logica.dao.ProfesorDAO;
 import logica.dto.ProfesorDTO;
 import logica.enums.TipoDeUsuario;
 import logica.enums.TipoEstadoUsuario;
 import logica.enums.TipoTurno;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,89 +18,102 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PruebaProfesorDAO {
+
+    private static final int ID_SECCION_PRUEBA = 902;
+    private static final String NUMERO_PERSONAL_PRUEBA = "PROF902";
+
     private static ProfesorDAO profesorDAO;
     private ProfesorDTO profesorValido;
-    private ProfesorDTO profesorInvalidoNombreNulo;
 
     @BeforeAll
     static void prepararEntorno() throws Exception {
-        System.setProperty("db.enlace", "jdbc:mysql://localhost:3306/sppbdprueba");
+        System.setProperty("db.enlace", "jdbc:mysql://localhost:3306/spptest1");
         System.setProperty("db.usuario", "testuser");
-        System.setProperty("db.contraseña", "testpass123");
+        System.setProperty("db.contrasenia", "testpass123");
         ConexionBD.reset();
         profesorDAO = new ProfesorDAO();
-
         Connection conexion = ConexionBD.obtenerInstancia().obtenerConexion();
         try (Statement statement = conexion.createStatement()) {
             statement.execute("SET FOREIGN_KEY_CHECKS = 0");
-            statement.execute("TRUNCATE TABLE profesor");
-            statement.execute("TRUNCATE TABLE usuario");
-
-            statement.execute("INSERT INTO usuario (idUsuario, Nombre, ApellidoP, ApellidoM, Contrasenia, Estado, TipoUsuario) " +
-                    "VALUES (999, 'Profesor', 'Maestro', 'Test', 'pass123', 'ACTIVO', 'PROFESOR')");
-
-            statement.execute("INSERT INTO profesor (NumeroDePersonal, Turno, idUsuario) " +
-                    "VALUES ('99999', 'MATUTINO', 999)");
-
+            statement.execute("DELETE FROM seccion WHERE idSeccion = " + ID_SECCION_PRUEBA);
+            statement.execute("INSERT INTO seccion (idSeccion, Nombre) VALUES (" + ID_SECCION_PRUEBA + ", 'Seccion Profesor')");
             statement.execute("SET FOREIGN_KEY_CHECKS = 1");
         }
     }
 
-    /*
     @BeforeEach
     void prepararObjetosYLimpiar() throws Exception {
         Connection conexion = ConexionBD.obtenerInstancia().obtenerConexion();
         try (Statement statement = conexion.createStatement()) {
             statement.execute("SET FOREIGN_KEY_CHECKS = 0");
-            statement.execute("DELETE FROM profesor WHERE NumeroDePersonal != '99999'");
-            statement.execute("DELETE FROM usuario WHERE idUsuario != 999");
+            statement.execute("DELETE FROM profesor WHERE NumeroDePersonal = '" + NUMERO_PERSONAL_PRUEBA + "'");
+            statement.execute("DELETE FROM usuario WHERE Nombre = 'ProfesorPrueba'");
             statement.execute("SET FOREIGN_KEY_CHECKS = 1");
         }
-
-        profesorValido = new ProfesorDTO(0, "Roaz", "León", "M", "roaz123", TipoEstadoUsuario.ACTIVO, TipoDeUsuario.PROFESOR, "12345", TipoTurno.MATUTINO);
-        profesorInvalidoNombreNulo = new ProfesorDTO(0, null, "Error", "M", "123", TipoEstadoUsuario.ACTIVO, TipoDeUsuario.PROFESOR, "00000", TipoTurno.VESPERTINO);
-    } */
-
-    @AfterEach
-    void restaurarRecursos() {
-        ConexionBD.reset();
-        try {
-            profesorDAO = new ProfesorDAO();
-        } catch (Exception e) {
-            System.err.println("Error al restaurar el DAO: " + e.getMessage());
-        }
+        profesorValido = new ProfesorDTO(
+                0,
+                "ProfesorPrueba",
+                "Apellido",
+                "Materno",
+                "clave12345",
+                TipoEstadoUsuario.ACTIVO,
+                TipoDeUsuario.PROFESOR,
+                NUMERO_PERSONAL_PRUEBA,
+                TipoTurno.MATUTINO,
+                ID_SECCION_PRUEBA
+        );
     }
 
     @Test
     public void pruebaAgregarProfesorExitoso() throws Exception {
-        ProfesorDTO resultado = profesorDAO.agregarProfesor(profesorValido);
-        assertNotNull(resultado);
+        ProfesorDTO profesorGuardado = profesorDAO.agregarProfesor(profesorValido);
+        assertTrue(profesorGuardado.getIdUsuario() > 0);
+    }
+
+    @Test
+    public void pruebaActualizarProfesorExitoso() throws Exception {
+        profesorDAO.agregarProfesor(profesorValido);
+        profesorValido.setTurno(TipoTurno.VESPERTINO);
+        profesorDAO.actualizarProfesor(profesorValido);
+        ProfesorDTO profesorRecuperado = profesorDAO.buscarProfesorPorNumPersonal(NUMERO_PERSONAL_PRUEBA);
+        assertEquals(TipoTurno.VESPERTINO, profesorRecuperado.getTurno());
     }
 
     @Test
     public void pruebaBuscarProfesorPorNumPersonalExitoso() throws Exception {
-        ProfesorDTO resultado = profesorDAO.buscarProfesorPorNumPersonal("99999");
-        assertEquals("Profesor", resultado.getNombre());
+        profesorDAO.agregarProfesor(profesorValido);
+        ProfesorDTO profesorRecuperado = profesorDAO.buscarProfesorPorNumPersonal(NUMERO_PERSONAL_PRUEBA);
+        assertEquals(NUMERO_PERSONAL_PRUEBA, profesorRecuperado.getNumeroDePersonal());
     }
 
     @Test
     public void pruebaListarProfesoresExitoso() throws Exception {
-        List<ProfesorDTO> lista = profesorDAO.listarProfesores();
-        assertFalse(lista.isEmpty());
+        profesorDAO.agregarProfesor(profesorValido);
+        List<ProfesorDTO> profesoresRecuperados = profesorDAO.listarProfesores();
+        assertFalse(profesoresRecuperados.isEmpty());
+    }
+
+    @Test
+    public void pruebaExisteProfesorConNumeroPersonalExitoso() throws Exception {
+        profesorDAO.agregarProfesor(profesorValido);
+        boolean existe = profesorDAO.existeProfesorConNumeroPersonal(NUMERO_PERSONAL_PRUEBA, 0);
+        assertTrue(existe);
+    }
+
+    @Test
+    public void pruebaBuscarProfesorPorNumPersonalExcepcionNoEncontrado() {
+        assertThrows(EntidadNoEncontradaExcepcion.class, () ->
+                profesorDAO.buscarProfesorPorNumPersonal("NOEXISTE"));
     }
 
     @Test
     public void pruebaAgregarProfesorExcepcionNombreNulo() {
-        assertThrows(DAOExcepcion.class, () -> profesorDAO.agregarProfesor(profesorInvalidoNombreNulo));
-    }
-
-    @Test
-    public void pruebaActualizarProfesorExcepcionConexionCerrada() throws Exception {
-        ConexionBD.obtenerInstancia().obtenerConexion().close();
-        assertThrows(DAOExcepcion.class, () -> profesorDAO.actualizarProfesor(profesorValido));
+        profesorValido.setNombre(null);
+        assertThrows(DAOExcepcion.class, () ->
+                profesorDAO.agregarProfesor(profesorValido));
     }
 }

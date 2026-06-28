@@ -4,6 +4,8 @@ import accesodatos.ConexionBD;
 import excepciones.DAOExcepcion;
 import logica.dao.CoordinadorAsignaProyectoDAO;
 import logica.dto.CoordinadorAsignaProyectoDTO;
+import logica.dao.ProyectoDAO;
+import logica.dto.ProyectoDTO;
 import logica.enums.EstadoAsignacionProyecto;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,44 +20,34 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class PruebaCoordinadorAsignaProyectoDAO {
 
-    private static CoordinadorAsignaProyectoDAO coordinadorAsignaProyectoDAO;
-    private CoordinadorAsignaProyectoDTO asignacionValida;
-    private CoordinadorAsignaProyectoDTO asignacionSinNumeroDePersonal;
+    private static final String ID_ORGANIZACION_PRUEBA = "ORG920";
+    private static final String NUMERO_PERSONAL_PRUEBA = "COORD920";
+    private static int idProyectoPrueba;
+
+    private static CoordinadorAsignaProyectoDAO asignaDAO;
+    private CoordinadorAsignaProyectoDTO asignaValida;
 
     @BeforeAll
     static void prepararEntorno() throws Exception {
-        System.setProperty("db.enlace", "jdbc:mysql://localhost:3306/sppbdprueba");
+        System.setProperty("db.enlace", "jdbc:mysql://localhost:3306/spptest1");
         System.setProperty("db.usuario", "testuser");
-        System.setProperty("db.contraseña", "testpass123");
+        System.setProperty("db.contrasenia", "testpass123");
         ConexionBD.reset();
-        coordinadorAsignaProyectoDAO = new CoordinadorAsignaProyectoDAO();
+        asignaDAO = new CoordinadorAsignaProyectoDAO();
         Connection conexion = ConexionBD.obtenerInstancia().obtenerConexion();
         try (Statement statement = conexion.createStatement()) {
             statement.execute("SET FOREIGN_KEY_CHECKS = 0");
-            statement.execute("TRUNCATE TABLE asigna");
-            statement.execute("TRUNCATE TABLE proyecto");
-            statement.execute("TRUNCATE TABLE coordinador");
-            statement.execute("TRUNCATE TABLE organizacionvinculada");
-            statement.execute("TRUNCATE TABLE profesor");
-            statement.execute("TRUNCATE TABLE usuario");
-            statement.execute("INSERT INTO usuario (idUsuario, Nombre, ApellidoP, ApellidoM, Contrasenia, Estado, TipoUsuario) " +
-                    "VALUES (1, 'Coordinador', 'Maestro', 'Test', '123', 'ACTIVO', 'COORDINADOR')");
-            statement.execute("INSERT INTO coordinador (NumeroDePersonal, idUsuario) " +
-                    "VALUES ('COORD001', 1)");
-            statement.execute("INSERT INTO usuario (idUsuario, Nombre, ApellidoP, ApellidoM, Contrasenia, Estado, TipoUsuario) " +
-                    "VALUES (2, 'Profesor', 'Maestro', 'Test', '123', 'ACTIVO', 'PROFESOR')");
-            statement.execute("INSERT INTO profesor (NumeroDePersonal, Turno, idUsuario) " +
-                    "VALUES ('PROF001', 'MATUTINO', 2)");
-            statement.execute("INSERT INTO organizacionvinculada (idOrganizacion, Nombre, Direccion) " +
-                    "VALUES ('ORG001', 'Organizacion Maestra', 'Direccion Maestra')");
-            statement.execute("INSERT INTO proyecto (idProyecto, idOrganizacion, NumeroDePersonal, Nombre, Descripcion) " +
-                    "VALUES (999, 'ORG001', 'PROF001', 'Proyecto Maestro', 'Descripcion maestra')");
-            statement.execute("INSERT INTO proyecto (idProyecto, idOrganizacion, NumeroDePersonal, Nombre, Descripcion) " +
-                    "VALUES (998, 'ORG001', 'PROF001', 'Proyecto Para Insertar', 'Descripcion insertar')");
-            statement.execute("INSERT INTO asigna (NumeroDePersonal, idProyecto, Estado) " +
-                    "VALUES ('COORD001', 999, 'EN REVISION')");
+            statement.execute("DELETE FROM organizacionvinculada WHERE idOrganizacion = '" + ID_ORGANIZACION_PRUEBA + "'");
+            statement.execute("INSERT INTO organizacionvinculada (idOrganizacion, Nombre, Direccion) VALUES ('" + ID_ORGANIZACION_PRUEBA + "', 'Org Asig', 'Dir')");
+            statement.execute("DELETE FROM usuario WHERE idUsuario = 9920");
+            statement.execute("INSERT INTO usuario (idUsuario, Nombre, ApellidoP, ApellidoM, Contrasenia, Estado, TipoUsuario) VALUES (9920, 'CoordAsig', 'Ap', 'Am', 'clave', 'ACTIVO', 'COORDINADOR')");
+            statement.execute("DELETE FROM coordinador WHERE NumeroDePersonal = '" + NUMERO_PERSONAL_PRUEBA + "'");
+            statement.execute("INSERT INTO coordinador (NumeroDePersonal, idUsuario) VALUES ('" + NUMERO_PERSONAL_PRUEBA + "', 9920)");
             statement.execute("SET FOREIGN_KEY_CHECKS = 1");
         }
+        ProyectoDTO proyectoSemilla = new ProyectoDTO(0, ID_ORGANIZACION_PRUEBA, NUMERO_PERSONAL_PRUEBA, "ProyectoAsig", "Desc");
+        new ProyectoDAO().agregarProyecto(proyectoSemilla);
+        idProyectoPrueba = proyectoSemilla.getIdProyecto();
     }
 
     @BeforeEach
@@ -63,42 +55,39 @@ public class PruebaCoordinadorAsignaProyectoDAO {
         Connection conexion = ConexionBD.obtenerInstancia().obtenerConexion();
         try (Statement statement = conexion.createStatement()) {
             statement.execute("SET FOREIGN_KEY_CHECKS = 0");
-            statement.execute("DELETE FROM asigna WHERE idProyecto != 999");
+            statement.execute("DELETE FROM asigna WHERE NumeroDePersonal = '" + NUMERO_PERSONAL_PRUEBA + "'");
             statement.execute("SET FOREIGN_KEY_CHECKS = 1");
         }
-        asignacionValida = new CoordinadorAsignaProyectoDTO(
-                "COORD001",
-                998,
-                EstadoAsignacionProyecto.valueOf("VALIDADO")
-        );
-        asignacionSinNumeroDePersonal = new CoordinadorAsignaProyectoDTO(
-                null,
-                998,
-                EstadoAsignacionProyecto.valueOf("VALIDADO")
-        );
+        asignaValida = new CoordinadorAsignaProyectoDTO(NUMERO_PERSONAL_PRUEBA, idProyectoPrueba, EstadoAsignacionProyecto.EN_REVISION);
     }
 
     @Test
-    public void pruebaInsertarAsignacionExitoso() throws Exception {
-        coordinadorAsignaProyectoDAO.insertarAsignacionDeProyecto(asignacionValida);
-        List<CoordinadorAsignaProyectoDTO> listaProyectosAsignados = coordinadorAsignaProyectoDAO.obtenerAsignacionDeProyectoPorNumeroDePersonal("COORD001");
-        assertFalse(listaProyectosAsignados.isEmpty());
+    public void pruebaInsertarAsignacionDeProyectoExitoso() throws Exception {
+        asignaDAO.insertarAsignacionDeProyecto(asignaValida);
+        List<CoordinadorAsignaProyectoDTO> asignacionesRecuperadas = asignaDAO.obtenerAsignacionDeProyectoPorNumeroDePersonal(NUMERO_PERSONAL_PRUEBA);
+        assertFalse(asignacionesRecuperadas.isEmpty());
     }
 
     @Test
-    public void pruebaObtenerTodasLasAsignacionesExitoso() throws Exception {
-        List<CoordinadorAsignaProyectoDTO> listaProyectosAsignados = coordinadorAsignaProyectoDAO
-                .obtenerTodasLasAsignacionesDeProyecto();
-        assertFalse(listaProyectosAsignados.isEmpty());
+    public void pruebaActualizarAsignacionDeProyectoExitoso() throws Exception {
+        asignaDAO.insertarAsignacionDeProyecto(asignaValida);
+        asignaValida.setTipoEstado(EstadoAsignacionProyecto.VALIDADO);
+        asignaDAO.actualizarAsignacionDeProyecto(asignaValida);
+        List<CoordinadorAsignaProyectoDTO> asignacionesRecuperadas = asignaDAO.obtenerAsignacionDeProyectoPorNumeroDePersonal(NUMERO_PERSONAL_PRUEBA);
+        assertFalse(asignacionesRecuperadas.isEmpty());
     }
 
     @Test
-    public void pruebaInsertarAsignacionExcepcionNumeroDePersonalNulo() {
+    public void pruebaObtenerTodasLasAsignacionesDeProyectoExitoso() throws Exception {
+        asignaDAO.insertarAsignacionDeProyecto(asignaValida);
+        List<CoordinadorAsignaProyectoDTO> asignacionesRecuperadas = asignaDAO.obtenerTodasLasAsignacionesDeProyecto();
+        assertFalse(asignacionesRecuperadas.isEmpty());
+    }
+
+    @Test
+    public void pruebaInsertarAsignacionDeProyectoExcepcionNumeroPersonalNulo() {
+        asignaValida.setNumeroDePersonal(null);
         assertThrows(DAOExcepcion.class, () ->
-                        coordinadorAsignaProyectoDAO.insertarAsignacionDeProyecto(asignacionSinNumeroDePersonal));
+                asignaDAO.insertarAsignacionDeProyecto(asignaValida));
     }
-
-
-
-
 }

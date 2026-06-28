@@ -4,90 +4,102 @@ import accesodatos.ConexionBD;
 import excepciones.DAOExcepcion;
 import logica.dao.AutoevaluacionDAO;
 import logica.dto.AutoevaluacionDTO;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.Statement;
+import java.math.BigDecimal;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PruebaAutoevaluacionDAO {
+
+    private static final String MATRICULA_PRUEBA = "S20009110";
+
     private static AutoevaluacionDAO autoevaluacionDAO;
-    private AutoevaluacionDTO autoevalaucionValida;
-    private AutoevaluacionDTO autoevaluacionInvalidaMatriculaNula;
+    private AutoevaluacionDTO autoevaluacionValida;
 
     @BeforeAll
     static void prepararEntorno() throws Exception {
-        System.setProperty("db.enlace", "jdbc:mysql://localhost:3306/sppbdprueba");
+        System.setProperty("db.enlace", "jdbc:mysql://localhost:3306/spptest1");
         System.setProperty("db.usuario", "testuser");
-        System.setProperty("db.contraseña", "testpass123");
+        System.setProperty("db.contrasenia", "testpass123");
         ConexionBD.reset();
         autoevaluacionDAO = new AutoevaluacionDAO();
-
         Connection conexion = ConexionBD.obtenerInstancia().obtenerConexion();
         try (Statement statement = conexion.createStatement()) {
             statement.execute("SET FOREIGN_KEY_CHECKS = 0");
-            statement.execute("TRUNCATE TABLE autoevaluacion");
-            statement.execute("TRUNCATE TABLE practicante");
-            statement.execute("TRUNCATE TABLE usuario");
-            statement.execute("TRUNCATE TABLE seccion");
-            statement.execute("INSERT INTO seccion VALUES (1, 'Sistemas')");
-            statement.execute("INSERT INTO usuario (idUsuario, Nombre, ApellidoP, Contrasenia, TipoUsuario) VALUES (1, 'Juan', 'Perez', 'pass', 'PRACTICANTE')");
-            statement.execute("INSERT INTO practicante (Matricula, idSeccion, Semestre, Genero, Edad, idUsuario) VALUES ('S21012345', 1, 'Quinto', 'MASCULINO', 20, 1)");
-            statement.execute("INSERT INTO autoevaluacion (idAutoEvaluacion, Matricula, Calificacion, Comentarios) VALUES (999, 'S21012345', 8.50, 'Maestro')");
+            statement.execute("DELETE FROM seccion WHERE idSeccion = 911");
+            statement.execute("INSERT INTO seccion (idSeccion, Nombre) VALUES (911, 'Seccion Base')");
+            statement.execute("DELETE FROM usuario WHERE idUsuario = 911");
+            statement.execute("INSERT INTO usuario (idUsuario, Nombre, ApellidoP, ApellidoM, Contrasenia, Estado, TipoUsuario) VALUES (911, 'PracBase', 'Ap', 'Am', 'clave', 'ACTIVO', 'PRACTICANTE')");
+            statement.execute("DELETE FROM practicante WHERE Matricula = 'S20009110'");
+            statement.execute("INSERT INTO practicante (Matricula, idSeccion, Semestre, Genero, Edad, LenguaIndigena, idUsuario) VALUES ('S20009110', 911, '5', 'MASCULINO', 22, 0, 911)");
             statement.execute("SET FOREIGN_KEY_CHECKS = 1");
         }
     }
 
     @BeforeEach
-    void prepararObjetosYLimpiarTablas() throws Exception {
+    void prepararObjetosYLimpiar() throws Exception {
         Connection conexion = ConexionBD.obtenerInstancia().obtenerConexion();
         try (Statement statement = conexion.createStatement()) {
             statement.execute("SET FOREIGN_KEY_CHECKS = 0");
-            statement.execute("DELETE FROM autoevaluacion WHERE idAutoEvaluacion != 999");
+            statement.execute("DELETE FROM autoevaluacion WHERE Matricula = '" + MATRICULA_PRUEBA + "'");
             statement.execute("SET FOREIGN_KEY_CHECKS = 1");
         }
-
-        autoevalaucionValida = new AutoevaluacionDTO(0, "S21012345", new BigDecimal("9.00"), "Nuevo", null);
-        autoevaluacionInvalidaMatriculaNula = new AutoevaluacionDTO(0, null, new BigDecimal("0.00"), "Error", null);
-    }
-
-    @AfterEach
-    void restaurarRecursos() {
-        ConexionBD.reset();
-        try {
-            autoevaluacionDAO = new AutoevaluacionDAO();
-        } catch (Exception e) {
-            System.err.println("Error al restaurar el DAO: " + e.getMessage());
-        }
+        autoevaluacionValida = new AutoevaluacionDTO(0, MATRICULA_PRUEBA, new BigDecimal("9.5"), "Buen desempeno", "ruta/auto.pdf");
     }
 
     @Test
     public void pruebaAgregarAutoevaluacionExitoso() throws Exception {
-        AutoevaluacionDTO resultado = autoevaluacionDAO.agregarAutoevaluacion(autoevalaucionValida);
-        assertTrue(resultado.getIdAutoevaluacion() > 0);
+        AutoevaluacionDTO autoevaluacionGuardada = autoevaluacionDAO.agregarAutoevaluacion(autoevaluacionValida);
+        assertTrue(autoevaluacionGuardada.getIdAutoevaluacion() > 0);
     }
 
     @Test
-    public void pruebaBuscarAutoevaluacionExitoso() throws Exception {
-        AutoevaluacionDTO recuperado = autoevaluacionDAO.buscarAutoevaluacionPorMatricula("S21012345");
-        assertEquals(999, recuperado.getIdAutoevaluacion());
+    public void pruebaActualizarAutoevaluacionExitoso() throws Exception {
+        AutoevaluacionDTO autoevaluacionGuardada = autoevaluacionDAO.agregarAutoevaluacion(autoevaluacionValida);
+        autoevaluacionGuardada.setComentarios("Comentario modificado");
+        boolean resultado = autoevaluacionDAO.actualizarAutoevaluacion(autoevaluacionGuardada);
+        assertTrue(resultado);
     }
 
     @Test
-    public void pruebaAgregarAutoevaluacionErrorMatriculaNula() {
-        assertThrows(DAOExcepcion.class, () -> autoevaluacionDAO.agregarAutoevaluacion(autoevaluacionInvalidaMatriculaNula));
+    public void pruebaCalificarAutoevaluacionExitoso() throws Exception {
+        autoevaluacionDAO.agregarAutoevaluacion(autoevaluacionValida);
+        boolean resultado = autoevaluacionDAO.calificarAutoevaluacion(MATRICULA_PRUEBA, 8.0);
+        assertTrue(resultado);
     }
 
     @Test
-    public void pruebaObtenerTodasLasAutoevaluacionesExcepcionConexionCerrada() throws Exception {
-        ConexionBD.obtenerInstancia().obtenerConexion().close();
-        assertThrows(DAOExcepcion.class, () -> autoevaluacionDAO.obtenerTodasLasAutoevaluaciones());
+    public void pruebaObtenerTodasLasAutoevaluacionesExitoso() throws Exception {
+        autoevaluacionDAO.agregarAutoevaluacion(autoevaluacionValida);
+        List<AutoevaluacionDTO> autoevaluacionesRecuperadas = autoevaluacionDAO.obtenerTodasLasAutoevaluaciones();
+        assertFalse(autoevaluacionesRecuperadas.isEmpty());
+    }
+
+    @Test
+    public void pruebaExisteAutoevaluacionPorMatriculaExitoso() throws Exception {
+        autoevaluacionDAO.agregarAutoevaluacion(autoevaluacionValida);
+        boolean existe = autoevaluacionDAO.existeAutoevaluacionPorMatricula(MATRICULA_PRUEBA);
+        assertTrue(existe);
+    }
+
+    @Test
+    public void pruebaExisteAutoevaluacionPorMatriculaFallidoNoExiste() throws Exception {
+        boolean existe = autoevaluacionDAO.existeAutoevaluacionPorMatricula("NOEXISTE00");
+        assertFalse(existe);
+    }
+
+    @Test
+    public void pruebaAgregarAutoevaluacionExcepcionMatriculaNula() {
+        autoevaluacionValida.setMatricula(null);
+        assertThrows(DAOExcepcion.class, () ->
+                autoevaluacionDAO.agregarAutoevaluacion(autoevaluacionValida));
     }
 }

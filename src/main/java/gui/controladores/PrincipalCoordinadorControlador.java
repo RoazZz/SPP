@@ -15,10 +15,10 @@ public class PrincipalCoordinadorControlador extends PrincipalBaseControlador {
     @Override
     protected void inicializarBotonesEspecificos() {
         btnProyectos.setOnAction(evento -> abrirVentana("/gui/vista/FXMLProyectos.fxml", btnProyectos));
-        btnReportes.setOnAction(evento -> abrirVentana("/gui/vista/FXMLReportes.fxml", btnReportes));
+        btnReportes.setOnAction(evento -> abrirVentana("/gui/vista/FXMLReporte.fxml", btnReportes));
         btnPracticantes.setOnAction(evento -> abrirVentana("/gui/vista/FXMLListaUsuarios.fxml", btnPracticantes));
         btnReporteIndicadores.setOnAction(evento -> abrirVentana("/gui/vista/FXMLReporteIndicadores.fxml", btnReporteIndicadores));
-        btnBitacora.setOnAction(evento -> NavegacionControlador.abrirVentana("/gui/vista/FXMLRevisarBitacoraSistema.fxml", btnBitacora));
+        btnBitacora.setOnAction(evento -> NavegacionControlador.abrirVentana("/gui/vista/FXMLBitacoraSistema.fxml", btnBitacora));
 
     }
 }

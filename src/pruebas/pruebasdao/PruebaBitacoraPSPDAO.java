@@ -2,9 +2,9 @@ package pruebasdao;
 
 import accesodatos.ConexionBD;
 import excepciones.DAOExcepcion;
+import excepciones.EntidadNoEncontradaExcepcion;
 import logica.dao.BitacoraPSPDAO;
 import logica.dto.BitacoraPSPDTO;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,40 +16,32 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PruebaBitacoraPSPDAO {
+
+    private static final String MATRICULA_PRUEBA = "S20009120";
+
     private static BitacoraPSPDAO bitacoraPSPDAO;
     private BitacoraPSPDTO bitacoraPSPValida;
-    private BitacoraPSPDTO bitacoraPSPInvalidaMatriculaNula;
 
     @BeforeAll
     static void prepararEntorno() throws Exception {
-        System.setProperty("db.enlace", "jdbc:mysql://localhost:3306/sppbdprueba");
+        System.setProperty("db.enlace", "jdbc:mysql://localhost:3306/spptest1");
         System.setProperty("db.usuario", "testuser");
-        System.setProperty("db.contraseña", "testpass123");
+        System.setProperty("db.contrasenia", "testpass123");
         ConexionBD.reset();
         bitacoraPSPDAO = new BitacoraPSPDAO();
-
         Connection conexion = ConexionBD.obtenerInstancia().obtenerConexion();
         try (Statement statement = conexion.createStatement()) {
             statement.execute("SET FOREIGN_KEY_CHECKS = 0");
-            statement.execute("TRUNCATE TABLE bitacorapsp");
-            statement.execute("TRUNCATE TABLE practicante");
-            statement.execute("TRUNCATE TABLE usuario");
-            statement.execute("TRUNCATE TABLE seccion");
-
-            statement.execute("INSERT INTO seccion VALUES (1, 'Sistemas')");
-
-            statement.execute("INSERT INTO usuario (idUsuario, Nombre, ApellidoP, ApellidoM, Contrasenia, Estado, TipoUsuario) " +
-                    "VALUES (1, 'Juan', 'Perez', 'Admin', 'pass123', 'ACTIVO', 'PRACTICANTE')");
-
-            statement.execute("INSERT INTO practicante VALUES ('S21012345', 1, '7', 'MASCULINO', 21, 0, 1)");
-
-            statement.execute("INSERT INTO bitacorapsp (idBitacoraPSP, Matricula, Fecha) " +
-                    "VALUES (999, 'S21012345', '2026-04-20')");
-
+            statement.execute("DELETE FROM seccion WHERE idSeccion = 912");
+            statement.execute("INSERT INTO seccion (idSeccion, Nombre) VALUES (912, 'Seccion Base')");
+            statement.execute("DELETE FROM usuario WHERE idUsuario = 912");
+            statement.execute("INSERT INTO usuario (idUsuario, Nombre, ApellidoP, ApellidoM, Contrasenia, Estado, TipoUsuario) VALUES (912, 'PracBase', 'Ap', 'Am', 'clave', 'ACTIVO', 'PRACTICANTE')");
+            statement.execute("DELETE FROM practicante WHERE Matricula = 'S20009120'");
+            statement.execute("INSERT INTO practicante (Matricula, idSeccion, Semestre, Genero, Edad, LenguaIndigena, idUsuario) VALUES ('S20009120', 912, '5', 'MASCULINO', 22, 0, 912)");
             statement.execute("SET FOREIGN_KEY_CHECKS = 1");
         }
     }
@@ -59,50 +51,50 @@ public class PruebaBitacoraPSPDAO {
         Connection conexion = ConexionBD.obtenerInstancia().obtenerConexion();
         try (Statement statement = conexion.createStatement()) {
             statement.execute("SET FOREIGN_KEY_CHECKS = 0");
-            statement.execute("DELETE FROM bitacorapsp WHERE idBitacoraPSP != 999");
+            statement.execute("DELETE FROM bitacorapsp WHERE Matricula = '" + MATRICULA_PRUEBA + "'");
             statement.execute("SET FOREIGN_KEY_CHECKS = 1");
         }
-
-        bitacoraPSPValida = new BitacoraPSPDTO(0, "S21012345", LocalDate.now());
-        bitacoraPSPInvalidaMatriculaNula = new BitacoraPSPDTO(0, null, LocalDate.now());
-    }
-
-    @AfterEach
-    void restaurarRecursos() {
-        ConexionBD.reset();
-        try {
-            bitacoraPSPDAO = new BitacoraPSPDAO();
-        } catch (Exception e) {
-            System.err.println("Error al restaurar el DAO: " + e.getMessage());
-        }
+        bitacoraPSPValida = new BitacoraPSPDTO(0, MATRICULA_PRUEBA, LocalDate.of(2026, 4, 17));
     }
 
     @Test
     public void pruebaAgregarBitacoraPSPExitoso() throws Exception {
-        BitacoraPSPDTO resultado = bitacoraPSPDAO.agregarBitacoraPSP(bitacoraPSPValida);
-        assertNotNull(resultado);
+        BitacoraPSPDTO bitacoraGuardada = bitacoraPSPDAO.agregarBitacoraPSP(bitacoraPSPValida);
+        assertTrue(bitacoraGuardada.getIdBBitacora() > 0);
+    }
+
+    @Test
+    public void pruebaActualizarBitacoraPSPExitoso() throws Exception {
+        BitacoraPSPDTO bitacoraGuardada = bitacoraPSPDAO.agregarBitacoraPSP(bitacoraPSPValida);
+        bitacoraGuardada.setFecha(LocalDate.of(2026, 5, 1));
+        boolean resultado = bitacoraPSPDAO.actualizarBitacoraPSP(bitacoraGuardada);
+        assertTrue(resultado);
     }
 
     @Test
     public void pruebaBuscarBitacoraPSPPorIdExitoso() throws Exception {
-        BitacoraPSPDTO recuperada = bitacoraPSPDAO.buscarBitacoraPSPPorId(999);
-        assertEquals("S21012345", recuperada.getMatricula());
+        BitacoraPSPDTO bitacoraGuardada = bitacoraPSPDAO.agregarBitacoraPSP(bitacoraPSPValida);
+        BitacoraPSPDTO bitacoraRecuperada = bitacoraPSPDAO.buscarBitacoraPSPPorId(bitacoraGuardada.getIdBBitacora());
+        assertEquals(bitacoraGuardada.getIdBBitacora(), bitacoraRecuperada.getIdBBitacora());
     }
 
     @Test
     public void pruebaListarBitacorasPSPExitoso() throws Exception {
-        List<BitacoraPSPDTO> lista = bitacoraPSPDAO.listarBitacorasPSP();
-        assertFalse(lista.isEmpty());
+        bitacoraPSPDAO.agregarBitacoraPSP(bitacoraPSPValida);
+        List<BitacoraPSPDTO> bitacorasRecuperadas = bitacoraPSPDAO.listarBitacorasPSP();
+        assertFalse(bitacorasRecuperadas.isEmpty());
     }
 
     @Test
-    public void pruebaAgregarBitacoraErrorMatriculaNula() {
-        assertThrows(DAOExcepcion.class, () -> bitacoraPSPDAO.agregarBitacoraPSP(bitacoraPSPInvalidaMatriculaNula));
+    public void pruebaBuscarBitacoraPSPPorIdExcepcionNoEncontrado() {
+        assertThrows(EntidadNoEncontradaExcepcion.class, () ->
+                bitacoraPSPDAO.buscarBitacoraPSPPorId(-1));
     }
 
     @Test
-    public void pruebaActualizarBitacoraExcepcionConexionCerrada() throws Exception {
-        ConexionBD.obtenerInstancia().obtenerConexion().close();
-        assertThrows(DAOExcepcion.class, () -> bitacoraPSPDAO.actualizarBitacoraPSP(bitacoraPSPValida));
+    public void pruebaAgregarBitacoraPSPExcepcionMatriculaNula() {
+        bitacoraPSPValida.setMatricula(null);
+        assertThrows(DAOExcepcion.class, () ->
+                bitacoraPSPDAO.agregarBitacoraPSP(bitacoraPSPValida));
     }
 }

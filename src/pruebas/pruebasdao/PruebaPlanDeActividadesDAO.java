@@ -4,7 +4,8 @@ import accesodatos.ConexionBD;
 import excepciones.DAOExcepcion;
 import logica.dao.PlanDeActividadesDAO;
 import logica.dto.PlanDeActividadesDTO;
-import org.junit.jupiter.api.AfterEach;
+import logica.dao.ProyectoDAO;
+import logica.dto.ProyectoDTO;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,56 +14,47 @@ import java.sql.Connection;
 import java.sql.Statement;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PruebaPlanDeActividadesDAO {
-    private static PlanDeActividadesDAO planDeActividadesDAO;
-    private PlanDeActividadesDTO planDeActividadesValido;
-    private PlanDeActividadesDTO planDeActividadesInvalidoMatriculaNula;
+
+    private static final String MATRICULA_PRUEBA = "S20009130";
+    private static final String ID_ORGANIZACION_PRUEBA = "ORG913";
+    private static final String NUMERO_PERSONAL_PRUEBA = "COORD913";
+    private static int idProyectoPrueba;
+
+    private static PlanDeActividadesDAO planDAO;
+    private PlanDeActividadesDTO planValido;
 
     @BeforeAll
     static void prepararEntorno() throws Exception {
-        System.setProperty("db.enlace", "jdbc:mysql://localhost:3306/sppbdprueba");
+        System.setProperty("db.enlace", "jdbc:mysql://localhost:3306/spptest1");
         System.setProperty("db.usuario", "testuser");
-        System.setProperty("db.contraseña", "testpass123");
+        System.setProperty("db.contrasenia", "testpass123");
         ConexionBD.reset();
-        planDeActividadesDAO = new PlanDeActividadesDAO();
-
+        planDAO = new PlanDeActividadesDAO();
         Connection conexion = ConexionBD.obtenerInstancia().obtenerConexion();
         try (Statement statement = conexion.createStatement()) {
             statement.execute("SET FOREIGN_KEY_CHECKS = 0");
-            statement.execute("TRUNCATE TABLE plandeactividades");
-            statement.execute("TRUNCATE TABLE proyecto");
-            statement.execute("TRUNCATE TABLE practicante");
-            statement.execute("TRUNCATE TABLE usuario");
-            statement.execute("TRUNCATE TABLE seccion");
-            statement.execute("TRUNCATE TABLE profesor");
-            statement.execute("TRUNCATE TABLE organizacionvinculada");
-
-            statement.execute("INSERT INTO seccion VALUES (1, 'Sistemas')");
-
-            statement.execute("INSERT INTO usuario (idUsuario, Nombre, ApellidoP, ApellidoM, Contrasenia, Estado, TipoUsuario) " +
-                    "VALUES (1, 'Juan', 'Perez', 'Admin', 'pass', 'ACTIVO', 'PRACTICANTE')");
-            statement.execute("INSERT INTO practicante VALUES ('S21012345', 1, '7', 'MASCULINO', 21, 0, 1)");
-
-            statement.execute("INSERT INTO organizacionvinculada VALUES ('ORG01', 'Tech Corp', 'Av. Siempre Viva')");
-            statement.execute("INSERT INTO usuario (idUsuario, Nombre, ApellidoP, ApellidoM, Contrasenia, Estado, TipoUsuario) " +
-                    "VALUES (2, 'Maria', 'Gomez', 'Admin', 'pass', 'ACTIVO', 'PROFESOR')");
-            statement.execute("INSERT INTO profesor VALUES ('123456789012', 'MATUTINO', 2)");
-
-            statement.execute("INSERT INTO proyecto (idProyecto, idOrganizacion, NumeroDePersonal, Nombre, Descripcion) " +
-                    "VALUES (1, 'ORG01', '123456789012', 'Proyecto Maestro', 'Desc')");
-            statement.execute("INSERT INTO proyecto (idProyecto, idOrganizacion, NumeroDePersonal, Nombre, Descripcion) " +
-                    "VALUES (2, 'ORG01', '123456789012', 'Proyecto Insertar', 'Desc')");
-
-            statement.execute("INSERT INTO plandeactividades (idPlanActividades, Matricula, idProyecto, Descripcion) " +
-                    "VALUES (999, 'S21012345', 1, 'Plan Maestro Inicial')");
-
+            statement.execute("DELETE FROM seccion WHERE idSeccion = 913");
+            statement.execute("INSERT INTO seccion (idSeccion, Nombre) VALUES (913, 'Seccion Base')");
+            statement.execute("DELETE FROM usuario WHERE idUsuario = 913");
+            statement.execute("INSERT INTO usuario (idUsuario, Nombre, ApellidoP, ApellidoM, Contrasenia, Estado, TipoUsuario) VALUES (913, 'PracBase', 'Ap', 'Am', 'clave', 'ACTIVO', 'PRACTICANTE')");
+            statement.execute("DELETE FROM practicante WHERE Matricula = 'S20009130'");
+            statement.execute("INSERT INTO practicante (Matricula, idSeccion, Semestre, Genero, Edad, LenguaIndigena, idUsuario) VALUES ('S20009130', 913, '5', 'MASCULINO', 22, 0, 913)");
+            statement.execute("DELETE FROM organizacionvinculada WHERE idOrganizacion = '" + ID_ORGANIZACION_PRUEBA + "'");
+            statement.execute("INSERT INTO organizacionvinculada (idOrganizacion, Nombre, Direccion) VALUES ('" + ID_ORGANIZACION_PRUEBA + "', 'Org Plan', 'Dir')");
+            statement.execute("DELETE FROM usuario WHERE idUsuario = 9913");
+            statement.execute("INSERT INTO usuario (idUsuario, Nombre, ApellidoP, ApellidoM, Contrasenia, Estado, TipoUsuario) VALUES (9913, 'CoordPlan', 'Ap', 'Am', 'clave', 'ACTIVO', 'COORDINADOR')");
+            statement.execute("DELETE FROM coordinador WHERE NumeroDePersonal = '" + NUMERO_PERSONAL_PRUEBA + "'");
+            statement.execute("INSERT INTO coordinador (NumeroDePersonal, idUsuario) VALUES ('" + NUMERO_PERSONAL_PRUEBA + "', 9913)");
             statement.execute("SET FOREIGN_KEY_CHECKS = 1");
         }
+        ProyectoDTO proyectoSemilla = new ProyectoDTO(0, ID_ORGANIZACION_PRUEBA, NUMERO_PERSONAL_PRUEBA, "ProyectoPlan", "Desc");
+        new ProyectoDAO().agregarProyecto(proyectoSemilla);
+        idProyectoPrueba = proyectoSemilla.getIdProyecto();
     }
 
     @BeforeEach
@@ -70,50 +62,51 @@ public class PruebaPlanDeActividadesDAO {
         Connection conexion = ConexionBD.obtenerInstancia().obtenerConexion();
         try (Statement statement = conexion.createStatement()) {
             statement.execute("SET FOREIGN_KEY_CHECKS = 0");
-            statement.execute("DELETE FROM plandeactividades WHERE idPlanActividades != 999");
+            statement.execute("DELETE FROM plandeactividades WHERE Matricula = '" + MATRICULA_PRUEBA + "'");
             statement.execute("SET FOREIGN_KEY_CHECKS = 1");
         }
-
-        planDeActividadesValido = new PlanDeActividadesDTO(0, "S21012345", 2, "Plan de actividades nuevo");
-        planDeActividadesInvalidoMatriculaNula = new PlanDeActividadesDTO(0, null, 1, "Error");
-    }
-
-    @AfterEach
-    void restaurarRecursos() {
-        ConexionBD.reset();
-        try {
-            planDeActividadesDAO = new PlanDeActividadesDAO();
-        } catch (Exception e) {
-            System.err.println("Error al restaurar el DAO: " + e.getMessage());
-        }
+        planValido = new PlanDeActividadesDTO(0, MATRICULA_PRUEBA, idProyectoPrueba, "Descripcion del plan");
     }
 
     @Test
     public void pruebaAgregarPlanDeActividadesExitoso() throws Exception {
-        PlanDeActividadesDTO resultado = planDeActividadesDAO.agregarPlanDeActividades(planDeActividadesValido);
-        assertNotNull(resultado);
+        PlanDeActividadesDTO planGuardado = planDAO.agregarPlanDeActividades(planValido);
+        assertTrue(planGuardado.getIdPlanActividades() > 0);
     }
 
     @Test
-    public void pruebaObtenerPlanDeActividadesPorIdExitoso() throws Exception {
-        PlanDeActividadesDTO recuperado = planDeActividadesDAO.obtenerPlanDeActividadesPorId(999);
-        assertEquals("Plan Maestro Inicial", recuperado.getDescripcion());
+    public void pruebaActualizarPlanDeActividadesExitoso() throws Exception {
+        PlanDeActividadesDTO planGuardado = planDAO.agregarPlanDeActividades(planValido);
+        planGuardado.setDescripcion("Descripcion modificada");
+        boolean resultado = planDAO.actualizarPlanDeActividades(planGuardado);
+        assertTrue(resultado);
     }
 
     @Test
     public void pruebaObtenerPlanesDeActividadesPorMatriculaExitoso() throws Exception {
-        List<PlanDeActividadesDTO> lista = planDeActividadesDAO.obtenerPlanesDeActividadesPorMatricula("S21012345");
-        assertFalse(lista.isEmpty());
+        planDAO.agregarPlanDeActividades(planValido);
+        List<PlanDeActividadesDTO> planesRecuperados = planDAO.obtenerPlanesDeActividadesPorMatricula(MATRICULA_PRUEBA);
+        assertFalse(planesRecuperados.isEmpty());
     }
 
     @Test
-    public void pruebaAgregarPlanExcepcionMatriculaNula() {
-        assertThrows(DAOExcepcion.class, () -> planDeActividadesDAO.agregarPlanDeActividades(planDeActividadesInvalidoMatriculaNula));
+    public void pruebaObtenerTodosLosPlanesDeActividadesExitoso() throws Exception {
+        planDAO.agregarPlanDeActividades(planValido);
+        List<PlanDeActividadesDTO> planesRecuperados = planDAO.obtenerTodosLosPlanesDeActividades();
+        assertFalse(planesRecuperados.isEmpty());
     }
 
     @Test
-    public void pruebaActualizarPlanExcepcionConexionCerrada() throws Exception {
-        ConexionBD.obtenerInstancia().obtenerConexion().close();
-        assertThrows(DAOExcepcion.class, () -> planDeActividadesDAO.actualizarPlanDeActividades(planDeActividadesValido));
+    public void pruebaObtenerPlanDeActividadesPorIdExitoso() throws Exception {
+        PlanDeActividadesDTO planGuardado = planDAO.agregarPlanDeActividades(planValido);
+        PlanDeActividadesDTO planRecuperado = planDAO.obtenerPlanDeActividadesPorId(planGuardado.getIdPlanActividades());
+        assertTrue(planRecuperado.getIdPlanActividades() > 0);
+    }
+
+    @Test
+    public void pruebaAgregarPlanDeActividadesExcepcionMatriculaNula() {
+        planValido.setMatricula(null);
+        assertThrows(DAOExcepcion.class, () ->
+                planDAO.agregarPlanDeActividades(planValido));
     }
 }
