@@ -21,14 +21,13 @@ public class ActividadDAO implements ActividadDAOInterfaz {
 
     private final Connection conexion;
     private static final Logger REGISTRADOR = Logger.getLogger(ActividadDAO.class.getName());
-
-    private static final String SQL_INSERT = "INSERT INTO Actividad (Matricula, titulo, Descripcion, Fecha, " +
-            "rutaDocumento) VALUES (?, ?, ?, ?, ?)";
-    private static final String SQL_BUSCAR_POR_ID_ACTIVIDAD = "SELECT * FROM Actividad WHERE idActividad = ?";
-    private static final String SQL_UPDATE = "UPDATE Actividad SET Matricula = ?, titulo = ?, Descripcion = ?, " +
-            "Fecha = ?, rutaDocumento = ? WHERE idActividad = ?";
-    private static final String SQL_SELECT_BY_MATRICULA = "SELECT * FROM Actividad WHERE Matricula = ?";
-    private static final String SQL_SELECT_ALL = "SELECT * FROM Actividad";
+    private static final String SQL_INSERT = "INSERT INTO actividad (Matricula, Nombre, Descripcion, Fecha, " +
+            "RutaDocumento) VALUES (?, ?, ?, ?, ?)";
+    private static final String SQL_BUSCAR_POR_ID_ACTIVIDAD = "SELECT * FROM actividad WHERE idActividad = ?";
+    private static final String SQL_UPDATE = "UPDATE actividad SET Matricula = ?, Nombre = ?, Descripcion = ?, " +
+            "Fecha = ?, RutaDocumento = ? WHERE idActividad = ?";
+    private static final String SQL_SELECT_BY_MATRICULA = "SELECT * FROM actividad WHERE Matricula = ?";
+    private static final String SQL_SELECT_ALL = "SELECT * FROM actividad";
 
     public ActividadDAO() throws DAOExcepcion {
         try {
@@ -102,10 +101,10 @@ public class ActividadDAO implements ActividadDAOInterfaz {
                 return new ActividadDTO(
                         conjuntoResultado.getInt("idActividad"),
                         conjuntoResultado.getString("Matricula"),
-                        conjuntoResultado.getString("titulo"),
+                        conjuntoResultado.getString("Nombre"),
                         conjuntoResultado.getString("Descripcion"),
                         conjuntoResultado.getDate("Fecha").toLocalDate(),
-                        conjuntoResultado.getString("rutaDocumento")
+                        conjuntoResultado.getString("RutaDocumento")
                 );
             }
         } catch (SQLException sqlException) {
@@ -124,10 +123,10 @@ public class ActividadDAO implements ActividadDAOInterfaz {
                     ActividadDTO actividad = new ActividadDTO(
                             conjuntoResultado.getInt("idActividad"),
                             conjuntoResultado.getString("Matricula"),
-                            conjuntoResultado.getString("titulo"),
+                            conjuntoResultado.getString("Nombre"),
                             conjuntoResultado.getString("Descripcion"),
                             conjuntoResultado.getDate("Fecha").toLocalDate(),
-                            conjuntoResultado.getString("rutaDocumento")
+                            conjuntoResultado.getString("RutaDocumento")
                     );
                     listaActividad.add(actividad);
                 }
@@ -148,10 +147,10 @@ public class ActividadDAO implements ActividadDAOInterfaz {
                 ActividadDTO actividad = new ActividadDTO(
                         conjuntoResultado.getInt("idActividad"),
                         conjuntoResultado.getString("Matricula"),
-                        conjuntoResultado.getString("titulo"),
+                        conjuntoResultado.getString("Nombre"),
                         conjuntoResultado.getString("Descripcion"),
                         conjuntoResultado.getDate("Fecha").toLocalDate(),
-                        conjuntoResultado.getString("rutaDocumento")
+                        conjuntoResultado.getString("RutaDocumento")
                 );
                 listaActividad.add(actividad);
             }

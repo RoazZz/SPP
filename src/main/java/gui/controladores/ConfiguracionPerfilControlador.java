@@ -2,10 +2,12 @@ package gui.controladores;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import logica.dto.UsuarioDTO;
+import logica.interfaces.Regresable;
 import logica.utilidades.RegistradorBitacora;
 import logica.utilidades.SesionUsuarioSingleton;
 
@@ -13,14 +15,17 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
-public class ConfiguracionPerfilControlador implements Initializable {
+import static gui.controladores.NavegacionControlador.regresar;
+
+
+public class ConfiguracionPerfilControlador implements Initializable, Regresable {
 
     private static final Logger REGISTRADOR = Logger.getLogger(ConfiguracionPerfilControlador.class.getName());
 
     @FXML private TextField txtNombre;
     @FXML private TextField txtApellidoP;
     @FXML private TextField txtApellidoM;
-    @FXML private Button btnCancelar;
+    private Scene escenaAnterior;
 
     private UsuarioDTO usuarioSesion;
 
@@ -47,7 +52,12 @@ public class ConfiguracionPerfilControlador implements Initializable {
 
     @FXML
     private void manejarCancelar(ActionEvent eventoClic) {
-        btnCancelar.getScene().getWindow().hide();
+        regresar((Node) eventoClic.getSource(), this.escenaAnterior);
+    }
+
+    @Override
+    public void setEscenaAnterior(Scene escenaGuardada) {
+        this.escenaAnterior = escenaGuardada;
     }
 
     private boolean validarCampos() {

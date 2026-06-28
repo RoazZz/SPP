@@ -17,13 +17,15 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
-import logica.dao.BitacoraSistemaSistemaDAO;
+import logica.dao.BitacoraSistemaDAO;
 import logica.dto.BitacoraSistemaDTO;
 import logica.interfaces.Regresable;
 import logica.utilidades.RegistradorBitacora;
+
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import static gui.controladores.NavegacionControlador.regresar;
 
 public class BitacoraSistemaControlador implements Regresable {
@@ -48,14 +50,14 @@ public class BitacoraSistemaControlador implements Regresable {
     @FXML private Label lblMensaje;
 
     private Scene escenaAnterior;
-    private BitacoraSistemaSistemaDAO bitacoraSistemaDAO;
+    private BitacoraSistemaDAO bitacoraSistemaDAO;
     private final ObservableList<BitacoraSistemaDTO> registrosCompletos = FXCollections.observableArrayList();
     private FilteredList<BitacoraSistemaDTO> registrosFiltrados;
 
     @FXML
     private void initialize() {
         try {
-            bitacoraSistemaDAO = new BitacoraSistemaSistemaDAO();
+            bitacoraSistemaDAO = new BitacoraSistemaDAO();
         } catch (DAOExcepcion daoExcepcion) {
             REGISTRADOR.log(Level.SEVERE, "Error al inicializar el acceso a datos", daoExcepcion);
             mostrarAlerta(Alert.AlertType.ERROR, "Error", "No fue posible conectar con la base de datos.");
@@ -84,6 +86,8 @@ public class BitacoraSistemaControlador implements Regresable {
             if (registrosRecuperados.isEmpty()) {
                 lblMensaje.setText(MENSAJE_SIN_REGISTROS);
             }
+
+            RegistradorBitacora.registrar("CONSULTA_BITACORA", "Consultó la bitácora del sistema");
         } catch (DAOExcepcion daoExcepcion) {
             REGISTRADOR.log(Level.SEVERE, "Error al cargar la bitacora del sistema", daoExcepcion);
             mostrarAlerta(Alert.AlertType.ERROR, "Error", "No fue posible cargar la bitacora del sistema.");

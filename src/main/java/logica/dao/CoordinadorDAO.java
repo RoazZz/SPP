@@ -94,15 +94,37 @@ public class CoordinadorDAO implements CoordinadorDAOInterfaz{
 
     @Override
     public boolean actualizarCoordinador(CoordinadorDTO coordinador) throws DAOExcepcion {
-        try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_UPDATE)) {
-            preparedStatement.setString(1,coordinador.getNumeroPersonal());
-            preparedStatement.setInt(2, coordinador.getIdUsuario());
-            preparedStatement.executeUpdate();
+        UsuarioDAO usuarioDAO = new UsuarioDAO(this.conexion);
+        try {
+            conexion.setAutoCommit(false);
+
+            // Primero se actualizan los datos heredados en la tabla usuario
+            usuarioDAO.actualizarUsuario(coordinador);
+
+            // Después se actualiza la tabla propia de coordinador
+            try (PreparedStatement preparedStatement = conexion.prepareStatement(SQL_UPDATE)) {
+                preparedStatement.setString(1, coordinador.getNumeroPersonal());
+                preparedStatement.setInt(2, coordinador.getIdUsuario());
+                preparedStatement.executeUpdate();
+            }
+
+            conexion.commit();
             REGISTRADOR.log(Level.INFO, "Coordinador actualizado correctamente: " + coordinador.getNumeroPersonal());
             return true;
-        } catch (SQLException e){
+        } catch (SQLException e) {
+            try {
+                conexion.rollback();
+            } catch (SQLException sqlRollbackExcepcion) {
+                REGISTRADOR.log(Level.SEVERE, "Error al hacer rollback en actualización", sqlRollbackExcepcion);
+            }
             REGISTRADOR.log(Level.SEVERE, "Error al actualizar al Coordinador", e);
             throw new DAOExcepcion("Error al actualizar al Coordinador: ", e);
+        } finally {
+            try {
+                conexion.setAutoCommit(true);
+            } catch (SQLException sqlExcepcionAutoCommit) {
+                REGISTRADOR.log(Level.SEVERE, "Error al restaurar AutoCommit", sqlExcepcionAutoCommit);
+            }
         }
     }
 

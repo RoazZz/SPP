@@ -129,17 +129,11 @@ public class BuzonControlador implements Initializable, Regresable {
 
     @FXML
     private void salir(ActionEvent eventoClic) {
-        Node nodo = (Node) eventoClic.getSource();
-        nodo.getScene().getWindow().hide();
+        regresar((Node) eventoClic.getSource(), this.escenaAnterior);
     }
 
     @Override
     public void setEscenaAnterior(Scene escenaGuardada) {
         this.escenaAnterior = escenaGuardada;
-    }
-
-    @FXML
-    private void manejarClicCancelar(ActionEvent eventoBoton) {
-        regresar((Node) eventoBoton.getSource(), this.escenaAnterior);
     }
 }
